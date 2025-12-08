@@ -1,1 +1,207 @@
-This GitLab CI configuration is invalid: jobs:dockerbuild:script config should be a string or a nested array of strings up to 10 levels deep.
+# =========================
+# Global pipeline settings
+# =========================
+stages:
+  - build
+  - dockerbuild
+  - promote
+  - deploy
+
+# ---- Global variables ----
+variables:
+  APP_NAME: "epay-website"
+  VERSION: "$CI_COMMIT_SHORT_SHA"
+
+  DEV_REGISTRY_HOST: "registry.dev.sbiepay.sbi:8443"
+  DEV_REGISTRY_NAMESPACE: "library"
+
+  PREPROD_REGISTRY_HOST: "epaynonprod-registry-quay-quay-enterprise.apps.preprod.epay.sbi"
+  PREPROD_NAMESPACE: "fe"
+
+  PROD_REGISTRY_HOST: "registry.prod.epay.sbi:8443"
+  PROD_NAMESPACE: "fe"
+
+  FE_BUILD_IMAGE: "registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113"
+
+  NPM_CONFIG_CACHE: "$CI_PROJECT_DIR/.npm"
+
+  PODMAN_TLS_VERIFY: "false"
+
+  DEPLOY_TRIGGER_PROJECT: "epay/devops/deployment"
+  DEPLOY_TRIGGER_BRANCH: "feature/dynamicnginx"
+
+# =========================
+# Templates
+# =========================
+
+# ---- FE Build Template ----
+.build_template: &build_template
+  stage: build
+  image:
+    name: "$FE_BUILD_IMAGE"
+    pull_policy: always
+  cache:
+    key: "${CI_PROJECT_PATH}-npm-${CI_COMMIT_REF_SLUG}"
+    paths:
+      - .npm/
+    policy: pull-push
+  script:
+    - echo "===== FRONTEND BUILD STARTED ====="
+
+    # remove proxy (main fix)
+    - unset HTTP_PROXY HTTPS_PROXY http_proxy https_proxy || true
+    - git config --global --unset http.proxy || true
+    - git config --global --unset https.proxy || true
+    - npm config delete proxy || true
+    - npm config delete https-proxy || true
+
+    # build process
+    - npm cache clean --force
+    - npm ci || npm install
+    - npm run build:dev
+
+    - echo "===== BUILD COMPLETE ====="
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 week
+  rules:
+    - if: $CI_COMMIT_BRANCH
+
+# ---- Docker Build Template ----
+.docker_template: &docker_template
+  stage: dockerbuild
+  image: quay.io/podman/stable:latest
+  needs: ["fe_build"]
+  variables:
+    SOURCE_IMAGE: "$DEV_REGISTRY_HOST/$DEV_REGISTRY_NAMESPACE/$APP_NAME:$VERSION"
+  script:
+    - echo "Logging in to dev registry: $DEV_REGISTRY_HOST"
+    - echo "$DEV_REGISTRY_PASSWORD" | podman login -u "$DEV_REGISTRY_USERNAME" --password-stdin "$DEV_REGISTRY_HOST"
+    - podman build -t "$SOURCE_IMAGE" .
+    - podman push "$SOURCE_IMAGE"
+    - echo "SOURCE_IMAGE=$SOURCE_IMAGE" >> docker.env
+  artifacts:
+    reports:
+      dotenv: docker.env
+  rules:
+    - if: $CI_COMMIT_BRANCH
+
+# ---- Promote Template ----
+.promote_template: &promote_template
+  stage: promote
+  image: quay.io/podman/stable:latest
+  needs: ["dockerbuild"]
+  script:
+    - echo "$TARGET_REGISTRY_PASSWORD" | podman login -u "$TARGET_REGISTRY_USERNAME" --password-stdin "$TARGET_REGISTRY_HOST"
+    - podman pull "$SOURCE_IMAGE"
+    - podman tag "$SOURCE_IMAGE" "$TARGET_REGISTRY_HOST/$TARGET_NAMESPACE/$APP_NAME:$VERSION"
+    - podman push "$TARGET_REGISTRY_HOST/$TARGET_NAMESPACE/$APP_NAME:$VERSION"
+  when: manual
+  rules:
+    - when: manual
+
+# ---- Deploy Template ----
+.deploy_template: &deploy_template
+  stage: deploy
+  trigger:
+    project: "$DEPLOY_TRIGGER_PROJECT"
+    branch: "$DEPLOY_TRIGGER_BRANCH"
+    strategy: depend
+    forward:
+      yaml_variables: true
+      pipeline_variables: true
+  when: manual
+  rules:
+    - when: manual
+
+# =========================
+# Jobs
+# =========================
+
+# ---- FE Build ----
+fe_build:
+  <<: *build_template
+
+# ---- Docker build (single) ----
+dockerbuild:
+  <<: *docker_template
+
+# ---- Promote Jobs ----
+
+promote_sit:
+  <<: *promote_template
+  variables:
+    TARGET_ENV: "sit"
+    TARGET_REGISTRY_HOST: "$DEV_REGISTRY_HOST"
+    TARGET_NAMESPACE: "$DEV_REGISTRY_NAMESPACE"
+    TARGET_REGISTRY_USERNAME: "$DEV_REGISTRY_USERNAME"
+    TARGET_REGISTRY_PASSWORD: "$DEV_REGISTRY_PASSWORD"
+
+promote_uat:
+  <<: *promote_template
+  variables:
+    TARGET_ENV: "uat"
+    TARGET_REGISTRY_HOST: "$DEV_REGISTRY_HOST"
+    TARGET_NAMESPACE: "$DEV_REGISTRY_NAMESPACE"
+    TARGET_REGISTRY_USERNAME: "$DEV_REGISTRY_USERNAME"
+    TARGET_REGISTRY_PASSWORD: "$DEV_REGISTRY_PASSWORD"
+
+promote_preprod:
+  <<: *promote_template
+  variables:
+    TARGET_ENV: "pre-prod"
+    TARGET_REGISTRY_HOST: "$PREPROD_REGISTRY_HOST"
+    TARGET_NAMESPACE: "$PREPROD_NAMESPACE"
+    TARGET_REGISTRY_USERNAME: "$PREPROD_REGISTRY_USERNAME"
+    TARGET_REGISTRY_PASSWORD: "$PREPROD_REGISTRY_PASSWORD"
+
+promote_perf:
+  <<: *promote_template
+  variables:
+    TARGET_ENV: "perf"
+    TARGET_REGISTRY_HOST: "$PREPROD_REGISTRY_HOST"
+    TARGET_NAMESPACE: "$PREPROD_NAMESPACE"
+    TARGET_REGISTRY_USERNAME: "$PREPROD_REGISTRY_USERNAME"
+    TARGET_REGISTRY_PASSWORD: "$PREPROD_REGISTRY_PASSWORD"
+
+promote_prod:
+  <<: *promote_template
+  variables:
+    TARGET_ENV: "prod"
+    TARGET_REGISTRY_HOST: "$PROD_REGISTRY_HOST"
+    TARGET_NAMESPACE: "$PROD_NAMESPACE"
+    TARGET_REGISTRY_USERNAME: "$PROD_REGISTRY_USERNAME"
+    TARGET_REGISTRY_PASSWORD: "$PROD_REGISTRY_PASSWORD"
+
+# ---- Deploy Jobs ----
+
+deploy_sit:
+  <<: *deploy_template
+  variables:
+    ENV: "sit"
+    VERSION: "$VERSION"
+
+deploy_uat:
+  <<: *deploy_template
+  variables:
+    ENV: "uat"
+    VERSION: "$VERSION"
+
+deploy_preprod:
+  <<: *deploy_template
+  variables:
+    ENV: "pre-prod"
+    VERSION: "$VERSION"
+
+deploy_perf:
+  <<: *deploy_template
+  variables:
+    ENV: "perf"
+    VERSION: "$VERSION"
+
+deploy_prod:
+  <<: *deploy_template
+  variables:
+    ENV: "prod"
+    VERSION: "$VERSION"
