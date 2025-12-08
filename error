@@ -1,730 +1,242 @@
-Running with gitlab-runner 17.8.0 (e4f782b3)
-  on DC-Gitlab-Runner rMTQxLq3, system ID: s_948d0ccb739a
-Resolving secrets
-Preparing the "docker" executor
-00:06
-Using Docker executor with image registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113 ...
-Using helper image:  registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest  (overridden, default would be  registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-v17.8.0 )
-Pulling docker image registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest ...
-Using docker image sha256:c95744588b6d7e170a6866854932de40eaf1b5ed229ed818cba6a87a1f885773 for registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest with digest registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper@sha256:ebbf1c21e4272ae1f8c18b034d390809c836c2fc68c0f0f6d3a5aff9760aabf5 ...
-Using helper image:  registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest  (overridden, default would be  registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-v17.8.0 )
-Using docker image sha256:c95744588b6d7e170a6866854932de40eaf1b5ed229ed818cba6a87a1f885773 for registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest with digest registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper@sha256:ebbf1c21e4272ae1f8c18b034d390809c836c2fc68c0f0f6d3a5aff9760aabf5 ...
-Pulling docker image registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113 ...
-Using docker image sha256:c1037efa7a6cfce811caf269e33c408144a2058361edcd7ab9d99c1aa67433c8 for registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113 with digest registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm@sha256:96ab8f99d7e94b7d955b4129daa1a36556977e216b5ff4b392c07e2d8a776e58 ...
-Preparing environment
-00:02
-Using helper image:  registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest  (overridden, default would be  registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-v17.8.0 )
-Using docker image sha256:c95744588b6d7e170a6866854932de40eaf1b5ed229ed818cba6a87a1f885773 for registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest with digest registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper@sha256:ebbf1c21e4272ae1f8c18b034d390809c836c2fc68c0f0f6d3a5aff9760aabf5 ...
-Running on runner-rmtqxlq3-project-53-concurrent-0 via Gitlab-DC-Runr...
-Getting source from Git repository
-00:02
-$ git config --global http.proxy $HTTP_PROXY; git config --global https.proxy $HTTPS_PROXY; git config --global no.proxy $NO_PROXY
-Fetching changes with git depth set to 20...
-Reinitialized existing Git repository in /tmp/builds/epay/frontends/epay_merchant_simulator/.git/
-Checking out d374c5d8 as detached HEAD (ref is release/v0.1.0)...
-Skipping Git submodules setup
-Restoring cache
-00:02
-Checking cache for epay/frontends/epay_merchant_simulator-npm-release-v0-1-0-non_protected...
-No URL provided, cache will not be downloaded from shared cache server. Instead a local version of cache will be extracted. 
-Successfully extracted cache
-Executing "step_script" stage of the job script
-09:58
-Using docker image sha256:c1037efa7a6cfce811caf269e33c408144a2058361edcd7ab9d99c1aa67433c8 for registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113 with digest registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm@sha256:96ab8f99d7e94b7d955b4129daa1a36556977e216b5ff4b392c07e2d8a776e58 ...
-$ echo "===== FRONTEND BUILD STARTED ====="
-===== FRONTEND BUILD STARTED =====
-$ unset HTTP_PROXY HTTPS_PROXY http_proxy https_proxy || true
-$ git config --global --unset http.proxy || true
-$ git config --global --unset https.proxy || true
-$ npm config delete proxy || true
-$ npm config delete https-proxy || true
-$ npm cache clean --force
-npm warn using --force Recommended protections disabled.
-$ npm ci || npm install
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@"^18 || ^19 || ^19.0.0-rc" from @headlessui/react@2.2.0
-npm warn node_modules/@headlessui/react
-npm warn   @headlessui/react@"^2.2.0" from the root project
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@"^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" from @radix-ui/react-alert-dialog@1.1.2
-npm warn node_modules/@radix-ui/react-alert-dialog
-npm warn   @radix-ui/react-alert-dialog@"^1.1.2" from the root project
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@"^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" from @radix-ui/react-dialog@1.1.2
-npm warn node_modules/@radix-ui/react-dialog
-npm warn   @radix-ui/react-dialog@"^1.1.2" from the root project
-npm warn   1 more (@radix-ui/react-alert-dialog)
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@"^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" from @radix-ui/react-label@2.1.0
-npm warn node_modules/@radix-ui/react-label
-npm warn   @radix-ui/react-label@"^2.1.0" from the root project
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@"^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" from @radix-ui/react-menubar@1.1.4
-npm warn node_modules/@radix-ui/react-menubar
-npm warn   @radix-ui/react-menubar@"^1.1.4" from the root project
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@"^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" from @radix-ui/react-navigation-menu@1.2.3
-npm warn node_modules/@radix-ui/react-navigation-menu
-npm warn   @radix-ui/react-navigation-menu@"^1.2.3" from the root project
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@"^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" from @radix-ui/react-popover@1.1.2
-npm warn node_modules/@radix-ui/react-popover
-npm warn   @radix-ui/react-popover@"^1.1.2" from the root project
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@"^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" from @radix-ui/react-separator@1.1.0
-npm warn node_modules/@radix-ui/react-separator
-npm warn   @radix-ui/react-separator@"^1.1.0" from the root project
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@"^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" from @radix-ui/react-slot@1.1.0
-npm warn node_modules/@radix-ui/react-slot
-npm warn   @radix-ui/react-slot@"^1.1.0" from the root project
-npm warn   6 more (@radix-ui/react-alert-dialog, ...)
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@"^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" from @radix-ui/react-toast@1.2.2
-npm warn node_modules/@radix-ui/react-toast
-npm warn   @radix-ui/react-toast@"^1.2.2" from the root project
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@"^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" from @radix-ui/react-tooltip@1.1.3
-npm warn node_modules/@radix-ui/react-tooltip
-npm warn   @radix-ui/react-tooltip@"^1.1.3" from the root project
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@"^18.0.0" from @testing-library/react@16.0.1
-npm warn node_modules/@testing-library/react
-npm warn   dev @testing-library/react@"^16.0.1" from the root project
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@"^18.0.0" from cmdk@1.0.0
-npm warn node_modules/cmdk
-npm warn   cmdk@"^1.0.0" from the root project
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@"^16.8 || ^17.0 || ^18.0 || ^19.0.0 || ^19.0.0-rc" from input-otp@1.4.1
-npm warn node_modules/input-otp
-npm warn   input-otp@"^1.4.1" from the root project
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@"^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0-rc" from lucide-react@0.453.0
-npm warn node_modules/lucide-react
-npm warn   lucide-react@"^0.453.0" from the root project
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@">= 0.14.0" from react-device-detect@2.2.3
-npm warn node_modules/react-device-detect
-npm warn   react-device-detect@"^2.2.3" from the root project
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@"^18.3.1" from react-dom@18.3.1
-npm warn node_modules/react-dom
-npm warn   react-dom@"^18.3.1" from the root project
-npm warn   55 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@"^18.3.1" from react-dom@18.3.1
-npm warn node_modules/react-dom
-npm warn   react-dom@"^18.3.1" from the root project
-npm warn   55 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@"^18.3.1" from react-dom@18.3.1
-npm warn node_modules/react-dom
-npm warn   react-dom@"^18.3.1" from the root project
-npm warn   55 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@"^18.3.1" from react-dom@18.3.1
-npm warn node_modules/react-dom
-npm warn   react-dom@"^18.3.1" from the root project
-npm warn   55 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@"^18.3.1" from react-dom@18.3.1
-npm warn node_modules/react-dom
-npm warn   react-dom@"^18.3.1" from the root project
-npm warn   55 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@"^18.3.1" from react-dom@18.3.1
-npm warn node_modules/react-dom
-npm warn   react-dom@"^18.3.1" from the root project
-npm warn   55 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@"^18.3.1" from react-dom@18.3.1
-npm warn node_modules/react-dom
-npm warn   react-dom@"^18.3.1" from the root project
-npm warn   55 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@"^18.3.1" from react-dom@18.3.1
-npm warn node_modules/react-dom
-npm warn   react-dom@"^18.3.1" from the root project
-npm warn   55 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@"^18.3.1" from react-dom@18.3.1
-npm warn node_modules/react-dom
-npm warn   react-dom@"^18.3.1" from the root project
-npm warn   55 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@"^18.3.1" from react-dom@18.3.1
-npm warn node_modules/react-dom
-npm warn   react-dom@"^18.3.1" from the root project
-npm warn   55 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@"^18.3.1" from react-dom@18.3.1
-npm warn node_modules/react-dom
-npm warn   react-dom@"^18.3.1" from the root project
-npm warn   55 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@"^18.3.1" from react-dom@18.3.1
-npm warn node_modules/react-dom
-npm warn   react-dom@"^18.3.1" from the root project
-npm warn   55 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@"^18.3.1" from react-dom@18.3.1
-npm warn node_modules/react-dom
-npm warn   react-dom@"^18.3.1" from the root project
-npm warn   55 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@"^18.3.1" from react-dom@18.3.1
-npm warn node_modules/react-dom
-npm warn   react-dom@"^18.3.1" from the root project
-npm warn   55 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@"^18.3.1" from react-dom@18.3.1
-npm warn node_modules/react-dom
-npm warn   react-dom@"^18.3.1" from the root project
-npm warn   55 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@"^18.3.1" from react-dom@18.3.1
-npm warn node_modules/react-dom
-npm warn   react-dom@"^18.3.1" from the root project
-npm warn   55 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@"^18.3.1" from react-dom@18.3.1
-npm warn node_modules/react-dom
-npm warn   react-dom@"^18.3.1" from the root project
-npm warn   55 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@"^18.3.1" from react-dom@18.3.1
-npm warn node_modules/react-dom
-npm warn   react-dom@"^18.3.1" from the root project
-npm warn   55 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@"^16.8.0 || ^17 || ^18 || ^19" from react-hook-form@7.53.2
-npm warn node_modules/react-hook-form
-npm warn   react-hook-form@"^7.53.2" from the root project
-npm warn   1 more (@hookform/resolvers)
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@"^16.8.0 || ^17 || ^18 || ^19" from react-hook-form@7.53.2
-npm warn node_modules/react-hook-form
-npm warn   react-hook-form@"^7.53.2" from the root project
-npm warn   1 more (@hookform/resolvers)
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@">= 16.8.0" from react-i18next@15.1.0
-npm warn node_modules/react-i18next
-npm warn   react-i18next@"^15.1.0" from the root project
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@">=0.14.0" from react-input-mask@2.0.4
-npm warn node_modules/react-input-mask
-npm warn   react-input-mask@"^2.0.4" from the root project
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@"^17.0.0 || ^16.3.0 || ^15.5.4" from react-json-view@1.21.3
-npm warn node_modules/react-json-view
-npm warn   react-json-view@"^1.21.3" from the root project
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@"^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0 || ^19.0.0-rc" from react-resizable-panels@2.1.7
-npm warn node_modules/react-resizable-panels
-npm warn   react-resizable-panels@"^2.1.7" from the root project
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@18.3.1
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@">=18" from react-router-dom@7.1.1
-npm warn node_modules/react-router-dom
-npm warn   react-router-dom@"^7.1.1" from the root project
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react@undefined
-npm warn node_modules/react
-npm warn   react@"^18.3.1" from the root project
-npm warn   1 more (react-qr-code)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react@"^17.0.0 || ^16.3.0 || ^15.5.4" from react-json-view@1.21.3
-npm warn node_modules/react-json-view
-npm warn   react-json-view@"^1.21.3" from the root project
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react-dom@18.3.1
-npm warn node_modules/react-dom
-npm warn   react-dom@"^18.3.1" from the root project
-npm warn   55 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react-dom@"^18 || ^19 || ^19.0.0-rc" from @headlessui/react@2.2.0
-npm warn node_modules/@headlessui/react
-npm warn   @headlessui/react@"^2.2.0" from the root project
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react-dom@18.3.1
-npm warn node_modules/react-dom
-npm warn   react-dom@"^18.3.1" from the root project
-npm warn   55 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react-dom@"^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" from @radix-ui/react-alert-dialog@1.1.2
-npm warn node_modules/@radix-ui/react-alert-dialog
-npm warn   @radix-ui/react-alert-dialog@"^1.1.2" from the root project
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react-dom@18.3.1
-npm warn node_modules/react-dom
-npm warn   react-dom@"^18.3.1" from the root project
-npm warn   55 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react-dom@"^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" from @radix-ui/react-label@2.1.0
-npm warn node_modules/@radix-ui/react-label
-npm warn   @radix-ui/react-label@"^2.1.0" from the root project
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react-dom@18.3.1
-npm warn node_modules/react-dom
-npm warn   react-dom@"^18.3.1" from the root project
-npm warn   55 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react-dom@"^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" from @radix-ui/react-menubar@1.1.4
-npm warn node_modules/@radix-ui/react-menubar
-npm warn   @radix-ui/react-menubar@"^1.1.4" from the root project
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react-dom@18.3.1
-npm warn node_modules/react-dom
-npm warn   react-dom@"^18.3.1" from the root project
-npm warn   55 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react-dom@"^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" from @radix-ui/react-navigation-menu@1.2.3
-npm warn node_modules/@radix-ui/react-navigation-menu
-npm warn   @radix-ui/react-navigation-menu@"^1.2.3" from the root project
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react-dom@18.3.1
-npm warn node_modules/react-dom
-npm warn   react-dom@"^18.3.1" from the root project
-npm warn   55 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react-dom@"^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" from @radix-ui/react-popover@1.1.2
-npm warn node_modules/@radix-ui/react-popover
-npm warn   @radix-ui/react-popover@"^1.1.2" from the root project
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react-dom@18.3.1
-npm warn node_modules/react-dom
-npm warn   react-dom@"^18.3.1" from the root project
-npm warn   55 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react-dom@"^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" from @radix-ui/react-separator@1.1.0
-npm warn node_modules/@radix-ui/react-separator
-npm warn   @radix-ui/react-separator@"^1.1.0" from the root project
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react-dom@18.3.1
-npm warn node_modules/react-dom
-npm warn   react-dom@"^18.3.1" from the root project
-npm warn   55 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react-dom@"^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" from @radix-ui/react-toast@1.2.2
-npm warn node_modules/@radix-ui/react-toast
-npm warn   @radix-ui/react-toast@"^1.2.2" from the root project
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react-dom@18.3.1
-npm warn node_modules/react-dom
-npm warn   react-dom@"^18.3.1" from the root project
-npm warn   55 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react-dom@"^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" from @radix-ui/react-tooltip@1.1.3
-npm warn node_modules/@radix-ui/react-tooltip
-npm warn   @radix-ui/react-tooltip@"^1.1.3" from the root project
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react-dom@18.3.1
-npm warn node_modules/react-dom
-npm warn   react-dom@"^18.3.1" from the root project
-npm warn   55 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react-dom@"^18.0.0" from @testing-library/react@16.0.1
-npm warn node_modules/@testing-library/react
-npm warn   dev @testing-library/react@"^16.0.1" from the root project
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react-dom@18.3.1
-npm warn node_modules/react-dom
-npm warn   react-dom@"^18.3.1" from the root project
-npm warn   55 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react-dom@"^18.0.0" from cmdk@1.0.0
-npm warn node_modules/cmdk
-npm warn   cmdk@"^1.0.0" from the root project
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react-dom@18.3.1
-npm warn node_modules/react-dom
-npm warn   react-dom@"^18.3.1" from the root project
-npm warn   55 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react-dom@"^16.8 || ^17.0 || ^18.0 || ^19.0.0 || ^19.0.0-rc" from input-otp@1.4.1
-npm warn node_modules/input-otp
-npm warn   input-otp@"^1.4.1" from the root project
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react-dom@18.3.1
-npm warn node_modules/react-dom
-npm warn   react-dom@"^18.3.1" from the root project
-npm warn   55 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react-dom@">= 0.14.0" from react-device-detect@2.2.3
-npm warn node_modules/react-device-detect
-npm warn   react-device-detect@"^2.2.3" from the root project
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react-dom@18.3.1
-npm warn node_modules/react-dom
-npm warn   react-dom@"^18.3.1" from the root project
-npm warn   55 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react-dom@">=0.14.0" from react-input-mask@2.0.4
-npm warn node_modules/react-input-mask
-npm warn   react-input-mask@"^2.0.4" from the root project
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react-dom@18.3.1
-npm warn node_modules/react-dom
-npm warn   react-dom@"^18.3.1" from the root project
-npm warn   55 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react-dom@"^17.0.0 || ^16.3.0 || ^15.5.4" from react-json-view@1.21.3
-npm warn node_modules/react-json-view
-npm warn   react-json-view@"^1.21.3" from the root project
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react-dom@18.3.1
-npm warn node_modules/react-dom
-npm warn   react-dom@"^18.3.1" from the root project
-npm warn   55 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react-dom@"^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0 || ^19.0.0-rc" from react-resizable-panels@2.1.7
-npm warn node_modules/react-resizable-panels
-npm warn   react-resizable-panels@"^2.1.7" from the root project
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react-dom@18.3.1
-npm warn node_modules/react-dom
-npm warn   react-dom@"^18.3.1" from the root project
-npm warn   55 more (@floating-ui/react, @floating-ui/react-dom, ...)
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react-dom@">=18" from react-router-dom@7.1.1
-npm warn node_modules/react-router-dom
-npm warn   react-router-dom@"^7.1.1" from the root project
-npm warn ERESOLVE overriding peer dependency
-npm warn While resolving: react-json-view@1.21.3
-npm warn Found: react-dom@undefined
-npm warn node_modules/react-dom
-npm warn   react-dom@"^18.3.1" from the root project
-npm warn
-npm warn Could not resolve dependency:
-npm warn peer react-dom@"^17.0.0 || ^16.3.0 || ^15.5.4" from react-json-view@1.21.3
-npm warn node_modules/react-json-view
-npm warn   react-json-view@"^1.21.3" from the root project
-Terminated
-Terminated
-WARNING: script canceled externally (UI, API)
-Cleaning up project directory and file based variables
-00:01
-ERROR: Job failed: canceled
+# =========================
+# Global pipeline settings
+# =========================
+stages:
+  - build
+  - sast
+  - fortify
+  - dockerbuild
+  - promote
+  - deploy
+
+# ---- Global variables ----
+variables:
+  APP_NAME: "epay-website"
+  VERSION: "$CI_COMMIT_SHORT_SHA"
+
+  DEV_REGISTRY_HOST: "registry.dev.sbiepay.sbi:8443"
+  DEV_REGISTRY_NAMESPACE: "library"
+
+  PREPROD_REGISTRY_HOST: "epaynonprod-registry-quay-quay-enterprise.apps.preprod.epay.sbi"
+  PREPROD_NAMESPACE: "fe"
+
+  PROD_REGISTRY_HOST: "registry.prod.epay.sbi:8443"
+  PROD_NAMESPACE: "fe"
+
+  FE_BUILD_IMAGE: "registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113"
+  NPM_CONFIG_CACHE: "$CI_PROJECT_DIR/.npm"
+
+  PODMAN_TLS_VERIFY: "false"
+
+  DEPLOY_TRIGGER_PROJECT: "epay/devops/deployment"
+  DEPLOY_TRIGGER_BRANCH: "feature/dynamicnginx"
+
+# =========================
+# Include Templates
+# =========================
+include:
+  - project: 'epay/devops/ci-templates'
+    ref: main
+    file: 'ci/sast/sast.yml'
+
+  - project: 'epay/devops/ci-templates'
+    ref: main
+    file: 'ci/sast/fortify.sast.yml'
+
+# =========================
+# Templates
+# =========================
+
+# ---- FE Build Template ----
+.build_template: &build_template
+  stage: build
+  image:
+    name: "$FE_BUILD_IMAGE"
+    pull_policy: always
+  cache:
+    key: "${CI_PROJECT_PATH}-npm-${CI_COMMIT_REF_SLUG}"
+    paths:
+      - .npm/
+    policy: pull-push
+  script:
+    - echo "===== FRONTEND BUILD STARTED ====="
+    # Remove proxy
+    - unset HTTP_PROXY HTTPS_PROXY http_proxy https_proxy || true
+    - git config --global --unset http.proxy || true
+    - git config --global --unset https.proxy || true
+    - npm config delete proxy || true
+    - npm config delete https-proxy || true
+    # Fix npm freeze
+    - npm config set registry https://registry.npmjs.org/
+    - npm config set legacy-peer-deps true
+    - npm config set force true
+    - npm cache clean --force
+    - npm ci --legacy-peer-deps --force || npm install --legacy-peer-deps --force
+    - npm run build:dev
+    - echo "===== BUILD COMPLETE ====="
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 week
+  rules:
+    - if: $CI_COMMIT_BRANCH
+
+# ---- Docker Build Template ----
+.docker_template: &docker_template
+  stage: dockerbuild
+  image: quay.io/podman/stable:latest
+  needs: ["fe_build"]
+  variables:
+    SOURCE_IMAGE: ""
+  script:
+    - export SOURCE_IMAGE="${DEV_REGISTRY_HOST}/${DEV_REGISTRY_NAMESPACE}/${APP_NAME}:${VERSION}"
+    - echo "Logging in to dev registry"
+    - echo "$DEV_REGISTRY_PASSWORD" | podman login -u "$DEV_REGISTRY_USERNAME" --password-stdin "$DEV_REGISTRY_HOST"
+    - podman build -t "$SOURCE_IMAGE" .
+    - podman push "$SOURCE_IMAGE"
+    - echo "SOURCE_IMAGE=$SOURCE_IMAGE" >> docker.env
+  artifacts:
+    reports:
+      dotenv: docker.env
+  rules:
+    - if: $CI_COMMIT_BRANCH
+
+# ---- Promote Template ----
+.promote_template: &promote_template
+  stage: promote
+  image: quay.io/podman/stable:latest
+  needs: ["dockerbuild"]
+  script:
+    - echo "$TARGET_REGISTRY_PASSWORD" | podman login -u "$TARGET_REGISTRY_USERNAME" --password-stdin "$TARGET_REGISTRY_HOST"
+    - podman pull "$SOURCE_IMAGE"
+    - podman tag "$SOURCE_IMAGE" "$TARGET_REGISTRY_HOST/$TARGET_NAMESPACE/$APP_NAME:$VERSION"
+    - podman push "$TARGET_REGISTRY_HOST/$TARGET_NAMESPACE/$APP_NAME:$VERSION"
+  when: manual
+  rules:
+    - when: manual
+
+# ---- Deploy Template ----
+.deploy_template: &deploy_template
+  stage: deploy
+  trigger:
+    project: "$DEPLOY_TRIGGER_PROJECT"
+    branch: "$DEPLOY_TRIGGER_BRANCH"
+    strategy: depend
+    forward:
+      yaml_variables: true
+      pipeline_variables: true
+  when: manual
+  rules:
+    - when: manual
+
+# =========================
+# Jobs
+# =========================
+
+# ---- FE Build ----
+fe_build:
+  <<: *build_template
+
+# ---- GitLab SAST ----
+sast:
+  stage: sast
+  allow_failure: true
+  rules:
+    - if: $CI_COMMIT_BRANCH
+
+# ---- Fortify Scan ----
+fortify_scan:
+  stage: fortify
+  extends: .HPFortify
+  rules:
+    - if: $CI_COMMIT_BRANCH
+  variables:
+    EXCLUDE_DIRS: "./**/dist/**/*"
+    INCLUDE_DIRS: "./src/**/*.tsx,./src/**/*.ts,./src/**/*.js"
+
+# ---- Docker build ----
+dockerbuild:
+  <<: *docker_template
+
+# -------------------------
+# Promote Jobs
+# -------------------------
+
+promote_sit:
+  <<: *promote_template
+  variables:
+    TARGET_ENV: "sit"
+    TARGET_REGISTRY_HOST: "$DEV_REGISTRY_HOST"
+    TARGET_NAMESPACE: "$DEV_REGISTRY_NAMESPACE"
+    TARGET_REGISTRY_USERNAME: "$DEV_REGISTRY_USERNAME"
+    TARGET_REGISTRY_PASSWORD: "$DEV_REGISTRY_PASSWORD"
+
+promote_uat:
+  <<: *promote_template
+  variables:
+    TARGET_ENV: "uat"
+    TARGET_REGISTRY_HOST: "$DEV_REGISTRY_HOST"
+    TARGET_NAMESPACE: "$DEV_REGISTRY_NAMESPACE"
+    TARGET_REGISTRY_USERNAME: "$DEV_REGISTRY_USERNAME"
+    TARGET_REGISTRY_PASSWORD: "$DEV_REGISTRY_PASSWORD"
+
+promote_preprod:
+  <<: *promote_template
+  variables:
+    TARGET_ENV: "pre-prod"
+    TARGET_REGISTRY_HOST: "$PREPROD_REGISTRY_HOST"
+    TARGET_NAMESPACE: "$PREPROD_NAMESPACE"
+    TARGET_REGISTRY_USERNAME: "$PREPROD_REGISTRY_USERNAME"
+    TARGET_REGISTRY_PASSWORD: "$PREPROD_REGISTRY_PASSWORD"
+
+promote_perf:
+  <<: *promote_template
+  variables:
+    TARGET_ENV: "perf"
+    TARGET_REGISTRY_HOST: "$PREPROD_REGISTRY_HOST"
+    TARGET_NAMESPACE: "$PREPROD_NAMESPACE"
+    TARGET_REGISTRY_USERNAME: "$PREPROD_REGISTRY_USERNAME"
+    TARGET_REGISTRY_PASSWORD: "$PREPROD_REGISTRY_PASSWORD"
+
+promote_prod:
+  <<: *promote_template
+  variables:
+    TARGET_ENV: "prod"
+    TARGET_REGISTRY_HOST: "$PROD_REGISTRY_HOST"
+    TARGET_NAMESPACE: "$PROD_NAMESPACE"
+    TARGET_REGISTRY_USERNAME: "$PROD_REGISTRY_USERNAME"
+    TARGET_REGISTRY_PASSWORD: "$PROD_REGISTRY_PASSWORD"
+
+# -------------------------
+# Deploy Jobs
+# -------------------------
+
+deploy_sit:
+  <<: *deploy_template
+  variables:
+    ENV: "sit"
+    VERSION: "$VERSION"
+
+deploy_uat:
+  <<: *deploy_template
+  variables:
+    ENV: "uat"
+    VERSION: "$VERSION"
+
+deploy_preprod:
+  <<: *deploy_template
+  variables:
+    ENV: "pre-prod"
+    VERSION: "$VERSION"
+
+deploy_perf:
+  <<: *deploy_template
+  variables:
+    ENV: "perf"
+    VERSION: "$VERSION"
+
+deploy_prod:
+  <<: *deploy_template
+  variables:
+    ENV: "prod"
+    VERSION: "$VERSION"
