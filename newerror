@@ -1,0 +1,224 @@
+Running with gitlab-runner 17.8.0 (e4f782b3)
+  on DC-Gitlab-Runner rMTQxLq3, system ID: s_948d0ccb739a
+Resolving secrets
+Preparing the "docker" executor
+00:05
+Using Docker executor with image registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113 ...
+Using helper image:  registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest  (overridden, default would be  registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-v17.8.0 )
+Pulling docker image registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest ...
+Using docker image sha256:c95744588b6d7e170a6866854932de40eaf1b5ed229ed818cba6a87a1f885773 for registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest with digest registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper@sha256:ebbf1c21e4272ae1f8c18b034d390809c836c2fc68c0f0f6d3a5aff9760aabf5 ...
+Using helper image:  registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest  (overridden, default would be  registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-v17.8.0 )
+Using docker image sha256:c95744588b6d7e170a6866854932de40eaf1b5ed229ed818cba6a87a1f885773 for registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest with digest registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper@sha256:ebbf1c21e4272ae1f8c18b034d390809c836c2fc68c0f0f6d3a5aff9760aabf5 ...
+Pulling docker image registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113 ...
+Using docker image sha256:c1037efa7a6cfce811caf269e33c408144a2058361edcd7ab9d99c1aa67433c8 for registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113 with digest registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm@sha256:96ab8f99d7e94b7d955b4129daa1a36556977e216b5ff4b392c07e2d8a776e58 ...
+Preparing environment
+00:02
+Using helper image:  registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest  (overridden, default would be  registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-v17.8.0 )
+Using docker image sha256:c95744588b6d7e170a6866854932de40eaf1b5ed229ed818cba6a87a1f885773 for registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest with digest registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper@sha256:ebbf1c21e4272ae1f8c18b034d390809c836c2fc68c0f0f6d3a5aff9760aabf5 ...
+Running on runner-rmtqxlq3-project-53-concurrent-0 via Gitlab-DC-Runr...
+Getting source from Git repository
+00:02
+$ git config --global http.proxy $HTTP_PROXY; git config --global https.proxy $HTTPS_PROXY; git config --global no.proxy $NO_PROXY
+Fetching changes with git depth set to 20...
+Initialized empty Git repository in /tmp/builds/epay/frontends/epay_merchant_simulator/.git/
+Created fresh repository.
+Checking out 10bd7183 as detached HEAD (ref is develop)...
+Skipping Git submodules setup
+Executing "step_script" stage of the job script
+00:35
+Using docker image sha256:c1037efa7a6cfce811caf269e33c408144a2058361edcd7ab9d99c1aa67433c8 for registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113 with digest registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm@sha256:96ab8f99d7e94b7d955b4129daa1a36556977e216b5ff4b392c07e2d8a776e58 ...
+$ npm config set proxy http://serverswg.sbi.co.in:80
+$ npm config set https-proxy http://serverswg.sbi.co.in:9090
+$ ls /app
+$ npm cache clean --force
+npm warn using --force Recommended protections disabled.
+$ npm install --force
+npm warn using --force Recommended protections disabled.
+npm warn ERESOLVE overriding peer dependency
+npm warn While resolving: react-json-view@1.21.3
+npm warn Found: react@18.3.1
+npm warn node_modules/react
+npm warn   react@"^18.3.1" from the root project
+npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
+npm warn
+npm warn Could not resolve dependency:
+npm warn peer react@"^17.0.0 || ^16.3.0 || ^15.5.4" from react-json-view@1.21.3
+npm warn node_modules/react-json-view
+npm warn   react-json-view@"^1.21.3" from the root project
+npm warn
+npm warn Conflicting peer dependency: react@17.0.2
+npm warn node_modules/react
+npm warn   peer react@"^17.0.0 || ^16.3.0 || ^15.5.4" from react-json-view@1.21.3
+npm warn   node_modules/react-json-view
+npm warn     react-json-view@"^1.21.3" from the root project
+npm warn ERESOLVE overriding peer dependency
+npm warn While resolving: react-json-view@1.21.3
+npm warn Found: react-dom@18.3.1
+npm warn node_modules/react-dom
+npm warn   react-dom@"^18.3.1" from the root project
+npm warn   55 more (@floating-ui/react, @floating-ui/react-dom, ...)
+npm warn
+npm warn Could not resolve dependency:
+npm warn peer react-dom@"^17.0.0 || ^16.3.0 || ^15.5.4" from react-json-view@1.21.3
+npm warn node_modules/react-json-view
+npm warn   react-json-view@"^1.21.3" from the root project
+npm warn
+npm warn Conflicting peer dependency: react-dom@17.0.2
+npm warn node_modules/react-dom
+npm warn   peer react-dom@"^17.0.0 || ^16.3.0 || ^15.5.4" from react-json-view@1.21.3
+npm warn   node_modules/react-json-view
+npm warn     react-json-view@"^1.21.3" from the root project
+npm warn ERESOLVE overriding peer dependency
+npm warn While resolving: flux@4.0.4
+npm warn Found: react@18.3.1
+npm warn node_modules/react
+npm warn   react@"^18.3.1" from the root project
+npm warn   109 more (@floating-ui/react, @floating-ui/react-dom, ...)
+npm warn
+npm warn Could not resolve dependency:
+npm warn peer react@"^15.0.2 || ^16.0.0 || ^17.0.0" from flux@4.0.4
+npm warn node_modules/react-json-view/node_modules/flux
+npm warn   flux@"^4.0.1" from react-json-view@1.21.3
+npm warn   node_modules/react-json-view
+npm warn
+npm warn Conflicting peer dependency: react@17.0.2
+npm warn node_modules/react
+npm warn   peer react@"^15.0.2 || ^16.0.0 || ^17.0.0" from flux@4.0.4
+npm warn   node_modules/react-json-view/node_modules/flux
+npm warn     flux@"^4.0.1" from react-json-view@1.21.3
+npm warn     node_modules/react-json-view
+npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+npm warn deprecated domexception@4.0.0: Use your platform's native DOMException instead
+npm warn deprecated abab@2.0.6: Use your platform's native atob() and btoa() methods instead
+npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+added 919 packages, and audited 920 packages in 17s
+95 packages are looking for funding
+  run `npm fund` for details
+13 vulnerabilities (2 low, 5 moderate, 5 high, 1 critical)
+To address all issues, run:
+  npm audit fix
+Run `npm audit` for details.
+$ npm run build:dev
+> epayment-final@0.0.0 build:dev
+> tsc -b && vite build --mode development
+vite v5.4.9 building for development...
+transforming...
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+warn - The `darkMode` option in your Tailwind CSS configuration is set to `false`, which now behaves the same as `media`.
+warn - Change `darkMode` to `media` or remove it entirely.
+warn - https://tailwindcss.com/docs/upgrade-guide#remove-dark-mode-configuration
+✓ 110 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                        0.81 kB │ gzip:   0.47 kB
+dist/assets/background-DGoKQd91.png   73.39 kB
+dist/assets/logo-BL1XVXLp.png         84.82 kB
+dist/assets/index-BrU3wqP2.css        27.40 kB │ gzip:   5.48 kB
+dist/assets/index-uMTqVpvU.js        387.51 kB │ gzip: 122.98 kB
+✓ built in 2.49s
+$ ls -lrth
+total 572K
+-rw-rw-rw-.   1 default root  624 Dec  6 13:54 Dockerfile
+-rw-rw-rw-.   1 default root 3.4K Dec  6 13:54 index.css
+-rw-rw-rw-.   1 default root  734 Dec  6 13:54 eslint.config.js
+-rw-rw-rw-.   1 default root  415 Dec  6 13:54 components.json
+-rw-rw-rw-.   1 default root 6.1K Dec  6 13:54 README.md
+-rw-rw-rw-.   1 default root 2.3K Dec  6 13:54 nginx.conf
+-rw-rw-rw-.   1 default root   35 Dec  6 13:54 jest.setup.ts
+-rw-rw-rw-.   1 default root  409 Dec  6 13:54 jest.config.ts
+-rw-rw-rw-.   1 default root  701 Dec  6 13:54 index.html
+-rw-rw-rw-.   1 default root   80 Dec  6 13:54 postcss.config.js
+-rw-rw-rw-.   1 default root 3.0K Dec  6 13:54 package.json
+drwxrwxrwx.   2 default root   72 Dec  6 13:54 public
+drwxrwxrwx.   3 default root   23 Dec  6 13:54 test
+-rw-rw-rw-.   1 default root 1.9K Dec  6 13:54 tailwind.config.js
+drwxrwxrwx.   7 default root 4.0K Dec  6 13:54 src
+-rw-rw-rw-.   1 default root  479 Dec  6 13:54 tsconfig.node.json
+-rw-rw-rw-.   1 default root  628 Dec  6 13:54 tsconfig.json
+-rw-rw-rw-.   1 default root  823 Dec  6 13:54 tsconfig.app.json
+-rw-rw-rw-.   1 default root 3.0K Dec  6 13:54 vite.config.ts.timestamp-1734693863164-ae63645a81b86.mjs
+-rw-rw-rw-.   1 default root  568 Dec  6 13:54 vite.config.ts
+-rw-rw-rw-.   1 default root 3.2K Dec  6 13:54 tsconfig.tsbuildinfo
+-rw-rw-rw-.   1 default root 463K Dec  6 13:55 package-lock.json
+drwxr-xr-x. 460 default root  16K Dec  6 13:55 node_modules
+-rw-r--r--.   1 default root  657 Dec  6 13:55 tsconfig.app.tsbuildinfo
+-rw-r--r--.   1 default root   47 Dec  6 13:55 tsconfig.node.tsbuildinfo
+drwxr-xr-x.   3 default root  104 Dec  6 13:55 dist
+Uploading artifacts for successful job
+00:03
+Uploading artifacts...
+./dist: found 10 matching files and directories    
+Uploading artifacts as "archive" to coordinator... ok  id=220415 responseStatus=201 Created token=glcbt-64
+Cleaning up project directory and file based variables
+00:01
+Job succeeded
+old pipe of a frontend working fine ...
+
+___________________________________________
+this ius my pipeline failed to run 
+
+Running with gitlab-runner 17.8.0 (e4f782b3)
+  on DC-Gitlab-Runner rMTQxLq3, system ID: s_948d0ccb739a
+Resolving secrets
+Preparing the "docker" executor
+00:06
+Using Docker executor with image registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113 ...
+Using helper image:  registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest  (overridden, default would be  registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-v17.8.0 )
+Pulling docker image registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest ...
+Using docker image sha256:c95744588b6d7e170a6866854932de40eaf1b5ed229ed818cba6a87a1f885773 for registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest with digest registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper@sha256:ebbf1c21e4272ae1f8c18b034d390809c836c2fc68c0f0f6d3a5aff9760aabf5 ...
+Using helper image:  registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest  (overridden, default would be  registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-v17.8.0 )
+Using docker image sha256:c95744588b6d7e170a6866854932de40eaf1b5ed229ed818cba6a87a1f885773 for registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest with digest registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper@sha256:ebbf1c21e4272ae1f8c18b034d390809c836c2fc68c0f0f6d3a5aff9760aabf5 ...
+Pulling docker image registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113 ...
+Using docker image sha256:c1037efa7a6cfce811caf269e33c408144a2058361edcd7ab9d99c1aa67433c8 for registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113 with digest registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm@sha256:96ab8f99d7e94b7d955b4129daa1a36556977e216b5ff4b392c07e2d8a776e58 ...
+Preparing environment
+00:02
+Using helper image:  registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest  (overridden, default would be  registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-v17.8.0 )
+Using docker image sha256:c95744588b6d7e170a6866854932de40eaf1b5ed229ed818cba6a87a1f885773 for registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest with digest registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper@sha256:ebbf1c21e4272ae1f8c18b034d390809c836c2fc68c0f0f6d3a5aff9760aabf5 ...
+Running on runner-rmtqxlq3-project-53-concurrent-0 via Gitlab-DC-Runr...
+Getting source from Git repository
+00:03
+$ git config --global http.proxy $HTTP_PROXY; git config --global https.proxy $HTTPS_PROXY; git config --global no.proxy $NO_PROXY
+Fetching changes with git depth set to 20...
+Reinitialized existing Git repository in /tmp/builds/epay/frontends/epay_merchant_simulator/.git/
+Checking out d7a4ccb4 as detached HEAD (ref is release/v0.1.0)...
+Removing .npm/
+Skipping Git submodules setup
+Restoring cache
+00:02
+Checking cache for epay/frontends/epay_merchant_simulator-npm-release-v0-1-0-non_protected...
+No URL provided, cache will not be downloaded from shared cache server. Instead a local version of cache will be extracted. 
+Successfully extracted cache
+Executing "step_script" stage of the job script
+01:20
+Using docker image sha256:c1037efa7a6cfce811caf269e33c408144a2058361edcd7ab9d99c1aa67433c8 for registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113 with digest registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm@sha256:96ab8f99d7e94b7d955b4129daa1a36556977e216b5ff4b392c07e2d8a776e58 ...
+$ echo "===== FRONTEND BUILD STARTED ====="
+===== FRONTEND BUILD STARTED =====
+$ unset HTTP_PROXY HTTPS_PROXY http_proxy https_proxy || true
+$ git config --global --unset http.proxy || true
+$ git config --global --unset https.proxy || true
+$ npm config delete proxy || true
+$ npm config delete https-proxy || true
+$ npm config set registry https://registry.npmjs.org/
+$ npm config set legacy-peer-deps true
+$ npm config set force true
+$ npm cache clean --force
+npm warn using --force Recommended protections disabled.
+$ npm ci --legacy-peer-deps --force || npm install --legacy-peer-deps --force
+npm warn using --force Recommended protections disabled.
+npm error Exit handler never called!
+npm error This is an error with npm itself. Please report this error at:
+npm error   <https://github.com/npm/cli/issues>
+npm error A complete log of this run can be found in: /tmp/builds/epay/frontends/epay_merchant_simulator/.npm/_logs/2025-12-08T11_54_28_129Z-debug-0.log
+$ npm run build:dev
+npm warn using --force Recommended protections disabled.
+> epayment-final@0.0.0 build:dev
+> tsc -b && vite build --mode development
+sh: line 1: tsc: command not found
+Cleaning up project directory and file based variables
+00:01
+ERROR: Job failed: exit code 1
