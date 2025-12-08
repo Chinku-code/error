@@ -22,14 +22,12 @@ variables:
   PROD_NAMESPACE: "fe"
 
   FE_BUILD_IMAGE: "registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113"
-
   NPM_CONFIG_CACHE: "$CI_PROJECT_DIR/.npm"
 
   PODMAN_TLS_VERIFY: "false"
 
   DEPLOY_TRIGGER_PROJECT: "epay/devops/deployment"
   DEPLOY_TRIGGER_BRANCH: "feature/dynamicnginx"
-
 
 # =========================
 # Templates
@@ -48,19 +46,16 @@ variables:
     policy: pull-push
   script:
     - echo "===== FRONTEND BUILD STARTED ====="
-
-    # REMOVE ALL PROXY CONFIGS (Fix npm proxy error)
+    # remove proxy configs
     - unset HTTP_PROXY HTTPS_PROXY http_proxy https_proxy || true
     - git config --global --unset http.proxy || true
     - git config --global --unset https.proxy || true
     - npm config delete proxy || true
     - npm config delete https-proxy || true
-
-    # BUILD PROCESS
+    # FE build
     - npm cache clean --force
     - npm ci || npm install
     - npm run build:dev
-
     - echo "===== BUILD COMPLETE ====="
   artifacts:
     paths:
@@ -68,7 +63,6 @@ variables:
     expire_in: 1 week
   rules:
     - if: $CI_COMMIT_BRANCH
-
 
 # ---- Docker Build Template ----
 .docker_template: &docker_template
@@ -79,7 +73,7 @@ variables:
     SOURCE_IMAGE: ""
   script:
     - export SOURCE_IMAGE="${DEV_REGISTRY_HOST}/${DEV_REGISTRY_NAMESPACE}/${APP_NAME}:${VERSION}"
-    - echo "Logging in to dev registry: $DEV_REGISTRY_HOST"
+    - echo "Logging in to dev registry $DEV_REGISTRY_HOST"
     - echo "$DEV_REGISTRY_PASSWORD" | podman login -u "$DEV_REGISTRY_USERNAME" --password-stdin "$DEV_REGISTRY_HOST"
     - podman build -t "$SOURCE_IMAGE" .
     - podman push "$SOURCE_IMAGE"
@@ -89,7 +83,6 @@ variables:
       dotenv: docker.env
   rules:
     - if: $CI_COMMIT_BRANCH
-
 
 # ---- Promote Template ----
 .promote_template: &promote_template
@@ -105,7 +98,6 @@ variables:
   rules:
     - when: manual
 
-
 # ---- Deploy Template ----
 .deploy_template: &deploy_template
   stage: deploy
@@ -120,7 +112,6 @@ variables:
   rules:
     - when: manual
 
-
 # =========================
 # Jobs
 # =========================
@@ -129,15 +120,14 @@ variables:
 fe_build:
   <<: *build_template
 
-
-# ---- Docker build (single) ----
+# ---- Docker build ----
 dockerbuild:
   <<: *docker_template
 
 
-# =========================
+# -------------------------
 # Promote Jobs
-# =========================
+# -------------------------
 
 promote_sit:
   <<: *promote_template
@@ -185,9 +175,9 @@ promote_prod:
     TARGET_REGISTRY_PASSWORD: "$PROD_REGISTRY_PASSWORD"
 
 
-# =========================
+# -------------------------
 # Deploy Jobs
-# =========================
+# -------------------------
 
 deploy_sit:
   <<: *deploy_template
