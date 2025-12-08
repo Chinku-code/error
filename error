@@ -1,154 +1,385 @@
+include:
+  - project: 'epay/devops/ci-templates'
+    ref: main
+    file: 'ci/build/vite.react.yml'
+  - project: 'epay/devops/ci-templates'
+    ref: main
+    file: 'ci/sast/sast.yml'
+  - project: 'epay/devops/ci-templates'
+    ref: main
+    file: 'ci/sast/fortify.sast.yml'
+  - project: 'epay/devops/ci-templates'
+    ref: main
+    file: 'ci/release/version.yml'
+  - project: 'epay/devops/ci-templates'
+    ref: main
+    file: 'ci/release/release.yml'
+  - project: 'epay/devops/ci-templates'
+    ref: main
+    file: 'ci/build/podman.container.yml'
+  - project: 'epay/devops/ci-templates'
+    ref: main
+    file: 'ci/deploy/deployment.yml'
+
 stages:
-  - build
-  - sast
-  - fortifyscan
-  - dockerbuild
-  - promote
-  - deploy
+- build
+- test
+- sast
+- hp-fortify
+- release
+- dockerbuild
+- deploy
 
 variables:
-  APP_NAME: "epay-website"
-  VERSION: "$CI_COMMIT_SHORT_SHA"
-  DEV_IMAGE_REGISTRY: "registry.dev.sbiepay.sbi:8443/ubi9/"
-  PODMAN_TLS_VERIFY: "false"
+  CI_TEMPLATE_REGISTRY_HOST: "registry.dev.sbiepay.sbi:8443"
+  CI_TEMPLATE_REGISTRY_HOST_PREPROD: "epaynonprod-registry-quay-quay-enterprise.apps.preprod.epay.sbi"
+  CI_TEMPLATE_REGISTRY_HOST_PROD: "registry.prod.epay.sbi:8443"
+  CI_TEMPLATE_REGISTRY_HOST_PRODDR: "epayproddr-registry-quay-quay-enterprise.apps.dr.prod.epay.sbi"
+  CI_TEMPLATE_REGISTRY_HOST_PRODDC: "proddc-registry-route-quay-enterprise.apps.dc.prod.epay.sbi"
+  GIT_STRATEGY: clone
+  CI_USERNAME: "gitlab-ci-token"
+  RELEASE_NAME: null
+  CHART_NAME: null
+  IMAGE_NAME: "ubi9/$CHART_NAME"
 
-# =====================================================
-# 1) SINGLE BUILD (ONE TIME ONLY)
-# =====================================================
-fe_build:
-  stage: build
-  image:
-    name: registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113
-    pull_policy: always
-  script:
-    - echo "===== SINGLE BUILD STARTED ====="
-    - npm cache clean --force
-    - npm ci || npm install
-    - npm run build:dev
-    - echo "===== BUILD COMPLETE ====="
-  artifacts:
-    paths:
-      - dist/
-    expire_in: 1 week
+.rules:
   rules:
-    - if: $CI_COMMIT_BRANCH        # run on ALL branches
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(main)|(develop)|(release)(\/.+)*$/'
+    - if: '$CI_COMMIT_BRANCH =~ /^(main)|(develop)|(release)(\/.+)*$/'
+    - when: never
 
-# =====================================================
-# 2) SINGLE DOCKER BUILD (ONE IMAGE ONLY)
-# =====================================================
-dockerbuild:
+# Development environment builds - used by dev, sit, uat
+build-dev:
+  variables:
+    ENV: dev
+  extends: 
+    - .build
+    - .rules
+
+# Higher environment builds  
+build-sit:
+  variables:
+    ENV: sit
+  extends: 
+    - .build
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^(release)(\/.+)*$/
+      allow_failure: true
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(release)(\/.+)*$/
+      when: manual
+      allow_failure: true
+    - when: never
+
+# Higher environment builds  
+build-uat:
+  variables:
+    ENV: uat
+  extends: 
+    - .build
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^(release)(\/.+)*$/
+      allow_failure: true
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(release)(\/.+)*$/
+      when: manual
+      allow_failure: true
+    - when: never
+
+# Higher environment builds  
+build-pre-prod:
+  variables:
+    ENV: pre-prod
+  extends: 
+    - .build
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^(release)(\/.+)*$/
+      allow_failure: true
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(release)(\/.+)*$/
+      when: manual
+      allow_failure: true
+    - when: never
+
+build-perf:
+  variables:
+    ENV: perf
+  extends: 
+    - .build
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^(release)(\/.+)*$/
+      when: manual
+      allow_failure: true
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(release)(\/.+)*$/
+      when: manual
+      allow_failure: true
+    - when: never
+
+build-prod:
+  variables:
+    ENV: prod
+  extends: 
+    - .build
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^(main)$/
+      when: manual
+      allow_failure: true
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(main)$/
+      when: manual
+      allow_failure: true
+    - when: never
+
+sast:
+  extends:
+    - .sast
+    - .rules
+
+hp-fortify:
+  variables:
+    EXCLUDE_DIRS: "./**/dist/**/*"
+    INCLUDE_DIRS: "./**/*.tsx,./**/*.ts,./**/*.js"
+  extends:
+    - .HPFortify
+    - .rules
+
+tag:
+  extends:
+    - .tag
+
+# Docker build jobs for each environment
+dockerbuild-dev:
   stage: dockerbuild
-  image: quay.io/podman/stable:latest
-  needs: ["fe_build"]
   variables:
-    FULL_IMAGE: "${DEV_IMAGE_REGISTRY}${APP_NAME}:${VERSION}"
-  script:
-    - echo "$DEV_REGISTRY_PASSWORD" |
-      podman login -u "$DEV_REGISTRY_USERNAME" --password-stdin ${DEV_IMAGE_REGISTRY%/*}
-    - podman build -t "$FULL_IMAGE" .
-    - podman push "$FULL_IMAGE"
-    - echo "SOURCE_IMAGE=$FULL_IMAGE" >> docker.env
-  artifacts:
-    reports:
-      dotenv: docker.env
+    ENV: dev
+  extends:
+    - .dockerbuild
   rules:
-    - if: $CI_COMMIT_BRANCH
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(develop)$/'
+    - if: '$CI_COMMIT_BRANCH =~ /^(develop)$/'
+    - when: never
 
-# =====================================================
-# 3) PROMOTE TO ALL ENVIRONMENTS USING SAME IMAGE
-# =====================================================
-.promote_template: &promote_template
-  stage: promote
-  image: quay.io/podman/stable:latest
-  needs: ["dockerbuild"]
-  script:
-    - echo "PROMOTING TO $TARGET_ENV"
-    - podman login -u "$TARGET_REGISTRY_USERNAME" -p "$TARGET_REGISTRY_PASSWORD" "$TARGET_REGISTRY_HOST"
-    - podman pull "$SOURCE_IMAGE"
-    - podman tag "$SOURCE_IMAGE" "$TARGET_REGISTRY_HOST/$TARGET_PATH:$VERSION"
-    - podman push "$TARGET_REGISTRY_HOST/$TARGET_PATH:$VERSION"
-  when: manual
+dockerbuild-sit:
+  stage: dockerbuild
+  variables:
+    ENV: sit
+    IMAGE_NAME: "ubi9/sit/$CHART_NAME"
+  extends:
+    - .dockerbuild
   rules:
-    - when: manual
+    - if: $CI_COMMIT_BRANCH =~ /^(release)(\/.+)*$/
+      when: manual
+      allow_failure: true
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(release)(\/.+)*$/
+      when: manual
+      allow_failure: true
+    - when: never
 
-promote_sit:
-  <<: *promote_template
+dockerbuild-uat:
+  stage: dockerbuild
   variables:
-    TARGET_ENV: "sit"
-    TARGET_REGISTRY_HOST: "registry.dev.sbiepay.sbi:8443/library"
-    TARGET_PATH: "$APP_NAME"
-
-promote_uat:
-  <<: *promote_template
-  variables:
-    TARGET_ENV: "uat"
-    TARGET_REGISTRY_HOST: "registry.dev.sbiepay.sbi:8443/library"
-    TARGET_PATH: "$APP_NAME"
-
-promote_preprod:
-  <<: *promote_template
-  variables:
-    TARGET_ENV: "pre-prod"
-    TARGET_REGISTRY_HOST: "epaynonprod-registry-quay-quay-enterprise.apps.preprod.epay.sbi/fe"
-    TARGET_PATH: "$APP_NAME"
-
-promote_perf:
-  <<: *promote_template
-  variables:
-    TARGET_ENV: "perf"
-    TARGET_REGISTRY_HOST: "epaynonprod-registry-quay-quay-enterprise.apps.preprod.epay.sbi/fe"
-    TARGET_PATH: "$APP_NAME"
-
-promote_prod:
-  <<: *promote_template
-  variables:
-    TARGET_ENV: "prod"
-    TARGET_REGISTRY_HOST: "registry.prod.epay.sbi:8443/fe"
-    TARGET_PATH: "$APP_NAME"
-
-# =====================================================
-# 4) DEPLOY WITH RUNTIME ENV CONFIG (DYNAMIC NGINX)
-# =====================================================
-.deploy_template: &deploy_template
-  stage: deploy
-  trigger:
-    project: epay/devops/deployment
-    branch: feature/dynamicnginx
-    strategy: depend
-    forward:
-      yaml_variables: true
-      pipeline_variables: true
-  when: manual
+    ENV: uat
+    IMAGE_NAME: "ubi9/uat/$CHART_NAME"
+  extends:
+    - .dockerbuild
   rules:
-    - when: manual
+    - if: $CI_COMMIT_BRANCH =~ /^(release)(\/.+)*$/
+      when: manual
+      allow_failure: true
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(release)(\/.+)*$/
+      when: manual
+      allow_failure: true
+    - when: never
 
-deploy_sit:
-  <<: *deploy_template
+dockerbuild-pre-prod:
+  stage: dockerbuild
   variables:
-    ENV: "sit"
-    VERSION: "$VERSION"
+    ENV: pre-prod
+    CI_TEMPLATE_REGISTRY_HOST: $CI_TEMPLATE_REGISTRY_HOST_PREPROD
+    IMAGE_REGISTRY_USERNAME: $PREPROD_REGISTRY_USERNAME
+    IMAGE_REGISTRY_PASS: $PREPROD_REGISTRY_PASSWORD
+    IMAGE_NAME: "microservices/$CHART_NAME"
+  extends:
+    - .dockerbuild
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^(release)(\/.+)*$/
+      when: manual
+      allow_failure: true
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(release)(\/.+)*$/
+      when: manual
+      allow_failure: true
+    - when: never
 
-deploy_uat:
-  <<: *deploy_template
+dockerbuild-pre-prod-dc:
+  stage: dockerbuild
   variables:
-    ENV: "uat"
-    VERSION: "$VERSION"
+    ENV: pre-prod
+    CI_TEMPLATE_REGISTRY_HOST: $CI_TEMPLATE_REGISTRY_HOST_PREPROD
+    IMAGE_REGISTRY_USERNAME: $PREPROD_REGISTRY_USERNAME
+    IMAGE_REGISTRY_PASS: $PREPROD_REGISTRY_PASSWORD
+    IMAGE_NAME: "microservices/$CHART_NAME"
+  extends:
+    - .dockerbuild
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^(release)(\/.+)*$/
+      when: manual
+      allow_failure: true
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(release)(\/.+)*$/
+      when: manual
+      allow_failure: true
+    - when: never
 
-deploy_preprod:
-  <<: *deploy_template
+dockerbuild-prod-dr:
+  stage: dockerbuild
   variables:
-    ENV: "pre-prod"
-    VERSION: "$VERSION"
+    ENV: prod
+    CI_TEMPLATE_REGISTRY_HOST: $CI_TEMPLATE_REGISTRY_HOST_PRODDR
+    IMAGE_REGISTRY_USERNAME: $PROD_REGISTRY_USERNAME
+    IMAGE_REGISTRY_PASS: $PROD_REGISTRY_PASSWORD
+    IMAGE_NAME: "fe/$CHART_NAME"
+  extends:
+    - .dockerbuild
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^(main)$/
+      when: manual
+      allow_failure: true
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(main)$/
+      when: manual
+      allow_failure: true
+    - when: never
 
-deploy_perf:
-  <<: *deploy_template
+dockerbuild-prod-dc:
+  stage: dockerbuild
   variables:
-    ENV: "perf"
-    VERSION: "$VERSION"
+    ENV: prod
+    CI_TEMPLATE_REGISTRY_HOST: $CI_TEMPLATE_REGISTRY_HOST_PRODDC
+    IMAGE_REGISTRY_USERNAME: $PROD_REGISTRY_USERNAME
+    IMAGE_REGISTRY_PASS: $PROD_REGISTRY_PASSWORD
+    IMAGE_NAME: "fe/$CHART_NAME"
+  extends:
+    - .dockerbuild
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^(main)$/
+      when: manual
+      allow_failure: true
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(main)$/
+      when: manual
+      allow_failure: true
+    - when: never
 
-deploy_prod:
-  <<: *deploy_template
+# Deploy jobs with proper dependencies
+deploy-dev:
   variables:
-    ENV: "prod"
-    VERSION: "$VERSION"
+    ENV: dev
+    SERVICE_NAME: $CI_PROJECT_NAME
+  extends:
+    - .trigger_cd
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^(develop)$/
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(develop)$/
+      when: manual
+      allow_failure: true
+    - when: never
 
+deploy-sit:
+  variables:
+    ENV: sit
+    SERVICE_NAME: $CI_PROJECT_NAME
+  extends:
+    - .trigger_cd
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^(release)(\/.+)*$/
+      when: manual
+      allow_failure: true
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(release)(\/.+)*$/
+      when: manual
+      allow_failure: true
+    - when: never
+
+deploy-uat:
+  variables:
+    ENV: uat
+    SERVICE_NAME: $CI_PROJECT_NAME
+  extends:
+    - .trigger_cd
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^(release)(\/.+)*$/
+      when: manual
+      allow_failure: true
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(release)(\/.+)*$/
+      when: manual
+      allow_failure: true
+    - when: never
+
+deploy-pre-prod:
+  variables:
+    ENV: pre-prod
+    SERVICE_NAME: $CI_PROJECT_NAME
+    DEPLOYMENT_BRANCH: feature/pre-prod
+  extends:
+    - .trigger_cd
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^(release)(\/.+)*$/
+      when: manual
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(release)(\/.+)*$/
+      when: manual
+      allow_failure: false
+    - when: never
+
+deploy-perf:
+  variables:
+    ENV: perf
+    SERVICE_NAME: $CI_PROJECT_NAME
+  extends:
+    - .trigger_cd
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^(release)(\/.+)*$/
+      when: manual
+      allow_failure: false
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(release)(\/.+)*$/
+      when: manual
+      allow_failure: false
+    - when: never
+
+deploy-pre-prod-dc:
+  variables:
+    ENV: pre-prod-dc
+    SERVICE_NAME: $CI_PROJECT_NAME
+  extends:
+    - .trigger_cd
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^(release)(\/.+)*$/
+      when: manual
+      allow_failure: true
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(release)(\/.+)*$/
+      when: manual
+      allow_failure: true
+    - when: never
+
+deploy-prod-dr:
+  variables:
+    ENV: prod-dr
+    SERVICE_NAME: $CI_PROJECT_NAME
+    VERSION: $VERSION
+  extends:
+    - .trigger_cd
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^(main)$/
+      when: manual
+      allow_failure: true
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(main)$/
+      when: manual
+      allow_failure: true
+    - when: never
+
+deploy-prod-dc:
+  variables:
+    ENV: prod-dc
+    SERVICE_NAME: $CI_PROJECT_NAME
+    VERSION: $VERSION
+  extends:
+    - .trigger_cd
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^(main)$/
+      when: manual
+      allow_failure: false
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(main)$/
+      when: manual
+      allow_failure: true
+    - when: never
