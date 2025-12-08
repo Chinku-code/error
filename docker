@@ -1,214 +1,30 @@
-Running with gitlab-runner 17.8.0 (e4f782b3)
-  on DC-Gitlab-Runner rMTQxLq3, system ID: s_948d0ccb739a
-Resolving secrets
-Preparing the "docker" executor
-00:38
-Using Docker executor with image quay.io/podman/stable:latest ...
-Using helper image:  registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest  (overridden, default would be  registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-v17.8.0 )
-Pulling docker image registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest ...
-Using docker image sha256:c95744588b6d7e170a6866854932de40eaf1b5ed229ed818cba6a87a1f885773 for registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest with digest registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper@sha256:ebbf1c21e4272ae1f8c18b034d390809c836c2fc68c0f0f6d3a5aff9760aabf5 ...
-Using helper image:  registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest  (overridden, default would be  registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-v17.8.0 )
-Using docker image sha256:c95744588b6d7e170a6866854932de40eaf1b5ed229ed818cba6a87a1f885773 for registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest with digest registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper@sha256:ebbf1c21e4272ae1f8c18b034d390809c836c2fc68c0f0f6d3a5aff9760aabf5 ...
-Pulling docker image quay.io/podman/stable:latest ...
-Using docker image sha256:a003923ac685ce71836958fe3b0895958b3d21bfecfd4388dc9bbb2e79c290d1 for quay.io/podman/stable:latest with digest quay.io/podman/stable@sha256:851f1520cc459e5e2f0b929f307b360ae285b4c7be9da96937f4f3c4a94a4e9d ...
-Preparing environment
-00:02
-Using helper image:  registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest  (overridden, default would be  registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-v17.8.0 )
-Using docker image sha256:c95744588b6d7e170a6866854932de40eaf1b5ed229ed818cba6a87a1f885773 for registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest with digest registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper@sha256:ebbf1c21e4272ae1f8c18b034d390809c836c2fc68c0f0f6d3a5aff9760aabf5 ...
-Running on runner-rmtqxlq3-project-53-concurrent-0 via Gitlab-DC-Runr...
-Getting source from Git repository
-00:06
-$ git config --global http.proxy $HTTP_PROXY; git config --global https.proxy $HTTPS_PROXY; git config --global no.proxy $NO_PROXY
-Fetching changes with git depth set to 20...
-Reinitialized existing Git repository in /tmp/builds/epay/frontends/epay_merchant_simulator/.git/
-Checking out 0b7ee739 as detached HEAD (ref is release/v0.1.0)...
-Removing dist/
-Removing node_modules/
-Skipping Git submodules setup
-Downloading artifacts
-00:02
-Downloading artifacts for fe_build (221335)...
-Downloading artifacts from coordinator... ok        id=221335 responseStatus=200 OK token=glcbt-64
-Executing "step_script" stage of the job script
-00:02
-Using docker image sha256:a003923ac685ce71836958fe3b0895958b3d21bfecfd4388dc9bbb2e79c290d1 for quay.io/podman/stable:latest with digest quay.io/podman/stable@sha256:851f1520cc459e5e2f0b929f307b360ae285b4c7be9da96937f4f3c4a94a4e9d ...
-$ echo "$DEV_REGISTRY_PASSWORD" | podman login -u "$DEV_REGISTRY_USERNAME" --password-stdin "$DEV_REGISTRY_HOST"
-time="2025-12-08T12:07:09Z" level=warning msg="Using cgroups-v1 which is deprecated in favor of cgroups-v2 with Podman v5 and will be removed in a future version. Set environment variable `PODMAN_IGNORE_CGROUPSV1_WARNING` to hide this warning."
-Error: must provide --username with --password-stdin
-Uploading artifacts for failed job
-00:01
-Uploading artifacts...
-WARNING: docker.env: no matching files             
-ERROR: No files to upload                          
-Cleaning up project directory and file based variables
-00:01
-ERROR: Job failed: exit code 1
 
-this docker build working error 
-----------------------------------------------------
+FROM registry.dev.sbiepay.sbi:8443/ubi9/nginx-126:9.6-1756959223
+USER 0
+# Create app folder + copy build output + set permissions
+RUN mkdir -p /usr/share/nginx/html/home
+COPY dist/ /usr/share/nginx/html/home/
+RUN chmod -R 755 /usr/share/nginx/html/home && \
+    chown -R nginx:nginx /usr/share/nginx/html/home
+# DO NOT COPY nginx.conf (ConfigMap will inject it based on ENV)
+# Correct dynamic NGINX setup — NO STATIC nginx.conf inside image
+EXPOSE 8080
+this was created for my test ----------------------
 
-and this one working fine 
-Running with gitlab-runner 17.8.0 (e4f782b3)
-  on DC-Gitlab-Runner rMTQxLq3, system ID: s_948d0ccb739a
-Resolving secrets
-Preparing the "docker" executor
-00:04
-Using Docker executor with image registry.dev.sbiepay.sbi:8443/library/podman:latest ...
-Using helper image:  registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest  (overridden, default would be  registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-v17.8.0 )
-Pulling docker image registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest ...
-Using docker image sha256:c95744588b6d7e170a6866854932de40eaf1b5ed229ed818cba6a87a1f885773 for registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest with digest registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper@sha256:ebbf1c21e4272ae1f8c18b034d390809c836c2fc68c0f0f6d3a5aff9760aabf5 ...
-Using helper image:  registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest  (overridden, default would be  registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-v17.8.0 )
-Using docker image sha256:c95744588b6d7e170a6866854932de40eaf1b5ed229ed818cba6a87a1f885773 for registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest with digest registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper@sha256:ebbf1c21e4272ae1f8c18b034d390809c836c2fc68c0f0f6d3a5aff9760aabf5 ...
-Pulling docker image registry.dev.sbiepay.sbi:8443/library/podman:latest ...
-Using docker image sha256:0b05fe47cd0b9224333c4534ba26af9e91f2d61f46cd0b833b4765abf5ede85a for registry.dev.sbiepay.sbi:8443/library/podman:latest with digest registry.dev.sbiepay.sbi:8443/library/podman@sha256:25e430bdecb8271dadafbc238b138218185efd0b771567285a12fda0c8e52a35 ...
-Preparing environment
-00:02
-Using helper image:  registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest  (overridden, default would be  registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-v17.8.0 )
-Using docker image sha256:c95744588b6d7e170a6866854932de40eaf1b5ed229ed818cba6a87a1f885773 for registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest with digest registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper@sha256:ebbf1c21e4272ae1f8c18b034d390809c836c2fc68c0f0f6d3a5aff9760aabf5 ...
-Running on runner-rmtqxlq3-project-53-concurrent-0 via Gitlab-DC-Runr...
-Getting source from Git repository
-00:03
-$ git config --global http.proxy $HTTP_PROXY; git config --global https.proxy $HTTPS_PROXY; git config --global no.proxy $NO_PROXY
-Fetching changes with git depth set to 20...
-Initialized empty Git repository in /tmp/builds/epay/frontends/epay_merchant_simulator/.git/
-Created fresh repository.
-Checking out 10bd7183 as detached HEAD (ref is develop)...
-Skipping Git submodules setup
-Downloading artifacts
-00:02
-Downloading artifacts for build (220415)...
-Downloading artifacts from coordinator... ok        id=220415 responseStatus=200 OK token=glcbt-64
-Downloading artifacts for fortifyscan (220419)...
-Downloading artifacts from coordinator... ok        id=220419 responseStatus=200 OK token=glcbt-64
-WARNING: merchantdemo.fpr: lchown merchantdemo.fpr: operation not permitted (suppressing repeats) 
-Executing "step_script" stage of the job script
-01:50
-Using docker image sha256:0b05fe47cd0b9224333c4534ba26af9e91f2d61f46cd0b833b4765abf5ede85a for registry.dev.sbiepay.sbi:8443/library/podman:latest with digest registry.dev.sbiepay.sbi:8443/library/podman@sha256:25e430bdecb8271dadafbc238b138218185efd0b771567285a12fda0c8e52a35 ...
-$ ls -ltrh
-total 2.1M
-drwxr-xr-x. 3 1001 root  104 Dec  6 13:55 dist
--rw-rw-rw-. 1 1001 root  415 Dec  6 15:02 components.json
--rw-rw-rw-. 1 1001 root 6.1K Dec  6 15:02 README.md
--rw-rw-rw-. 1 1001 root  624 Dec  6 15:02 Dockerfile
--rw-rw-rw-. 1 1001 root 3.4K Dec  6 15:02 index.css
--rw-rw-rw-. 1 1001 root  734 Dec  6 15:02 eslint.config.js
--rw-rw-rw-. 1 1001 root   35 Dec  6 15:02 jest.setup.ts
--rw-rw-rw-. 1 1001 root  409 Dec  6 15:02 jest.config.ts
--rw-rw-rw-. 1 1001 root  701 Dec  6 15:02 index.html
--rw-rw-rw-. 1 1001 root 2.3K Dec  6 15:02 nginx.conf
--rw-rw-rw-. 1 1001 root 3.0K Dec  6 15:02 package.json
--rw-rw-rw-. 1 1001 root 463K Dec  6 15:02 package-lock.json
--rw-rw-rw-. 1 1001 root   80 Dec  6 15:02 postcss.config.js
-drwxrwxrwx. 2 1001 root   72 Dec  6 15:02 public
-drwxrwxrwx. 3 1001 root   23 Dec  6 15:02 test
--rw-rw-rw-. 1 1001 root 1.9K Dec  6 15:02 tailwind.config.js
-drwxrwxrwx. 7 1001 root 4.0K Dec  6 15:02 src
--rw-rw-rw-. 1 1001 root 3.2K Dec  6 15:02 tsconfig.tsbuildinfo
--rw-rw-rw-. 1 1001 root  479 Dec  6 15:02 tsconfig.node.json
--rw-rw-rw-. 1 1001 root  628 Dec  6 15:02 tsconfig.json
--rw-rw-rw-. 1 1001 root  823 Dec  6 15:02 tsconfig.app.json
--rw-rw-rw-. 1 1001 root 3.0K Dec  6 15:02 vite.config.ts.timestamp-1734693863164-ae63645a81b86.mjs
--rw-rw-rw-. 1 1001 root  568 Dec  6 15:02 vite.config.ts
--rw-r--r--. 1 1001 root 1.4M Dec  6 15:02 merchantdemo.fpr
--rw-r--r--. 1 1001 root 146K Dec  6 15:02 merchantdemo_report.pdf
-$ ls -ltrh
-total 2.1M
-drwxr-xr-x. 3 1001 root  104 Dec  6 13:55 dist
--rw-rw-rw-. 1 1001 root  415 Dec  6 15:02 components.json
--rw-rw-rw-. 1 1001 root 6.1K Dec  6 15:02 README.md
--rw-rw-rw-. 1 1001 root  624 Dec  6 15:02 Dockerfile
--rw-rw-rw-. 1 1001 root 3.4K Dec  6 15:02 index.css
--rw-rw-rw-. 1 1001 root  734 Dec  6 15:02 eslint.config.js
--rw-rw-rw-. 1 1001 root   35 Dec  6 15:02 jest.setup.ts
--rw-rw-rw-. 1 1001 root  409 Dec  6 15:02 jest.config.ts
--rw-rw-rw-. 1 1001 root  701 Dec  6 15:02 index.html
--rw-rw-rw-. 1 1001 root 2.3K Dec  6 15:02 nginx.conf
--rw-rw-rw-. 1 1001 root 3.0K Dec  6 15:02 package.json
--rw-rw-rw-. 1 1001 root 463K Dec  6 15:02 package-lock.json
--rw-rw-rw-. 1 1001 root   80 Dec  6 15:02 postcss.config.js
-drwxrwxrwx. 2 1001 root   72 Dec  6 15:02 public
-drwxrwxrwx. 3 1001 root   23 Dec  6 15:02 test
--rw-rw-rw-. 1 1001 root 1.9K Dec  6 15:02 tailwind.config.js
-drwxrwxrwx. 7 1001 root 4.0K Dec  6 15:02 src
--rw-rw-rw-. 1 1001 root 3.2K Dec  6 15:02 tsconfig.tsbuildinfo
--rw-rw-rw-. 1 1001 root  479 Dec  6 15:02 tsconfig.node.json
--rw-rw-rw-. 1 1001 root  628 Dec  6 15:02 tsconfig.json
--rw-rw-rw-. 1 1001 root  823 Dec  6 15:02 tsconfig.app.json
--rw-rw-rw-. 1 1001 root 3.0K Dec  6 15:02 vite.config.ts.timestamp-1734693863164-ae63645a81b86.mjs
--rw-rw-rw-. 1 1001 root  568 Dec  6 15:02 vite.config.ts
--rw-r--r--. 1 1001 root 1.4M Dec  6 15:02 merchantdemo.fpr
--rw-r--r--. 1 1001 root 146K Dec  6 15:02 merchantdemo_report.pdf
-$ TARGET_BRANCH="${CI_MERGE_REQUEST_TARGET_BRANCH_NAME:-$CI_COMMIT_REF_NAME}"
-$ TIMESTAMP=$(date +"%Y%m%d%H%M%S")
-$ TAG="${TARGET_BRANCH}-${TIMESTAMP}"
-$ echo "Generated Tag.. $TAG"
-Generated Tag.. develop-20251206150218
-$ echo $TAG > tag.txt
-$ podman login -u root -p [MASKED] $CI_TEMPLATE_REGISTRY_HOST --tls-verify=false
-time="2025-12-06T15:02:18Z" level=warning msg="Using cgroups-v1 which is deprecated in favor of cgroups-v2 with Podman v5 and will be removed in a future version. Set environment variable `PODMAN_IGNORE_CGROUPSV1_WARNING` to hide this warning."
-Login Succeeded!
-$ podman build -t $SERVICE_NAME:$TAG -f Dockerfile --tls-verify=false
-time="2025-12-06T15:02:19Z" level=warning msg="Using cgroups-v1 which is deprecated in favor of cgroups-v2 with Podman v5 and will be removed in a future version. Set environment variable `PODMAN_IGNORE_CGROUPSV1_WARNING` to hide this warning."
-STEP 1/12: FROM registry.dev.sbiepay.sbi:8443/ubi9/nginx-126:9.6-1756959223
-Trying to pull registry.dev.sbiepay.sbi:8443/ubi9/nginx-126:9.6-1756959223...
-Getting image source signatures
-Copying blob sha256:972d2d0bbe6f42957e4cef48a1d3016b95ac0b2a94f4b1c55473b4811bdcc67f
-Copying blob sha256:d3cc7dd0729141f3fc64ea3f5d623225b86f29c02caefee54aa160c837b9b68e
-Copying blob sha256:5421398e4c94a8cf3b8024b51b9d86a177bfc25ab072ea2bd0da5fc28c5b211e
-Copying config sha256:b4f9821f8af3eae0a8b11718519e80442400297bd5a6fc3cb367ff61ca23d615
-Writing manifest to image destination
-STEP 2/12: USER 0
---> fb4577976c03
-STEP 3/12: RUN mkdir -p /usr/share/nginx/html/merchantsimulator
---> 63e9254991da
-STEP 4/12: COPY ./dist/ /usr/share/nginx/html/merchantsimulator
---> d093ac23abb4
-STEP 5/12: RUN ls -lrth /usr/share/nginx/html/merchantsimulator
-total 24K
--rw-rw-rw-. 1 root root 1.5K Dec  6 13:55 vite.svg
--rw-rw-rw-. 1 root root 2.6K Dec  6 13:55 sbi_images.png
--rw-rw-rw-. 1 root root 9.8K Dec  6 13:55 sbi-logo-skyblue.png
--rw-r--r--. 1 root root  812 Dec  6 13:55 index.html
-drwxr-xr-x. 2 root root  113 Dec  6 13:55 assets
---> 3a6563e6860a
-STEP 6/12: RUN chmod 755 -R  /usr/share/nginx/html/merchantsimulator
---> aba939b5f99f
-STEP 7/12: RUN chown -R nginx:nginx /usr/share/nginx/html/merchantsimulator
---> 3f61221dfd1b
-STEP 8/12: COPY ./nginx.conf /etc/nginx/nginx.conf
---> bfec8f5a4763
-STEP 9/12: RUN find /etc/nginx -type d | xargs chmod 750
---> 07d7745840f3
-STEP 10/12: RUN find /etc/nginx -type f | xargs chmod 640
---> 3b7bb2a32cbb
-STEP 11/12: EXPOSE 8080/tcp
---> 3d64356c2399
-STEP 12/12: CMD ["/usr/sbin/nginx", "-g", "daemon off;"]
-COMMIT registry.dev.sbiepay.sbi:8443/ubi9/merchantsimulator:develop-20251206150218
---> 03fec2f9c56d
-Successfully tagged registry.dev.sbiepay.sbi:8443/ubi9/merchantsimulator:develop-20251206150218
-03fec2f9c56d1ac5266dc6e7e31eb50a731224b351ae36280140c5557d8a57f9
-$ podman push $SERVICE_NAME:$TAG --tls-verify=false
-time="2025-12-06T15:04:03Z" level=warning msg="Using cgroups-v1 which is deprecated in favor of cgroups-v2 with Podman v5 and will be removed in a future version. Set environment variable `PODMAN_IGNORE_CGROUPSV1_WARNING` to hide this warning."
-Getting image source signatures
-Copying blob sha256:6dc585d97e6d682abcd266b05f42ed94891b5df0466a61ce8468cab43162ff13
-Copying blob sha256:142e9f9476ebeb3e2f585cbdd86770dfb68d28f0cead495f585142ca1ca83961
-Copying blob sha256:b989f0b527ca3362fbfd6c387a16da6e8f5d56d8d850fd3562b774d8cd84e819
-Copying blob sha256:49a2469f8be511685878dd7c8d0ae1964968c428945ea0c17bfd7080f2d4f491
-Copying blob sha256:da47942b7bbd4c50f47edc6dea5e2d50953cc19106600bc01146b4b90f82daa5
-Copying blob sha256:36d40d6af1658de16dc73c0008aacebbf2b9aa2cf1d8ea0c52bd143824311c43
-Copying blob sha256:6622de7f903350849fa9ba1a261f4397b390d0f240e1377077a360bc1b0c8881
-Copying blob sha256:370880e870494bfbbc8853c2e371a4d77b5cf2bbd2739375707509a8112cf720
-Copying blob sha256:56bf21d99e180c229595f8b3c5873ff8e96a4120fe712b880c0f0b92696e7255
-Copying blob sha256:0e8394a82e563a58308f11d744c15d55bc0fab3727bdfe1c2abd2a39f1da6a19
-Copying blob sha256:c2b35a5b582979ab6e204d6e2c65f4c6c8c1e48f407aa67921cbbade06b8b50b
-Copying config sha256:03fec2f9c56d1ac5266dc6e7e31eb50a731224b351ae36280140c5557d8a57f9
-Writing manifest to image destination
-Uploading artifacts for successful job
-00:02
-Uploading artifacts...
-tag.txt: found 1 matching files and directories    
-Uploading artifacts as "archive" to coordinator... ok  id=220420 responseStatus=201 Created token=glcbt-64
-Cleaning up project directory and file based variables
-00:01
-Job succeeded
+this was are here ______
+
+FROM registry.dev.sbiepay.sbi:8443/ubi9/nginx-126:9.6-1755735243
+USER 0
+RUN mkdir -p /usr/share/nginx/html/merchantsimulator
+COPY ./dist/ /usr/share/nginx/html/merchantsimulator
+RUN ls -lrth /usr/share/nginx/html/merchantsimulator
+RUN chmod 755 -R  /usr/share/nginx/html/merchantsimulator
+RUN chown -R nginx:nginx /usr/share/nginx/html/merchantsimulator
+COPY ./nginx.conf /etc/nginx/nginx.conf
+RUN find /etc/nginx -type d | xargs chmod 750
+RUN find /etc/nginx -type f | xargs chmod 640
+EXPOSE 8080/tcp
+CMD ["/usr/sbin/nginx", "-g", "daemon off;"]
+__________________________
+
+and i was wroking for merchantsimulator
