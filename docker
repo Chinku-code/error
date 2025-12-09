@@ -1,30 +1,14 @@
-
 FROM registry.dev.sbiepay.sbi:8443/ubi9/nginx-126:9.6-1756959223
 USER 0
-# Create app folder + copy build output + set permissions
-RUN mkdir -p /usr/share/nginx/html/home
-COPY dist/ /usr/share/nginx/html/home/
-RUN chmod -R 755 /usr/share/nginx/html/home && \
-    chown -R nginx:nginx /usr/share/nginx/html/home
-# DO NOT COPY nginx.conf (ConfigMap will inject it based on ENV)
-# Correct dynamic NGINX setup — NO STATIC nginx.conf inside image
-EXPOSE 8080
-this was created for my test ----------------------
 
-this was are here ______
-
-FROM registry.dev.sbiepay.sbi:8443/ubi9/nginx-126:9.6-1755735243
-USER 0
+# copy built FE assets (dist/) under the desired sub-path
 RUN mkdir -p /usr/share/nginx/html/merchantsimulator
-COPY ./dist/ /usr/share/nginx/html/merchantsimulator
-RUN ls -lrth /usr/share/nginx/html/merchantsimulator
-RUN chmod 755 -R  /usr/share/nginx/html/merchantsimulator
-RUN chown -R nginx:nginx /usr/share/nginx/html/merchantsimulator
-COPY ./nginx.conf /etc/nginx/nginx.conf
-RUN find /etc/nginx -type d | xargs chmod 750
-RUN find /etc/nginx -type f | xargs chmod 640
-EXPOSE 8080/tcp
-CMD ["/usr/sbin/nginx", "-g", "daemon off;"]
-__________________________
+COPY dist/ /usr/share/nginx/html/merchantsimulator
 
-and i was wroking for merchantsimulator
+# permissions
+RUN chmod -R 755 /usr/share/nginx/html/merchantsimulator && \
+    chown -R nginx:nginx /usr/share/nginx/html/merchantsimulator
+
+# IMPORTANT: do NOT copy nginx.conf here; it will come from ConfigMap
+EXPOSE 8080
+CMD ["/usr/sbin/nginx", "-g", "daemon off;"]
