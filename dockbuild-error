@@ -31,3 +31,34 @@
       - ./dist
     when: on_success 
     expire_in: 1 week
+
+
+
+
+#######################################################################
+
+# 👇 NEW PHP BUILD STAGE
+.php_build:
+  stage: build
+  image:
+    name: registry.dev.sbiepay.sbi:8443/library/php:8.2    # adjust PHP image
+    pull_policy: always
+  script:
+    - pwd
+    - php -v
+    - composer --version || true
+    - |
+      if [ ! -f composer.phar ]; then
+        echo "Downloading composer..."
+        php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+        php composer-setup.php --install-dir=/usr/local/bin --filename=composer
+        php -r "unlink('composer-setup.php');"
+      fi
+    - composer install --no-dev --prefer-dist --optimize-autoloader
+    - ls -lrth
+  artifacts:
+    paths:
+      - vendor/
+      - public/          # if you build a public folder
+    when: on_success
+    expire_in: 1 week
