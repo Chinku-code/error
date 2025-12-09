@@ -1,48 +1,144 @@
-dockerbuild:
-  stage: dockerbuild
-  #dependencies:
-  #  - build
+include:
+  # SAST
+  - project: 'epay/devops/ci-templates'
+    ref: main
+    file: 'ci/sast/sast.yml'
+
+  # Fortify
+  - project: 'epay/devops/ci-templates'
+    ref: main
+    file: 'ci/sast/fortify.sast.yml'
+
+stages:
+  - build
+  - sast
+  - hp-fortify
+  - dockerbuild
+  - deploy
+
+variables:
+  APP_NAME: "epay-merchant-simulator"
+
+  # Registry config
+  DEV_REGISTRY_HOST: "registry.dev.sbiepay.sbi:8443"
+  DEV_REGISTRY_NAMESPACE: "ubi9"
+
+  # Build image
+  FE_BUILD_IMAGE: "registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113"
+
+#############################################
+# 1) FRONTEND BUILD (USING OLD WORKING STEPS)
+#############################################
+fe_build:
+  stage: build
+  image:
+    name: "$FE_BUILD_IMAGE"
+    pull_policy: always
+
   script:
-    - ls -ltrh 
-    #- cp -r ./dist .
-    - ls -ltrh
-    - TARGET_BRANCH="${CI_MERGE_REQUEST_TARGET_BRANCH_NAME:-$CI_COMMIT_REF_NAME}"
-    - TIMESTAMP=$(date +"%Y%m%d%H%M%S")
-    - TAG="${TARGET_BRANCH}-${TIMESTAMP}"
-    - echo "Generated Tag.. $TAG"
-    - echo $TAG > tag.txt
-    - podman login -u root -p root@123 $CI_TEMPLATE_REGISTRY_HOST --tls-verify=false
-    - podman build -t $SERVICE_NAME:$TAG -f Dockerfile --tls-verify=false
-    - podman push $SERVICE_NAME:$TAG --tls-verify=false
+    - pwd
+    - mkdir $ENV || true
+    - npm config set proxy http://serverswg.sbi.co.in:80
+    - npm config set https-proxy http://serverswg.sbi.co.in:9090
+    - npm cache clean --force
+    - npm install
+    - npm run build:$ENV
+    - ls -ltrh dist/
+
   artifacts:
     paths:
-      - tag.txt
-    when: on_success 
+      - dist/
     expire_in: 1 week
+
   rules:
-    - if: '$CI_COMMIT_BRANCH =~ /^(develop|release|main)$/'
-this is my one service working docker build steps--
-________________________________________________________
+    - if: '$CI_COMMIT_BRANCH == "develop"'
 
-this our we do for our dynamic logic ....
 
+#############################################
+# 2) SAST
+#############################################
+sast:
+  extends: .sast
+  stage: sast
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+
+
+#############################################
+# 3) FORTIFY
+#############################################
+hp-fortify:
+  extends: .HPFortify
+  stage: hp-fortify
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+
+
+#############################################
+# 4) DOCKER BUILD (OLD WORKING LOGIC + DYNAMIC TAG)
+#############################################
 dockerbuild:
   stage: dockerbuild
   image: quay.io/podman/stable:latest
-  needs: ["fe_build"]
-  variables:
-    IMAGE: "$DEV_REGISTRY_HOST/$DEV_REGISTRY_NAMESPACE/$APP_NAME:$VERSION"
+
+  needs:
+    - fe_build
+
   script:
-    - echo "===== DOCKER BUILD & PUSH to DEV ====="
-    - echo "$DEV_REGISTRY_PASSWORD" | podman login --username "$DEV_REGISTRY_USERNAME" --password-stdin "$DEV_REGISTRY_HOST"
-    - podman build -t "$IMAGE" .
-    - podman push "$IMAGE"
+    - echo "===== DOCKER BUILD (DYNAMIC TAG) ====="
+
+    # Generate TAG = branch + timestamp
+    - TARGET_BRANCH="${CI_MERGE_REQUEST_TARGET_BRANCH_NAME:-$CI_COMMIT_REF_NAME}"
+    - TIMESTAMP=$(date +"%Y%m%d%H%M%S")
+    - TAG="${TARGET_BRANCH}-${TIMESTAMP}"
+    - echo "Generated TAG: $TAG"
+    - echo "$TAG" > tag.txt
+
+    # Login (old working logic)
+    - podman login -u "$DEV_REGISTRY_USERNAME" -p "$DEV_REGISTRY_PASSWORD" "$DEV_REGISTRY_HOST" --tls-verify=false
+
+    # Full image path
+    - IMAGE="$DEV_REGISTRY_HOST/$DEV_REGISTRY_NAMESPACE/$APP_NAME:$TAG"
+    - echo "IMAGE=$IMAGE"
+
+    # Build and push
+    - podman build -t "$IMAGE" -f Dockerfile --tls-verify=false
+    - podman push "$IMAGE" --tls-verify=false
+
+    # Export to next stage
     - echo "SOURCE_IMAGE=$IMAGE" > docker.env
+
   artifacts:
+    paths:
+      - tag.txt
     reports:
       dotenv: docker.env
+    expire_in: 1 week
+
   rules:
     - if: '$CI_COMMIT_BRANCH == "develop"'
     - if: '$CI_COMMIT_BRANCH =~ /^release\//'
     - if: '$CI_COMMIT_BRANCH == "main"'
     - when: never
+
+
+#############################################
+# 5) DEPLOY TO DEV (Dynamic NGINX)
+#############################################
+deploy_dev:
+  stage: deploy
+
+  variables:
+    ENV: "dev"
+
+  trigger:
+    project: "epay/devops/deployment"
+    branch: "feature/dynamicnginx"
+    strategy: depend
+    forward:
+      yaml_variables: true
+      pipeline_variables: true
+
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+      when: manual
