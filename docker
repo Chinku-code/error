@@ -1,5 +1,4 @@
 include:
-  # Reuse SAST & Fortify templates
   - project: 'epay/devops/ci-templates'
     ref: main
     file: 'ci/sast/sast.yml'
@@ -16,8 +15,7 @@ stages:
 
 variables:
   APP_NAME: "epay-merchant-simulator"
-  VERSION: "$CI_COMMIT_SHORT_SHA"
-
+  VERSION: $CI_COMMIT_SHORT_SHA     # ← FIXED!
   DEV_REGISTRY_HOST: "registry.dev.sbiepay.sbi:8443"
   DEV_REGISTRY_NAMESPACE: "ubi9"
   FE_BUILD_IMAGE: "registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113"
@@ -28,7 +26,7 @@ variables:
 fe_build:
   stage: build
   image:
-    name: "$FE_BUILD_IMAGE"
+    name: $FE_BUILD_IMAGE
     pull_policy: always
 
   script:
@@ -80,11 +78,11 @@ dockerbuild:
   script:
     - echo "===== DOCKER BUILD (DEV) ====="
     - echo "$DEV_REGISTRY_PASSWORD" | podman login -u "$DEV_REGISTRY_USERNAME" --password-stdin "$DEV_REGISTRY_HOST"
-    - export IMAGE="$DEV_REGISTRY_HOST/$DEV_REGISTRY_NAMESPACE/$APP_NAME:$VERSION"
-    - echo "Image: ${IMAGE}"
-    - podman build -t "${IMAGE}" .
-    - podman push "${IMAGE}"
-    - echo "IMAGE=${IMAGE}" > docker.env
+    - IMAGE="$DEV_REGISTRY_HOST/$DEV_REGISTRY_NAMESPACE/$APP_NAME:$VERSION"
+    - echo "Image: $IMAGE"
+    - podman build -t "$IMAGE" .
+    - podman push "$IMAGE"
+    - echo "IMAGE=$IMAGE" > docker.env
 
   artifacts:
     reports:
@@ -94,15 +92,15 @@ dockerbuild:
     - if: '$CI_COMMIT_BRANCH == "develop"'
 
 #############################################
-# 5) DEPLOY DEV (Dynamic NGINX)
+# 5) DEPLOY DEV
 #############################################
 deploy_dev:
   stage: deploy
 
   variables:
     ENV: "dev"
-    VERSION: "$VERSION"
-    APP_NAME: "$APP_NAME"
+    VERSION: $VERSION
+    APP_NAME: $APP_NAME
 
   trigger:
     project: "epay/devops/deployment"
