@@ -1,25 +1,33 @@
-Checking out 7c36550c as detached HEAD (ref is develop)...
-Removing dist/
-Removing node_modules/
-Removing tsconfig.app.tsbuildinfo
-Removing tsconfig.node.tsbuildinfo
-Skipping Git submodules setup
-Downloading artifacts
-00:02
-Downloading artifacts for fe_build (221859)...
-Downloading artifacts from coordinator... ok        id=221859 responseStatus=200 OK token=glcbt-64
-Executing "step_script" stage of the job script
-00:02
-Using docker image sha256:25c1ac1096f4e40c3a00d25d6982bc8559ebb03028aaabdd64b79b3309b50358 for quay.io/podman/stable:latest with digest quay.io/podman/stable@sha256:238f6566bfff87badb15e435820271826da53ee8f5a307e462dc530d198c4ebb ...
-$ echo "===== DOCKER BUILD START =====" # collapsed multi-line command
-===== DOCKER BUILD START =====
-time="2025-12-09T09:39:29Z" level=warning msg="Using cgroups-v1 which is deprecated in favor of cgroups-v2 with Podman v5 and will be removed in a future version. Set environment variable `PODMAN_IGNORE_CGROUPSV1_WARNING` to hide this warning."
-Username: Error: getting username and password: reading username: EOF
-Uploading artifacts for failed job
-00:01
-Uploading artifacts...
-WARNING: docker.env: no matching files             
-ERROR: No files to upload                          
-Cleaning up project directory and file based variables
-00:02
-ERROR: Job failed: exit code 1
+.build:
+  stage: build
+  image: 
+    name:  registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113
+    pull_policy: always  
+  script:
+    - pwd
+    #- mkdir $ENV
+    #- ls -la
+    - npm config set proxy http://serverswg.sbi.co.in:80
+    - npm config set https-proxy http://serverswg.sbi.co.in:9090
+    - ls /app
+    - npm cache clean --force
+    - |
+      if [ -n "$VERSION" ]; then
+        echo "version ${VERSION}"
+        # npm version "${VERSION}" --no-git-tag-version
+      fi
+    # - npm install --legacy-peer-deps
+    - npm install
+    #- npm install --loglevel verbose
+    #- npm install rollup@latest
+    - npm run build:dev
+    - ls -lrth
+    #- ls -lrth /dev
+    #- npm install --save-dev eslint-plugin-react eslint-plugin-react-hooks
+    #- npm run lint -- --debug
+    #- npm run lint 
+  artifacts:
+    paths:
+      - ./dist
+    when: on_success 
+    expire_in: 1 week
