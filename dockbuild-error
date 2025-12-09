@@ -324,3 +324,15 @@ deploy-prod-dc:
     - when: never
 
 plz find the error and give the correct solution
+
+-------------------------------------------------------------------
+
+.php_build:
+  stage: build
+  image: registry.dev.sbiepay.sbi:8443/library/php:8.2
+  script:
+    - php -v
+    - composer install --no-dev --prefer-dist
+  artifacts:
+    paths:
+      - vendor/
