@@ -1,3 +1,3 @@
-  - project: 'epay/devops/ci-templates'
-    ref: main
-    file: 'cd/helm/service.yml'
+variables:
+  RELEASE_NAME: transactionfe
+  CHART_NAME: transaction-frontend
