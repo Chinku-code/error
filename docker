@@ -5,18 +5,35 @@ dockerbuild:
     - fe_build
 
   script:
-    - echo "===== DOCKER BUILD ====="
-    - if [ -n "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" ]; then TARGET_BRANCH="$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"; else TARGET_BRANCH="$CI_COMMIT_REF_NAME"; fi
-    - echo "Branch: $TARGET_BRANCH"
+    - echo "===== DOCKER BUILD STARTED ====="
+
+    # Detect branch (MR vs normal push)
+    - |
+      if [ -n "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" ]; then
+        TARGET_BRANCH="$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"
+      else
+        TARGET_BRANCH="$CI_COMMIT_REF_NAME"
+      fi
+      echo "TARGET_BRANCH=$TARGET_BRANCH"
+
+    # Generate dynamic tag
     - TIMESTAMP=$(date +"%Y%m%d%H%M%S")
     - TAG="${TARGET_BRANCH}-${TIMESTAMP}"
     - echo "$TAG" > tag.txt
     - echo "Generated TAG: $TAG"
+
+    # Login to registry
     - podman login -u "$DEV_REGISTRY_USERNAME" -p "$DEV_REGISTRY_PASSWORD" "$DEV_REGISTRY_HOST" --tls-verify=false
+
+    # Compose final image name
     - IMAGE="${DEV_REGISTRY_HOST}/${DEV_REGISTRY_NAMESPACE}/${APP_NAME}:${TAG}"
     - echo "IMAGE=$IMAGE"
+
+    # Build & push docker image
     - podman build -t "$IMAGE" -f Dockerfile --tls-verify=false
     - podman push "$IMAGE" --tls-verify=false
+
+    # Export for next stage
     - echo "SOURCE_IMAGE=$IMAGE" > docker.env
 
   artifacts:
