@@ -66,4 +66,53 @@ hp-fortify:
   extends: .HPFortify
   stage: hp-fortify
   rules:
-    - if: '$CI_COMMIT_BRANCH == "d
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+
+#############################################
+# 4) DOCKER BUILD (FIXED)
+#############################################
+dockerbuild:
+  stage: dockerbuild
+  image: "quay.io/podman/stable:latest"
+  needs:
+    - fe_build
+
+  script:
+    - echo "===== DOCKER BUILD (DEV) ====="
+    - |
+      echo "$DEV_REGISTRY_PASSWORD" | \
+      podman login -u "$DEV_REGISTRY_USERNAME" --password-stdin "$DEV_REGISTRY_HOST"
+    - IMAGE="${DEV_REGISTRY_HOST}/${DEV_REGISTRY_NAMESPACE}/${APP_NAME}:${VERSION}"
+    - echo "IMAGE=$IMAGE"
+    - podman build -t "$IMAGE" .
+    - podman push "$IMAGE"
+    - echo "IMAGE=$IMAGE" > docker.env
+
+  artifacts:
+    reports:
+      dotenv: docker.env
+
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+
+#############################################
+# 5) DEPLOY DEV
+#############################################
+deploy_dev:
+  stage: deploy
+  variables:
+    ENV: "dev"
+    VERSION: $VERSION
+    APP_NAME: $APP_NAME
+
+  trigger:
+    project: "epay/devops/deployment"
+    branch: "feature/dynamicnginx"
+    strategy: depend
+    forward:
+      yaml_variables: true
+      pipeline_variables: true
+
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+      when: manual
