@@ -17,39 +17,43 @@ variables:
   APP_NAME: "epay-merchant-simulator"
   VERSION: "$CI_COMMIT_SHORT_SHA"
 
-  DEV_REGISTRY_HOST: "registry.dev.sbiepay.sbi:8443"
-  DEV_REGISTRY_NAMESPACE: "ubi9"
   FE_BUILD_IMAGE: "registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113"
 
-#############################################
-# FRONTEND BUILD
-#############################################
+  DEV_REGISTRY_HOST: "registry.dev.sbiepay.sbi:8443"
+  DEV_REGISTRY_NAMESPACE: "ubi9"
+
+#############################################################
+# 1) FRONTEND BUILD
+#############################################################
 fe_build:
   stage: build
   image:
     name: "$FE_BUILD_IMAGE"
     pull_policy: always
+
   script:
-    - echo "===== FRONTEND BUILD START ====="
+    - echo "===== FRONTEND BUILD ====="
     - npm config set proxy http://serverswg.sbi.co.in:80
     - npm config set https-proxy http://serverswg.sbi.co.in:9090
     - npm cache clean --force
     - npm install --legacy-peer-deps
     - npm run build:dev
     - ls -lrth
+
   artifacts:
     paths:
       - dist/
     expire_in: 1 week
+
   rules:
     - if: '$CI_COMMIT_BRANCH == "develop"'
     - if: '$CI_COMMIT_BRANCH =~ /^release\//'
     - if: '$CI_COMMIT_BRANCH == "main"'
     - when: never
 
-#############################################
-# SAST
-#############################################
+#############################################################
+# 2) SAST
+#############################################################
 sast:
   extends: .sast
   stage: sast
@@ -57,9 +61,9 @@ sast:
     - if: '$CI_COMMIT_BRANCH == "develop"'
     - when: never
 
-#############################################
-# HP FORTIFY
-#############################################
+#############################################################
+# 3) HP FORTIFY
+#############################################################
 hp-fortify:
   extends: .HPFortify
   stage: hp-fortify
@@ -67,9 +71,9 @@ hp-fortify:
     - if: '$CI_COMMIT_BRANCH == "develop"'
     - when: never
 
-#############################################
-# DOCKERBUILD (VALIDATED)
-#############################################
+#############################################################
+# 4) DOCKER BUILD (100% FIXED MULTILINE SCRIPT)
+#############################################################
 dockerbuild:
   stage: dockerbuild
   image: "quay.io/podman/stable:latest"
@@ -77,30 +81,30 @@ dockerbuild:
     - fe_build
 
   script:
-    - echo "===== DOCKER BUILD START ====="
-
     - |
+      echo "===== DOCKER BUILD START ====="
+
       if [ -n "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" ]; then
         TARGET_BRANCH="$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"
       else
         TARGET_BRANCH="$CI_COMMIT_REF_NAME"
       fi
+
       echo "TARGET_BRANCH=$TARGET_BRANCH"
 
-    - TIMESTAMP=$(date +"%Y%m%d%H%M%S")
-    - TAG="${TARGET_BRANCH}-${TIMESTAMP}"
-    - echo "$TAG" > tag.txt
-    - echo "Generated TAG: $TAG"
+      TIMESTAMP=$(date +"%Y%m%d%H%M%S")
+      TAG="${TARGET_BRANCH}-${TIMESTAMP}"
+      echo "$TAG" > tag.txt
 
-    - podman login -u "$DEV_REGISTRY_USERNAME" -p "$DEV_REGISTRY_PASSWORD" "$DEV_REGISTRY_HOST" --tls-verify=false
+      podman login -u "$DEV_REGISTRY_USERNAME" -p "$DEV_REGISTRY_PASSWORD" "$DEV_REGISTRY_HOST" --tls-verify=false
 
-    - IMAGE="${DEV_REGISTRY_HOST}/${DEV_REGISTRY_NAMESPACE}/${APP_NAME}:${TAG}"
-    - echo "IMAGE=$IMAGE"
+      IMAGE="${DEV_REGISTRY_HOST}/${DEV_REGISTRY_NAMESPACE}/${APP_NAME}:${TAG}"
+      echo "IMAGE=$IMAGE"
 
-    - podman build -t "$IMAGE" -f Dockerfile --tls-verify=false
-    - podman push "$IMAGE" --tls-verify=false
+      podman build -t "$IMAGE" -f Dockerfile --tls-verify=false
+      podman push "$IMAGE" --tls-verify=false
 
-    - echo "SOURCE_IMAGE=$IMAGE" > docker.env
+      echo "SOURCE_IMAGE=$IMAGE" > docker.env
 
   artifacts:
     paths:
@@ -115,13 +119,12 @@ dockerbuild:
     - if: '$CI_COMMIT_BRANCH == "main"'
     - when: never
 
-#############################################
-# DEPLOY DEV (Dynamic)
-#############################################
+#############################################################
+# 5) DEPLOY DEV (Dynamic NGINX)
+#############################################################
 deploy_dev:
   stage: deploy
-  needs:
-    - dockerbuild
+
   trigger:
     project: "epay/devops/deployment"
     branch: "feature/dynamicnginx"
@@ -129,10 +132,16 @@ deploy_dev:
     forward:
       yaml_variables: true
       pipeline_variables: true
+
   variables:
     ENV: "dev"
     APP_NAME: "$APP_NAME"
+    SOURCE_IMAGE: "$SOURCE_IMAGE"
     VERSION: "$VERSION"
+
+  needs:
+    - dockerbuild
+
   rules:
     - if: '$CI_COMMIT_BRANCH == "develop"'
       when: manual
