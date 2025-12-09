@@ -1,125 +1,53 @@
-include:
-  # ============================
-  # REUSE SAST & FORTIFY FROM WORKING CI
-  # ============================
-  - project: 'epay/devops/ci-templates'
-    ref: main
-    file: 'ci/sast/sast.yml'
-  - project: 'epay/devops/ci-templates'
-    ref: main
-    file: 'ci/sast/fortify.sast.yml'
-
-stages:
-  - build
-  - test
-  - sast
-  - hp-fortify
-  - dockerbuild
-  - deploy
-
-variables:
-  APP_NAME: "epay-merchant-simulator"
-  VERSION: "$CI_COMMIT_SHORT_SHA"
-
-  DEV_REGISTRY_HOST: "registry.dev.sbiepay.sbi:8443"
-  DEV_REGISTRY_NAMESPACE: "ubi9"
-  FE_BUILD_IMAGE: "registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113"
-
-###########################################################
-# 1) FRONTEND BUILD (DEV)
-###########################################################
-fe_build:
-  stage: build
-  image:
-    name: "$FE_BUILD_IMAGE"
-    pull_policy: always
-
-  script:
-    - echo "===== FRONTEND BUILD ====="
-    - unset HTTP_PROXY HTTPS_PROXY http_proxy https_proxy || true
-    - npm config delete proxy || true
-    - npm config delete https-proxy || true
-    - npm config set registry https://registry.npmjs.org/
-    - npm config set strict-ssl false
-    - npm config set legacy-peer-deps true
-    - npm config set force true
-    - npm cache clean --force
-    - npm ci --legacy-peer-deps || npm install --legacy-peer-deps
-    - npm run build:dev
-
-  artifacts:
-    paths:
-      - dist/
-
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "develop"'
-
-
-###########################################################
-# 2) SAST (TAKEN FROM WORKING CI)
-###########################################################
-sast:
-  extends: .sast
-  stage: sast
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "develop"'
-
-
-###########################################################
-# 3) HP FORTIFY (TAKEN FROM WORKING CI)
-###########################################################
-hp-fortify:
-  extends: .HPFortify
-  stage: hp-fortify
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "develop"'
-
-
-###########################################################
-# 4) DOCKER BUILD (DEV)
-###########################################################
-dockerbuild:
-  stage: dockerbuild
-  image: quay.io/podman/stable:latest
-  needs: ["fe_build"]
-
-  script:
-    - echo "===== DOCKER BUILD (DEV) ====="
-    - echo "$DEV_REGISTRY_PASSWORD" | podman login -u "$DEV_REGISTRY_USERNAME" --password-stdin "$DEV_REGISTRY_HOST"
-    - IMAGE="$DEV_REGISTRY_HOST/$DEV_REGISTRY_NAMESPACE/$APP_NAME:$VERSION"
-    - podman build -t "$IMAGE" .
-    - podman push "$IMAGE"
-    - echo "IMAGE=$IMAGE" > docker.env
-
-  artifacts:
-    reports:
-      dotenv: docker.env
-
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "develop"'
-
-
-###########################################################
-# 5) DEPLOY TO DEV
-###########################################################
-deploy_dev:
-  stage: deploy
-
-  variables:
-    ENV: "dev"
-    VERSION: "$VERSION"
-    APP_NAME: "$APP_NAME"
-    SOURCE_IMAGE: "$IMAGE"
-    NGINX_SUBFOLDER: "/merchantsimulator"
-
-  trigger:
-    project: "epay/devops/deployment"
-    branch: "feature/dynamicnginx"
-    strategy: depend
-    forward:
-      yaml_variables: true
-      pipeline_variables: true
-
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "develop"'
-      when: manual
+Running with gitlab-runner 17.8.0 (e4f782b3)
+  on DC-Gitlab-Runner rMTQxLq3, system ID: s_948d0ccb739a
+Resolving secrets
+Preparing the "docker" executor
+00:05
+Using Docker executor with image registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113 ...
+Using helper image:  registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest  (overridden, default would be  registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-v17.8.0 )
+Pulling docker image registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest ...
+Using docker image sha256:c95744588b6d7e170a6866854932de40eaf1b5ed229ed818cba6a87a1f885773 for registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest with digest registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper@sha256:ebbf1c21e4272ae1f8c18b034d390809c836c2fc68c0f0f6d3a5aff9760aabf5 ...
+Using helper image:  registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest  (overridden, default would be  registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-v17.8.0 )
+Using docker image sha256:c95744588b6d7e170a6866854932de40eaf1b5ed229ed818cba6a87a1f885773 for registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest with digest registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper@sha256:ebbf1c21e4272ae1f8c18b034d390809c836c2fc68c0f0f6d3a5aff9760aabf5 ...
+Pulling docker image registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113 ...
+Using docker image sha256:c1037efa7a6cfce811caf269e33c408144a2058361edcd7ab9d99c1aa67433c8 for registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113 with digest registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm@sha256:96ab8f99d7e94b7d955b4129daa1a36556977e216b5ff4b392c07e2d8a776e58 ...
+Preparing environment
+00:02
+Using helper image:  registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest  (overridden, default would be  registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-v17.8.0 )
+Using docker image sha256:c95744588b6d7e170a6866854932de40eaf1b5ed229ed818cba6a87a1f885773 for registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest with digest registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper@sha256:ebbf1c21e4272ae1f8c18b034d390809c836c2fc68c0f0f6d3a5aff9760aabf5 ...
+Running on runner-rmtqxlq3-project-53-concurrent-0 via Gitlab-DC-Runr...
+Getting source from Git repository
+00:03
+$ git config --global http.proxy $HTTP_PROXY; git config --global https.proxy $HTTPS_PROXY; git config --global no.proxy $NO_PROXY
+Fetching changes with git depth set to 20...
+Reinitialized existing Git repository in /tmp/builds/epay/frontends/epay_merchant_simulator/.git/
+Checking out e41b8aa2 as detached HEAD (ref is develop)...
+Skipping Git submodules setup
+Executing "step_script" stage of the job script
+01:18
+Using docker image sha256:c1037efa7a6cfce811caf269e33c408144a2058361edcd7ab9d99c1aa67433c8 for registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113 with digest registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm@sha256:96ab8f99d7e94b7d955b4129daa1a36556977e216b5ff4b392c07e2d8a776e58 ...
+$ echo "===== FRONTEND BUILD ====="
+===== FRONTEND BUILD =====
+$ unset HTTP_PROXY HTTPS_PROXY http_proxy https_proxy || true
+$ npm config delete proxy || true
+$ npm config delete https-proxy || true
+$ npm config set registry https://registry.npmjs.org/
+$ npm config set strict-ssl false
+$ npm config set legacy-peer-deps true
+$ npm config set force true
+$ npm cache clean --force
+npm warn using --force Recommended protections disabled.
+$ npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+npm warn using --force Recommended protections disabled.
+npm error Exit handler never called!
+npm error This is an error with npm itself. Please report this error at:
+npm error   <https://github.com/npm/cli/issues>
+npm error A complete log of this run can be found in: /opt/app-root/src/.npm/_logs/2025-12-09T05_51_52_781Z-debug-0.log
+$ npm run build:dev
+npm warn using --force Recommended protections disabled.
+> epayment-final@0.0.0 build:dev
+> tsc -b && vite build --mode development
+sh: line 1: tsc: command not found
+Cleaning up project directory and file based variables
+00:01
+ERROR: Job failed: exit code 1
