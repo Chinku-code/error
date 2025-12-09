@@ -133,3 +133,242 @@ deploy_dev:
   rules:
     - if: '$CI_COMMIT_BRANCH == "develop"'
       when: manual
+
+this indetation not validatte 
+________________________________
+
+include:
+  # SAST & Fortify from your working CI
+  - project: 'epay/devops/ci-templates'
+    ref: main
+    file: 'ci/sast/sast.yml'
+  - project: 'epay/devops/ci-templates'
+    ref: main
+    file: 'ci/sast/fortify.sast.yml'
+
+stages:
+  - build
+  - sast
+  - hp-fortify
+  - dockerbuild
+  - promote
+  - deploy
+
+# ---------- GLOBAL VARS ----------
+variables:
+  APP_NAME: "epay-merchant-simulator"
+  VERSION: "$CI_COMMIT_SHORT_SHA"
+
+  FE_BUILD_IMAGE: "registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113"
+
+  DEV_REGISTRY_HOST: "registry.dev.sbiepay.sbi:8443"
+  DEV_REGISTRY_NAMESPACE: "ubi9"
+
+  PREPROD_REGISTRY_HOST: "epaynonprod-registry-quay-quay-enterprise.apps.preprod.epay.sbi"
+  PREPROD_NAMESPACE: "fe"
+
+  PROD_REGISTRY_HOST: "registry.prod.epay.sbi:8443"
+  PROD_NAMESPACE: "fe"
+
+  # Dynamic NGINX CD
+  DEPLOY_TRIGGER_PROJECT: "epay/devops/deployment"
+  DEPLOY_TRIGGER_BRANCH: "feature/dynamicnginx"
+
+# =====================================================
+# 1) FRONTEND BUILD  (uses your working proxy + npm install)
+# =====================================================
+fe_build:
+  stage: build
+  image:
+    name: "$FE_BUILD_IMAGE"
+    pull_policy: always
+  script:
+    - echo "===== FRONTEND BUILD ====="
+    # Use your corporate proxy like the working pipeline
+    - npm config set proxy http://serverswg.sbi.co.in:80
+    - npm config set https-proxy http://serverswg.sbi.co.in:9090
+
+    - npm cache clean --force
+    # Use npm install (NOT npm ci) — matches your working job
+    - npm install --legacy-peer-deps
+
+    # Decide ENV by branch
+    - |
+      if [[ "$CI_COMMIT_BRANCH" == "develop" ]]; then
+        export ENV=dev
+      elif [[ "$CI_COMMIT_BRANCH" =~ ^release/ ]]; then
+        export ENV=dev   # build once; will promote to higher envs
+      elif [[ "$CI_COMMIT_BRANCH" == "main" ]]; then
+        export ENV=dev   # build once; will promote to prod
+      else
+        export ENV=dev
+      fi
+      echo "Build ENV: $ENV"
+
+    # Dynamic build script in package.json: build:dev / build:sit / ...
+    # If you only have build:dev, keep it as build:dev
+    - npm run build:dev
+
+    - ls -lrth
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 week
+  rules:
+    # Build only on develop / release/* / main
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - if: '$CI_COMMIT_BRANCH =~ /^release\//'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - when: never
+
+# =====================================================
+# 2) SAST  (from your template)
+# =====================================================
+sast:
+  extends: .sast
+  stage: sast
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - when: never
+
+# =====================================================
+# 3) HP FORTIFY (from your template)
+# =====================================================
+hp-fortify:
+  extends: .HPFortify
+  stage: hp-fortify
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - when: never
+
+# =====================================================
+# 4) SINGLE DOCKER BUILD (push to DEV registry)
+# =====================================================
+dockerbuild:
+  stage: dockerbuild
+  image: quay.io/podman/stable:latest
+  needs: ["fe_build"]
+  variables:
+    IMAGE: "$DEV_REGISTRY_HOST/$DEV_REGISTRY_NAMESPACE/$APP_NAME:$VERSION"
+  script:
+    - echo "===== DOCKER BUILD & PUSH to DEV ====="
+    - echo "$DEV_REGISTRY_PASSWORD" | podman login --username "$DEV_REGISTRY_USERNAME" --password-stdin "$DEV_REGISTRY_HOST"
+    - podman build -t "$IMAGE" .
+    - podman push "$IMAGE"
+    - echo "SOURCE_IMAGE=$IMAGE" > docker.env
+  artifacts:
+    reports:
+      dotenv: docker.env
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - if: '$CI_COMMIT_BRANCH =~ /^release\//'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - when: never
+
+# =====================================================
+# 5) PROMOTE (same image) — manual gates
+# =====================================================
+.promote_template: &promote_template
+  stage: promote
+  image: quay.io/podman/stable:latest
+  needs: ["dockerbuild"]
+  script:
+    - echo "PROMOTE to $TARGET_ENV → $TARGET_REGISTRY_HOST/$TARGET_NAMESPACE/$APP_NAME:$VERSION"
+    - echo "$TARGET_REGISTRY_PASSWORD" | podman login --username "$TARGET_REGISTRY_USERNAME" --password-stdin "$TARGET_REGISTRY_HOST"
+    - podman pull "$SOURCE_IMAGE"
+    - podman tag  "$SOURCE_IMAGE" "$TARGET_REGISTRY_HOST/$TARGET_NAMESPACE/$APP_NAME:$VERSION"
+    - podman push "$TARGET_REGISTRY_HOST/$TARGET_NAMESPACE/$APP_NAME:$VERSION"
+  when: manual
+  rules:
+    - when: manual
+
+# SIT / UAT → release/*
+promote_sit:
+  <<: *promote_template
+  variables:
+    TARGET_ENV: "sit"
+    TARGET_REGISTRY_HOST: "$DEV_REGISTRY_HOST"
+    TARGET_NAMESPACE: "$DEV_REGISTRY_NAMESPACE"
+    TARGET_REGISTRY_USERNAME: "$DEV_REGISTRY_USERNAME"
+    TARGET_REGISTRY_PASSWORD: "$DEV_REGISTRY_PASSWORD"
+  rules:
+    - if: '$CI_COMMIT_BRANCH =~ /^release\//'
+      when: manual
+
+promote_uat:
+  <<: *promote_template
+  variables:
+    TARGET_ENV: "uat"
+    TARGET_REGISTRY_HOST: "$DEV_REGISTRY_HOST"
+    TARGET_NAMESPACE: "$DEV_REGISTRY_NAMESPACE"
+    TARGET_REGISTRY_USERNAME: "$DEV_REGISTRY_USERNAME"
+    TARGET_REGISTRY_PASSWORD: "$DEV_REGISTRY_PASSWORD"
+  rules:
+    - if: '$CI_COMMIT_BRANCH =~ /^release\//'
+      when: manual
+
+# PRE-PROD / PERF → release/*
+promote_preprod:
+  <<: *promote_template
+  variables:
+    TARGET_ENV: "pre-prod"
+    TARGET_REGISTRY_HOST: "$PREPROD_REGISTRY_HOST"
+    TARGET_NAMESPACE: "$PREPROD_NAMESPACE"
+    TARGET_REGISTRY_USERNAME: "$PREPROD_REGISTRY_USERNAME"
+    TARGET_REGISTRY_PASSWORD: "$PREPROD_REGISTRY_PASSWORD"
+  rules:
+    - if: '$CI_COMMIT_BRANCH =~ /^release\//'
+      when: manual
+
+promote_perf:
+  <<: *promote_template
+  variables:
+    TARGET_ENV: "perf"
+    TARGET_REGISTRY_HOST: "$PREPROD_REGISTRY_HOST"
+    TARGET_NAMESPACE: "$PREPROD_NAMESPACE"
+    TARGET_REGISTRY_USERNAME: "$PREPROD_REGISTRY_USERNAME"
+    TARGET_REGISTRY_PASSWORD: "$PREPROD_REGISTRY_PASSWORD"
+  rules:
+    - if: '$CI_COMMIT_BRANCH =~ /^release\//'
+      when: manual
+
+# PROD → main
+promote_prod:
+  <<: *promote_template
+  variables:
+    TARGET_ENV: "prod"
+    TARGET_REGISTRY_HOST: "$PROD_REGISTRY_HOST"
+    TARGET_NAMESPACE: "$PROD_NAMESPACE"
+    TARGET_REGISTRY_USERNAME: "$PROD_REGISTRY_USERNAME"
+    TARGET_REGISTRY_PASSWORD: "$PROD_REGISTRY_PASSWORD"
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: manual
+
+# =====================================================
+# 6) DEPLOY (Dynamic NGINX) — dev auto on develop
+# =====================================================
+.deploy_template: &deploy_template
+  stage: deploy
+  trigger:
+    project: "$DEPLOY_TRIGGER_PROJECT"
+    branch: "$DEPLOY_TRIGGER_BRANCH"
+    strategy: depend
+    forward:
+      yaml_variables: true
+      pipeline_variables: true
+  variables:
+    VERSION: "$VERSION"
+    APP_NAME: "$APP_NAME"
+    SOURCE_IMAGE: "$SOURCE_IMAGE"
+
+deploy_dev:
+  <<: *deploy_template
+  variables:
+    ENV: "dev"
+  needs: ["dockerbuild"]
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+      when: on_success
+
+but this working good inditaion validate this yml
