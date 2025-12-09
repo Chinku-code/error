@@ -1,4 +1,5 @@
 include:
+  # Reuse SAST & Fortify templates
   - project: 'epay/devops/ci-templates'
     ref: main
     file: 'ci/sast/sast.yml'
@@ -16,93 +17,93 @@ stages:
 variables:
   APP_NAME: "epay-merchant-simulator"
   VERSION: "$CI_COMMIT_SHORT_SHA"
+
   DEV_REGISTRY_HOST: "registry.dev.sbiepay.sbi:8443"
   DEV_REGISTRY_NAMESPACE: "ubi9"
   FE_BUILD_IMAGE: "registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113"
 
-.default_rules: &default_rules
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "develop"'
-    - when: never
-
-# ------------------------------------
+#############################################
 # 1) FRONTEND BUILD
-# ------------------------------------
+#############################################
 fe_build:
   stage: build
-  image: "$FE_BUILD_IMAGE"
+  image:
+    name: "$FE_BUILD_IMAGE"
+    pull_policy: always
+
   script:
-    - echo "===== FE BUILD ====="
+    - echo "===== FRONTEND BUILD ====="
     - unset HTTP_PROXY HTTPS_PROXY http_proxy https_proxy || true
     - npm config delete proxy || true
     - npm config delete https-proxy || true
     - npm config set registry https://registry.npmjs.org/
     - npm config set strict-ssl false
     - npm config set legacy-peer-deps true
+    - npm config set force true
     - npm cache clean --force
     - npm ci --legacy-peer-deps || npm install --legacy-peer-deps
-    - npx --yes typescript@5 -v || true
-    - npx --yes vite@5 -v || true
     - npm run build:dev
-    - ls -la dist
+
   artifacts:
     paths:
       - dist/
-  <<: *default_rules
 
-# ------------------------------------
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+
+#############################################
 # 2) SAST
-# ------------------------------------
+#############################################
 sast:
   extends: .sast
   stage: sast
-  needs: ["fe_build"]
-  <<: *default_rules
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
 
-# ------------------------------------
+#############################################
 # 3) HP FORTIFY
-# ------------------------------------
+#############################################
 hp-fortify:
   extends: .HPFortify
   stage: hp-fortify
-  needs: ["fe_build"]
-  variables:
-    EXCLUDE_DIRS: "./**/dist/**/*"
-    INCLUDE_DIRS: "./**/*.ts,./**/*.tsx,./**/*.js"
-  <<: *default_rules
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
 
-# ------------------------------------
+#############################################
 # 4) DOCKER BUILD
-# ------------------------------------
+#############################################
 dockerbuild:
   stage: dockerbuild
   image: quay.io/podman/stable:latest
   needs: ["fe_build"]
+
   script:
-    - echo "===== DOCKER BUILD ====="
-    - IMAGE="$DEV_REGISTRY_HOST/$DEV_REGISTRY_NAMESPACE/$APP_NAME:$VERSION"
-    - echo "Image: $IMAGE"
-    - if [ -n "$DEV_REGISTRY_USERNAME" ]; then echo "$DEV_REGISTRY_PASSWORD" | podman login -u "$DEV_REGISTRY_USERNAME" --password-stdin "$DEV_REGISTRY_HOST"; else echo "$CI_JOB_TOKEN" | podman login -u "gitlab-ci-token" --password-stdin "$DEV_REGISTRY_HOST"; fi
-    - podman build -t "$IMAGE" .
-    - podman push "$IMAGE"
-    - echo "IMAGE=$IMAGE" > docker.env
+    - echo "===== DOCKER BUILD (DEV) ====="
+    - echo "$DEV_REGISTRY_PASSWORD" | podman login -u "$DEV_REGISTRY_USERNAME" --password-stdin "$DEV_REGISTRY_HOST"
+    - export IMAGE="$DEV_REGISTRY_HOST/$DEV_REGISTRY_NAMESPACE/$APP_NAME:$VERSION"
+    - echo "Image: ${IMAGE}"
+    - podman build -t "${IMAGE}" .
+    - podman push "${IMAGE}"
+    - echo "IMAGE=${IMAGE}" > docker.env
+
   artifacts:
     reports:
       dotenv: docker.env
-  <<: *default_rules
 
-# ------------------------------------
-# 5) DEPLOY DEV
-# ------------------------------------
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+
+#############################################
+# 5) DEPLOY DEV (Dynamic NGINX)
+#############################################
 deploy_dev:
   stage: deploy
-  needs: ["dockerbuild"]
+
   variables:
     ENV: "dev"
     VERSION: "$VERSION"
     APP_NAME: "$APP_NAME"
-    SOURCE_IMAGE: "$IMAGE"
-    NGINX_SUBFOLDER: "/merchantsimulator"
+
   trigger:
     project: "epay/devops/deployment"
     branch: "feature/dynamicnginx"
@@ -110,6 +111,7 @@ deploy_dev:
     forward:
       yaml_variables: true
       pipeline_variables: true
+
   rules:
     - if: '$CI_COMMIT_BRANCH == "develop"'
       when: manual
