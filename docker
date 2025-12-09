@@ -1,14 +1,47 @@
-FROM registry.dev.sbiepay.sbi:8443/ubi9/nginx-126:9.6-1756959223
-USER 0
-
-# copy built FE assets (dist/) under the desired sub-path
-RUN mkdir -p /usr/share/nginx/html/merchantsimulator
-COPY dist/ /usr/share/nginx/html/merchantsimulator
-
-# permissions
-RUN chmod -R 755 /usr/share/nginx/html/merchantsimulator && \
-    chown -R nginx:nginx /usr/share/nginx/html/merchantsimulator
-
-# IMPORTANT: do NOT copy nginx.conf here; it will come from ConfigMap
-EXPOSE 8080
-CMD ["/usr/sbin/nginx", "-g", "daemon off;"]
+Running with gitlab-runner 17.8.0 (e4f782b3)
+  on DC-Gitlab-Runner rMTQxLq3, system ID: s_948d0ccb739a
+Resolving secrets
+Preparing the "docker" executor
+00:57
+Using Docker executor with image quay.io/podman/stable:latest ...
+Using helper image:  registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest  (overridden, default would be  registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-v17.8.0 )
+Pulling docker image registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest ...
+Using docker image sha256:c95744588b6d7e170a6866854932de40eaf1b5ed229ed818cba6a87a1f885773 for registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest with digest registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper@sha256:ebbf1c21e4272ae1f8c18b034d390809c836c2fc68c0f0f6d3a5aff9760aabf5 ...
+Using helper image:  registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest  (overridden, default would be  registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-v17.8.0 )
+Using docker image sha256:c95744588b6d7e170a6866854932de40eaf1b5ed229ed818cba6a87a1f885773 for registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest with digest registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper@sha256:ebbf1c21e4272ae1f8c18b034d390809c836c2fc68c0f0f6d3a5aff9760aabf5 ...
+Pulling docker image quay.io/podman/stable:latest ...
+Using docker image sha256:25c1ac1096f4e40c3a00d25d6982bc8559ebb03028aaabdd64b79b3309b50358 for quay.io/podman/stable:latest with digest quay.io/podman/stable@sha256:238f6566bfff87badb15e435820271826da53ee8f5a307e462dc530d198c4ebb ...
+Preparing environment
+00:02
+Using helper image:  registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest  (overridden, default would be  registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-v17.8.0 )
+Using docker image sha256:c95744588b6d7e170a6866854932de40eaf1b5ed229ed818cba6a87a1f885773 for registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest with digest registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper@sha256:ebbf1c21e4272ae1f8c18b034d390809c836c2fc68c0f0f6d3a5aff9760aabf5 ...
+Running on runner-rmtqxlq3-project-53-concurrent-0 via Gitlab-DC-Runr...
+Getting source from Git repository
+00:04
+$ git config --global http.proxy $HTTP_PROXY; git config --global https.proxy $HTTPS_PROXY; git config --global no.proxy $NO_PROXY
+Fetching changes with git depth set to 20...
+Reinitialized existing Git repository in /tmp/builds/epay/frontends/epay_merchant_simulator/.git/
+Checking out 2720e143 as detached HEAD (ref is develop)...
+Removing dist/
+Removing node_modules/
+Removing tsconfig.app.tsbuildinfo
+Removing tsconfig.node.tsbuildinfo
+Skipping Git submodules setup
+Downloading artifacts
+00:02
+Downloading artifacts for fe_build (221508)...
+Downloading artifacts from coordinator... ok        id=221508 responseStatus=200 OK token=glcbt-64
+Executing "step_script" stage of the job script
+00:02
+Using docker image sha256:25c1ac1096f4e40c3a00d25d6982bc8559ebb03028aaabdd64b79b3309b50358 for quay.io/podman/stable:latest with digest quay.io/podman/stable@sha256:238f6566bfff87badb15e435820271826da53ee8f5a307e462dc530d198c4ebb ...
+$ echo "$DEV_REGISTRY_PASSWORD" | podman login -u "$DEV_REGISTRY_USERNAME" --password-stdin "$DEV_REGISTRY_HOST"
+time="2025-12-09T05:19:14Z" level=warning msg="Using cgroups-v1 which is deprecated in favor of cgroups-v2 with Podman v5 and will be removed in a future version. Set environment variable `PODMAN_IGNORE_CGROUPSV1_WARNING` to hide this warning."
+Error: must provide --username with --password-stdin
+Uploading artifacts for failed job
+00:01
+Uploading artifacts...
+WARNING: docker.env: no matching files             
+ERROR: No files to upload                          
+Cleaning up project directory and file based variables
+00:01
+ERROR: Job failed: exit code 1
