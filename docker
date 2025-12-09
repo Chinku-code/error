@@ -1,29 +1,22 @@
 dockerbuild:
   stage: dockerbuild
-  image: quay.io/podman/stable:latest
+  image: "quay.io/podman/stable:latest"
   needs:
     - fe_build
 
   script:
     - echo "===== DOCKER BUILD ====="
-
-    # SAFE BRANCH DETECTION (no multi-line block)
     - if [ -n "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" ]; then TARGET_BRANCH="$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"; else TARGET_BRANCH="$CI_COMMIT_REF_NAME"; fi
     - echo "Branch: $TARGET_BRANCH"
-
     - TIMESTAMP=$(date +"%Y%m%d%H%M%S")
     - TAG="${TARGET_BRANCH}-${TIMESTAMP}"
     - echo "$TAG" > tag.txt
-    - echo "Generated Tag: $TAG"
-
+    - echo "Generated TAG: $TAG"
     - podman login -u "$DEV_REGISTRY_USERNAME" -p "$DEV_REGISTRY_PASSWORD" "$DEV_REGISTRY_HOST" --tls-verify=false
-
     - IMAGE="${DEV_REGISTRY_HOST}/${DEV_REGISTRY_NAMESPACE}/${APP_NAME}:${TAG}"
-    - echo "Built Image: $IMAGE"
-
+    - echo "IMAGE=$IMAGE"
     - podman build -t "$IMAGE" -f Dockerfile --tls-verify=false
     - podman push "$IMAGE" --tls-verify=false
-
     - echo "SOURCE_IMAGE=$IMAGE" > docker.env
 
   artifacts:
