@@ -1,1 +1,149 @@
-This GitLab CI configuration is invalid: jobs:dockerbuild:script config should be a string or a nested array of strings up to 10 levels deep.
+include:
+  # SAST & FORTIFY (from working CI)
+  - project: 'epay/devops/ci-templates'
+    ref: main
+    file: 'ci/sast/sast.yml'
+  - project: 'epay/devops/ci-templates'
+    ref: main
+    file: 'ci/sast/fortify.sast.yml'
+
+stages:
+  - build
+  - sast
+  - hp-fortify
+  - dockerbuild
+  - deploy
+
+variables:
+  APP_NAME: "epay-merchant-simulator"
+  VERSION: "$CI_COMMIT_SHORT_SHA"
+
+  DEV_REGISTRY_HOST: "registry.dev.sbiepay.sbi:8443"
+  DEV_REGISTRY_NAMESPACE: "ubi9"
+  FE_BUILD_IMAGE: "registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113"
+
+#####################################################################
+# 1) FRONTEND BUILD  (uses old working logic)
+#####################################################################
+fe_build:
+  stage: build
+  image:
+    name: "$FE_BUILD_IMAGE"
+    pull_policy: always
+
+  script:
+    - echo "===== DYNAMIC FRONTEND BUILD ====="
+    - echo "ENV = dev"
+
+    # SBI corporate proxy REQUIRED
+    - npm config set proxy http://serverswg.sbi.co.in:80
+    - npm config set https-proxy http://serverswg.sbi.co.in:9090
+
+    - npm cache clean --force
+
+    # MUST use npm install (NOT npm ci)
+    - npm install --legacy-peer-deps
+
+    # Build for develop environment
+    - npm run build:dev
+
+    - ls -ltrh
+
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 week
+
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+
+
+#####################################################################
+# 2) SAST (working template)
+#####################################################################
+sast:
+  extends: .sast
+  stage: sast
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+
+
+#####################################################################
+# 3) HP FORTIFY (working template)
+#####################################################################
+hp-fortify:
+  extends: .HPFortify
+  stage: hp-fortify
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+
+
+#####################################################################
+# 4) DOCKER BUILD (same as your working microservice)
+#####################################################################
+dockerbuild:
+  stage: dockerbuild
+  image: quay.io/podman/stable:latest
+  needs:
+    - fe_build
+
+  script:
+    - echo "===== DOCKER BUILD (DYNAMIC TAG) ====="
+
+    # Tag Logic (100% same as your working service)
+    - TARGET_BRANCH="${CI_MERGE_REQUEST_TARGET_BRANCH_NAME:-$CI_COMMIT_REF_NAME}"
+    - TIMESTAMP=$(date +"%Y%m%d%H%M%S")
+    - TAG="${TARGET_BRANCH}-${TIMESTAMP}"
+    - echo "$TAG" > tag.txt
+    - echo "Generated TAG: $TAG"
+
+    # Podman login
+    - podman login -u "$DEV_REGISTRY_USERNAME" -p "$DEV_REGISTRY_PASSWORD" "$DEV_REGISTRY_HOST" --tls-verify=false
+
+    # Final Image name
+    - IMAGE="$DEV_REGISTRY_HOST/$DEV_REGISTRY_NAMESPACE/$APP_NAME:$TAG"
+    - echo "IMAGE=$IMAGE"
+
+    # Build & Push
+    - podman build -t "$IMAGE" -f Dockerfile --tls-verify=false
+    - podman push "$IMAGE" --tls-verify=false
+
+    # Export for deploy
+    - echo "SOURCE_IMAGE=$IMAGE" > docker.env
+
+  artifacts:
+    paths:
+      - tag.txt
+    reports:
+      dotenv: docker.env
+    expire_in: 1 week
+
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - if: '$CI_COMMIT_BRANCH =~ /^release\//'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - when: never
+
+
+#####################################################################
+# 5) DEPLOY DEV (dynamic nginx pipeline)
+#####################################################################
+deploy_dev:
+  stage: deploy
+
+  variables:
+    ENV: "dev"
+    VERSION: "$VERSION"
+    APP_NAME: "$APP_NAME"
+
+  trigger:
+    project: "epay/devops/deployment"
+    branch: "feature/dynamicnginx"
+    strategy: depend
+    forward:
+      yaml_variables: true
+      pipeline_variables: true
+
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+      when: manual
