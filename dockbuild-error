@@ -1,73 +1,527 @@
-Running with gitlab-runner 17.8.0 (e4f782b3)
-  on DC-Gitlab-Runner rMTQxLq3, system ID: s_948d0ccb739a
-Resolving secrets
-Preparing the "docker" executor
-00:05
-Using Docker executor with image registry.dev.sbiepay.sbi:8443/library/rhelgit:latest ...
-Using helper image:  registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest  (overridden, default would be  registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-v17.8.0 )
-Pulling docker image registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest ...
-Using docker image sha256:c95744588b6d7e170a6866854932de40eaf1b5ed229ed818cba6a87a1f885773 for registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest with digest registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper@sha256:ebbf1c21e4272ae1f8c18b034d390809c836c2fc68c0f0f6d3a5aff9760aabf5 ...
-Using helper image:  registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest  (overridden, default would be  registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-v17.8.0 )
-Using docker image sha256:c95744588b6d7e170a6866854932de40eaf1b5ed229ed818cba6a87a1f885773 for registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest with digest registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper@sha256:ebbf1c21e4272ae1f8c18b034d390809c836c2fc68c0f0f6d3a5aff9760aabf5 ...
-Pulling docker image registry.dev.sbiepay.sbi:8443/library/rhelgit:latest ...
-Using docker image sha256:cc9b278413b4f7940e4ec53a72ef8389e1f78fe99aeb20c8af62f14e706074d4 for registry.dev.sbiepay.sbi:8443/library/rhelgit:latest with digest registry.dev.sbiepay.sbi:8443/library/rhelgit@sha256:8576ae23d4f1ae2cc0e30d6c1b401fee3a2386faab50c58e97b726c3dc028d09 ...
-Preparing environment
-00:01
-Using helper image:  registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest  (overridden, default would be  registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-v17.8.0 )
-Using docker image sha256:c95744588b6d7e170a6866854932de40eaf1b5ed229ed818cba6a87a1f885773 for registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest with digest registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper@sha256:ebbf1c21e4272ae1f8c18b034d390809c836c2fc68c0f0f6d3a5aff9760aabf5 ...
-Running on runner-rmtqxlq3-project-23-concurrent-0 via Gitlab-DC-Runr...
-Getting source from Git repository
-00:09
-$ git config --global http.proxy $HTTP_PROXY; git config --global https.proxy $HTTPS_PROXY; git config --global no.proxy $NO_PROXY
-Fetching changes...
-Initialized empty Git repository in /tmp/builds/epay/devops/deployment/.git/
-Created fresh repository.
-Checking out 1cd9a2d2 as detached HEAD (ref is main)...
-Skipping Git submodules setup
-Executing "step_script" stage of the job script
-00:02
-Using docker image sha256:cc9b278413b4f7940e4ec53a72ef8389e1f78fe99aeb20c8af62f14e706074d4 for registry.dev.sbiepay.sbi:8443/library/rhelgit:latest with digest registry.dev.sbiepay.sbi:8443/library/rhelgit@sha256:8576ae23d4f1ae2cc0e30d6c1b401fee3a2386faab50c58e97b726c3dc028d09 ...
-$ git config --global http.sslVerify false
-$ git config --global --add safe.directory '*'
-$ git config --global user.name "ci"
-$ git config --global user.email "ci.cedge@sbi.co.in"
-$ git remote set-url origin https://gitlab-ci-token:$GIT_PAT@gitlab.epay.sbi/$CI_PROJECT_PATH.git
-$ TAG=$VERSION
-$ SERVICE_PATH="${ENV}/charts/${SERVICE_NAME}"
-$ ls -ltrh $SERVICE_PATH
-total 0
-drwxrwxrwx. 3 1001 root  79 Dec  9 13:40 backend_sdk_simulator
-drwxrwxrwx. 3 1001 root  79 Dec  9 13:40 epay_admin_portal_service
-drwxrwxrwx. 3 1001 root  79 Dec  9 13:40 epay_admin_service
-drwxrwxrwx. 4 1001 root 109 Dec  9 13:40 epay_common
-drwxrwxrwx. 3 1001 root  79 Dec  9 13:40 epay_communication_service
-drwxrwxrwx. 3 1001 root  79 Dec  9 13:40 epay_gateway_pooling
-drwxrwxrwx. 3 1001 root  79 Dec  9 13:40 epay_integration_service
-drwxrwxrwx. 3 1001 root  79 Dec  9 13:40 epay_key_managment
-drwxrwxrwx. 3 1001 root  79 Dec  9 13:40 epay_maintenance_fe
-drwxrwxrwx. 3 1001 root  79 Dec  9 13:40 epay_merchant_fe
-drwxrwxrwx. 3 1001 root  79 Dec  9 13:40 epay_merchant_integration_doc
-drwxrwxrwx. 3 1001 root  79 Dec  9 13:40 epay_merchant_service
-drwxrwxrwx. 3 1001 root 106 Dec  9 13:40 epay_merchant_simulator
-drwxrwxrwx. 3 1001 root  79 Dec  9 13:40 epay_notification_service
-drwxrwxrwx. 3 1001 root  79 Dec  9 13:40 epay_operations_service
-drwxrwxrwx. 3 1001 root  79 Dec  9 13:40 epay_order_hash
-drwxrwxrwx. 3 1001 root  79 Dec  9 13:40 epay_payment_service
-drwxrwxrwx. 3 1001 root  79 Dec  9 13:40 epay_refund_service
-drwxrwxrwx. 3 1001 root  79 Dec  9 13:40 epay_reports_service
-drwxrwxrwx. 3 1001 root  79 Dec  9 13:40 epay_sftp_service
-drwxrwxrwx. 3 1001 root  79 Dec  9 13:40 epay_stubs_service
-drwxrwxrwx. 3 1001 root  79 Dec  9 13:40 epay_transaction_fe
-drwxrwxrwx. 3 1001 root  79 Dec  9 13:40 epay_transaction_service
-drwxrwxrwx. 3 1001 root  79 Dec  9 13:40 epay_website
-drwxrwxrwx. 3 1001 root  79 Dec  9 13:40 java-utility-api-simulator
-drwxrwxrwx. 3 1001 root  79 Dec  9 13:40 merchant_api_simulator_dotnet
-drwxrwxrwx. 3 1001 root  79 Dec  9 13:40 merchant_api_simulator_nodejs
-drwxrwxrwx. 3 1001 root  79 Dec  9 13:40 merchant_api_simulator_php
-drwxrwxrwx. 3 1001 root  79 Dec  9 13:40 merchant_api_simulator_python
-drwxrwxrwx. 3 1001 root  60 Dec  9 13:40 microservice-secrets
-$ cat $SERVICE_PATH/values.yaml
-cat: dev/charts//values.yaml: No such file or directory
-Cleaning up project directory and file based variables
-00:01
-ERROR: Job failed: exit code 1
+variables:
+  SERVICES_CONFIG: |
+    - namespace: transaction
+      description: "Transaction and Payment services"
+      services:
+        - name: epay_transaction_service
+          release: txn
+          chart: epay_transaction_service
+          health_check: /actuator/health
+          environments:
+            - dev
+            - sit
+            - uat
+            - int
+            - pre-prod
+            - perf
+            - pre-prod-dc
+            - prod-dr
+            - prod-dc
+        
+        - name: epay_payment_service
+          release: payment
+          chart: epay_payment_service
+          health_check: /actuator/health
+          environments:
+            - dev
+            - sit
+            - uat
+            - int
+            - pre-prod
+            - perf
+            - pre-prod-dc
+            - prod-dr
+            - prod-dc
+
+    - namespace: admin
+      description: "Admin services"
+      services:
+        - name: epay_admin_service
+          release: admin
+          chart: epay_admin_service
+          health_check: /actuator/health
+          environments:
+            - dev
+            - sit
+            - uat
+            - int
+            - pre-prod
+            - perf
+            - pre-prod-dc
+            - prod-dr
+            - prod-dc
+
+        - name: epay_admin_portal_service
+          release: admin-portal
+          chart: epay_admin_portal_service
+          health_check: /actuator/health
+          environments:
+            - dev
+            - sit
+            - uat
+            - int
+            - pre-prod
+            - perf
+            - pre-prod-dc
+            - prod-dr
+            - prod-dc
+    
+
+    - namespace: kms
+      description: "Key Management Services"
+      services:
+        - name: epay_key_managment
+          release: kms
+          chart: epay_key_managment
+          health_check: /actuator/health
+          environments:
+            - dev
+            - sit
+            - uat
+            - int
+            - pre-prod
+            - perf
+            - pre-prod-dc
+            - prod-dr
+            - prod-dc
+
+    - namespace: merchant
+      description: "Merchant services"
+      services:
+        - name: epay_merchant_service
+          release: merchant
+          chart: epay_merchant_service
+          health_check: /actuator/health
+          environments:
+            - dev
+            - sit
+            - uat
+            - int
+            - pre-prod
+            - perf
+            - pre-prod-dc
+            - prod-dr
+            - prod-dc
+
+        - name: epay_reports_service
+          release: report
+          chart: epay_reports_service
+          health_check: /actuator/health
+          environments:
+            - dev
+            - sit
+            - uat
+            - int
+            - pre-prod
+            - perf
+            - pre-prod-dc
+            - prod-dr
+            - prod-dc
+
+    - namespace: rns
+      description: "Epay_Operations_Service"
+      services:
+        - name: epay_operations_service
+          release: ops
+          chart: epay_operations_service
+          health_check: /actuator/health
+          environments:
+            - dev
+            - sit
+            - uat
+            - int
+            - pre-prod
+            - perf
+            - pre-prod-dc
+            - prod-dr
+            - prod-dc
+
+        - name: epay_refund_service
+          release: refund
+          chart: epay_refund_service
+          health_check: /actuator/health
+          environments:
+            - dev
+            - sit
+            - uat
+            - int
+            - pre-prod
+            - perf
+            - pre-prod-dc
+            - prod-dr
+            - prod-dc
+
+        - name: epay_sftp_service
+          release: sftp
+          chart: epay_sftp_service
+          health_check: /actuator/health
+          environments:
+            - dev
+            - sit
+            - uat
+            - int
+            - pre-prod
+            - perf
+            - pre-prod-dc
+            - prod-dr
+            - prod-dc
+
+    - namespace: notification
+      description: "Notification services"
+      services:
+        - name: epay_notification_service
+          release: notify
+          chart: epay_notification_service
+          health_check: /actuator/health
+          environments:
+            - dev
+            - sit
+            - uat
+            - int
+            - pre-prod
+            - perf
+            - pre-prod-dc
+            - prod-dr
+            - prod-dc
+
+    - namespace: frontend
+      description: "Frontend services"
+      services:
+        - name: epay_merchant_fe
+          release: merchantfe
+          chart: epay_merchant_fe
+          health_check: /health
+          environments:
+            - dev
+            - sit
+            - uat
+            - int
+            - pre-prod
+            - perf
+            - pre-prod-dc
+            - prod-dr
+            - prod-dc
+        
+        - name: epay_transaction_fe
+          release: transactionfe
+          chart: epay_transaction_fe
+          health_check: /health
+          environments:
+            - dev
+            - sit
+            - uat
+            - int
+            - pre-prod
+            - perf
+            - pre-prod-dc
+            - prod-dr
+            - prod-dc
+
+        - name: epay_maintenance_fe
+          release: maintenancefe
+          chart: epay_maintenance_fe
+          health_check: /health
+          environments:
+            - dev
+            - sit
+            - uat
+            - int
+            - pre-prod
+            - perf
+            - pre-prod-dc
+            - prod-dr
+            - prod-dc
+
+        - name: epay_website
+          release: websitefe
+          chart: epay_website
+          health_check: /health
+          environments:
+            - dev
+            - sit
+            - uat
+            - int
+            - pre-prod
+            - perf
+            - pre-prod-dc
+            - prod-dr
+            - prod-dc
+
+        - name: epay_merchant_integration_doc
+          release: merchant-int
+          chart: epay_merchant_integration_doc
+          health_check: /health
+          environments:
+            - dev
+            - sit
+            - uat
+            - int
+            - pre-prod
+            - perf
+            - pre-prod-dc
+            - prod-dr
+            - prod-dc
+
+    - namespace: simulators
+      description: "Simulator services"
+      services:
+        - name: java-utility-api-simulator
+          release: javasimulator
+          chart: java-utility-api-simulator
+          health_check: /actuator/health
+          environments:
+            - dev
+            - sit
+            - uat
+            - int
+            - pre-prod
+            - perf
+            - pre-prod-dc
+            - prod-dr
+            - prod-dc
+        
+        - name: epay_order_hash
+          release: orderhash
+          chart: epay_order_hash
+          health_check: /actuator/health
+          environments:
+            - dev
+            - sit
+            - uat
+            - int
+            - pre-prod
+            - perf
+            - pre-prod-dc
+            - prod-dr
+            - prod-dc
+
+        - name: epay_stubs_service
+          release: stubsservice
+          chart: epay_stubs_service
+          health_check: /actuator/health
+          environments:
+            - dev
+            - perf
+            - int
+            
+        - name: epay_perf_simulator
+          release: perf
+          chart: epay_perf_simulator
+          health_check: /health
+          environments:
+            - dev
+            - perf
+
+        - name: epay_merchant_simulator
+          release: demo
+          chart: epay_merchant_simulator
+          health_check: /health
+          environments:
+            - dev
+            - sit
+            - uat
+            - int
+            - pre-prod
+            - perf
+            - pre-prod-dc
+            - prod-dr
+            - prod-dc
+
+        - name: merchant_api_simulator_nodejs
+          release: nodejssimulator
+          chart: merchant_api_simulator_nodejs
+          health_check: /actuator/health
+          environments:
+            - dev
+            - sit
+            - uat
+            - int
+            - pre-prod
+            - perf
+            - pre-prod-dc
+
+        - name: merchant_api_simulator_python
+          release: pythonsimulator
+          chart: merchant_api_simulator_python
+          health_check: /actuator/health
+          environments:
+            - dev
+            - sit
+            - uat
+            - int
+            - pre-prod
+            - perf
+            - pre-prod-dc
+            - prod-dr
+            - prod-dc    
+      
+      - name: merchant_api_simulator_dotnet
+          release: dotnetsimulator
+          chart: merchant_api_simulator_dotnet
+          health_check: /actuator/health
+          environments:
+            - dev
+            - sit
+            - uat
+            - int
+            - pre-prod
+            - perf
+            - pre-prod-dc
+            - prod-dr
+            - prod-dc
+      
+      - name: merchant_api_simulator_php
+          release: phpsimulator
+          chart: merchant_api_simulator_php
+          health_check: /actuator/health
+          environments:
+            - dev
+            - sit
+            - uat
+            - int
+            - pre-prod
+            - perf
+            - pre-prod-dc
+            - prod-dr
+            - prod-dc
+
+    - namespace: offline-jobs
+      description: "Offline job services"
+      services:
+        - name: epay_gateway_pooling
+          release: pooling
+          chart: epay_gateway_pooling
+          health_check: /actuator/health
+          environments:
+            - dev
+            - sit
+            - uat
+            - int
+            - pre-prod
+            - perf
+            - pre-prod-dc
+            - prod-dr
+            - prod-dc
+
+    - namespace: epay-common
+      description: "Epay Common (Gemfire, Kafka, Istio, SSC, NP)"
+      services:
+        - name: epay_common
+          release: epay-common
+          chart: epay_common
+          health_check: /actuator/health
+          environments:
+            - dev
+            - sit
+            - uat
+            - int
+            - pre-prod
+            - perf
+            - pre-prod-dc
+            - prod-dr
+            - prod-dc
+
+        - name: epay_secrets
+          release: epaysecrets
+          chart: epay_secrets
+          health_check: /health
+          environments:
+            - prod-dr
+            - prod-dc
+            - pre-prod
+            - pre-prod-dc
+
+        - name: epay_cluster_base
+          release: epay-cluster-base
+          chart: epay_cluster_base
+          health_check: /actuator/health
+          environments:
+            - pre-prod
+            - perf
+            - pre-prod-dc
+            - prod
+            - prod-dc       
+  
+
+    - namespace: testci
+      description: "testci services"
+      services:
+        - name: testci
+          release: testci
+          chart: testci
+          health_check: /actuator/health
+          environments:
+            - dev
+            - sit
+            - uat
+            - int
+            - pre-prod
+            - perf
+            - pre-prod-dc
+            - prod-dr
+            - prod-dc
+    
+    - namespace: communication
+      description: "Communication services"
+      services:
+        - name: epay_communication_service
+          release: comm
+          chart: epay_communication_service
+          health_check: /health
+          environments:
+            - dev
+            - sit
+            - uat
+            - int
+
+
+    - namespace: integration
+      description: "Integration services"
+      services:
+        - name: epay_integration_service
+          release: integration
+          chart: epay_integration_service
+          health_check: /actuator/health
+          environments:
+            - dev
+            - sit
+            - uat
+            - int
+            - pre-prod
+            - perf
+            - pre-prod-dc
+            - prod-dr
+            - prod-dc
+    
+    # - namespace: spark
+    #   description: "Epay_Operations_Service"
+    #   services:
+    #     - name: epay_operations_service
+    #       release: ops
+    #       chart: epay_operations_service
+    #       health_check: /actuator/health
+    #       environments:
+    #         - dev
+    #         #- sit
+    #         #- uat
+    #         - int
+    #         #- pre-prod
+    #         #- perf
+    #         #- pre-prod-dc
+    #         #- prod-dr
+    #         #- prod-dc
+
+    - namespace: istio-system
+      description: "Dummy helm chart for controlling global scale up/down"
+      services:
+        - name: scale-controller
+          release: scale-controller
+          chart: scale-controller
+          health_check: /actuator/health
+          environments:
+            - dev
+            - pre-prod
+            - pre-prod-dc
+            - prod-dr
+            - prod-dc
+
