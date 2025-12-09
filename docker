@@ -1,7 +1,7 @@
+# =========================
+# Includes (reuse SAST & Fortify from working CI)
+# =========================
 include:
-  # ============================
-  # REUSE SAST & FORTIFY FROM WORKING CI
-  # ============================
   - project: 'epay/devops/ci-templates'
     ref: main
     file: 'ci/sast/sast.yml'
@@ -9,109 +9,157 @@ include:
     ref: main
     file: 'ci/sast/fortify.sast.yml'
 
+# =========================
+# Stages
+# =========================
 stages:
   - build
-  - test
   - sast
   - hp-fortify
   - dockerbuild
   - deploy
 
+# =========================
+# Globals
+# =========================
 variables:
   APP_NAME: "epay-merchant-simulator"
   VERSION: "$CI_COMMIT_SHORT_SHA"
 
+  # Dev registry (push target)
   DEV_REGISTRY_HOST: "registry.dev.sbiepay.sbi:8443"
   DEV_REGISTRY_NAMESPACE: "ubi9"
+
+  # Node image to build FE
   FE_BUILD_IMAGE: "registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113"
 
-###########################################################
-# 1) FRONTEND BUILD (DEV)
-###########################################################
+  # Make npm quieter & more deterministic
+  NPM_CONFIG_FUND: "false"
+  NPM_CONFIG_AUDIT: "false"
+  NPM_CONFIG_PROGRESS: "false"
+
+# Run only on develop by default
+.default_rules: &default_rules
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - when: never
+
+# =========================
+# 1) Frontend build (develop → dev)
+# =========================
 fe_build:
   stage: build
   image:
     name: "$FE_BUILD_IMAGE"
     pull_policy: always
-
   script:
     - echo "===== FRONTEND BUILD ====="
+    - node -v && npm -v
+    # Hard reset any upstream proxy noise
     - unset HTTP_PROXY HTTPS_PROXY http_proxy https_proxy || true
     - npm config delete proxy || true
     - npm config delete https-proxy || true
     - npm config set registry https://registry.npmjs.org/
     - npm config set strict-ssl false
     - npm config set legacy-peer-deps true
-    - npm config set force true
     - npm cache clean --force
-    - npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+
+    # Install deps (handle npm’s occasional crash by retrying)
+    - |
+      set -e
+      echo "Installing dependencies with npm ci..."
+      if ! npm ci --legacy-peer-deps --no-audit --no-fund; then
+        echo "npm ci failed, retrying with npm install..."
+        npm install --legacy-peer-deps --no-audit --no-fund
+      fi
+
+    # Ensure tsc / vite exist even if devDeps were skipped by npm bug
+    - npx --yes typescript@5 -v || true
+    - npx --yes vite@5 -v || true
+
+    # Build (your package.json script runs: `tsc -b && vite build --mode development`)
     - npm run build:dev
 
+    # Sanity
+    - ls -la dist || (echo "dist missing!" && exit 1)
   artifacts:
     paths:
       - dist/
+    expire_in: 1 week
+  <<: *default_rules
 
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "develop"'
-
-
-###########################################################
-# 2) SAST (TAKEN FROM WORKING CI)
-###########################################################
+# =========================
+# 2) SAST (from your template)
+# =========================
 sast:
   extends: .sast
   stage: sast
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "develop"'
+  needs: ["fe_build"]
+  <<: *default_rules
 
-
-###########################################################
-# 3) HP FORTIFY (TAKEN FROM WORKING CI)
-###########################################################
+# =========================
+# 3) HP Fortify (from your template)
+#    tweak include/exclude if you need
+# =========================
 hp-fortify:
   extends: .HPFortify
   stage: hp-fortify
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "develop"'
+  needs: ["fe_build"]
+  variables:
+    EXCLUDE_DIRS: "./**/dist/**/*"
+    INCLUDE_DIRS: "./**/*.tsx,./**/*.ts,./**/*.js"
+  <<: *default_rules
 
-
-###########################################################
-# 4) DOCKER BUILD (DEV)
-###########################################################
+# =========================
+# 4) Docker build & push (develop → DEV registry)
+# =========================
 dockerbuild:
   stage: dockerbuild
   image: quay.io/podman/stable:latest
   needs: ["fe_build"]
-
   script:
     - echo "===== DOCKER BUILD (DEV) ====="
-    - echo "$DEV_REGISTRY_PASSWORD" | podman login -u "$DEV_REGISTRY_USERNAME" --password-stdin "$DEV_REGISTRY_HOST"
-    - IMAGE="$DEV_REGISTRY_HOST/$DEV_REGISTRY_NAMESPACE/$APP_NAME:$VERSION"
+    # Compose full image name
+    - IMAGE="${DEV_REGISTRY_HOST}/${DEV_REGISTRY_NAMESPACE}/${APP_NAME}:${VERSION}"
+    - echo "Image: $IMAGE"
+
+    # Robust login:
+    # 1) If DEV_REGISTRY_USERNAME/PASSWORD are set, use them
+    # 2) else try GitLab job-token (gitlab-ci-token / $CI_JOB_TOKEN)
+    - |
+      set -e
+      if [ -n "$DEV_REGISTRY_USERNAME" ] && [ -n "$DEV_REGISTRY_PASSWORD" ]; then
+        echo "$DEV_REGISTRY_PASSWORD" | podman login -u "$DEV_REGISTRY_USERNAME" --password-stdin "$DEV_REGISTRY_HOST"
+      elif [ -n "$CI_JOB_TOKEN" ]; then
+        echo "$CI_JOB_TOKEN" | podman login -u "${CI_USERNAME:-gitlab-ci-token}" --password-stdin "$DEV_REGISTRY_HOST"
+      else
+        echo "ERROR: No registry credentials found. Set DEV_REGISTRY_USERNAME/DEV_REGISTRY_PASSWORD or ensure CI_JOB_TOKEN is available."
+        exit 1
+      fi
+
+    # Build & push
     - podman build -t "$IMAGE" .
     - podman push "$IMAGE"
-    - echo "IMAGE=$IMAGE" > docker.env
 
+    # Export for downstream jobs
+    - echo "IMAGE=$IMAGE" > docker.env
   artifacts:
     reports:
       dotenv: docker.env
+  <<: *default_rules
 
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "develop"'
-
-
-###########################################################
-# 5) DEPLOY TO DEV
-###########################################################
+# =========================
+# 5) Deploy to dev (dynamic nginx via deployment repo)
+# =========================
 deploy_dev:
   stage: deploy
-
+  needs: ["dockerbuild"]
   variables:
     ENV: "dev"
     VERSION: "$VERSION"
     APP_NAME: "$APP_NAME"
-    SOURCE_IMAGE: "$IMAGE"
+    SOURCE_IMAGE: "$IMAGE"          # from docker.env
     NGINX_SUBFOLDER: "/merchantsimulator"
-
   trigger:
     project: "epay/devops/deployment"
     branch: "feature/dynamicnginx"
@@ -119,7 +167,6 @@ deploy_dev:
     forward:
       yaml_variables: true
       pipeline_variables: true
-
   rules:
     - if: '$CI_COMMIT_BRANCH == "develop"'
       when: manual
