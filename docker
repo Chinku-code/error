@@ -1,173 +1,50 @@
-stages:
-  - build
-  - dockerbuild
-  - promote
-  - deploy
-
-variables:
-  APP_NAME: "epay-merchant-simulator"
-  VERSION: "$CI_COMMIT_SHORT_SHA"
-
-  # Correct registry host from working CI
-  CI_TEMPLATE_REGISTRY_HOST: "registry.dev.sbiepay.sbi:8443"
-
-  # Correct credentials from working CI
-  IMAGE_REGISTRY_USERNAME: "$IMAGE_REGISTRY_USERNAME"
-  IMAGE_REGISTRY_PASS: "$IMAGE_REGISTRY_PASS"
-
-  PODMAN_TLS_VERIFY: "false"
-
-# =====================================================
-# 1) FRONTEND BUILD (common for all envs)
-# =====================================================
-fe_build:
-  stage: build
-  image:
-    name: registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113
-    pull_policy: always
-  script:
-    - echo "===== FRONTEND BUILD ====="
-    - npm config delete proxy || true
-    - npm config delete https-proxy || true
-    - npm config set registry https://registry.npmjs.org/
-    - npm config set legacy-peer-deps true
-    - npm config set force true
-    - npm cache clean --force
-    - npm ci --legacy-peer-deps --force || npm install --legacy-peer-deps --force
-    - npm run build:dev
-  artifacts:
-    paths:
-      - dist/
-    expire_in: 1 week
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "develop"'
-    - when: never
-
-# =====================================================
-# 2) DOCKER BUILD (only once)
-# =====================================================
-dockerbuild:
-  stage: dockerbuild
-  image: quay.io/podman/stable:latest
-  needs: ["fe_build"]
-  variables:
-    FULL_IMAGE: "$CI_TEMPLATE_REGISTRY_HOST/ubi9/$APP_NAME:$VERSION"
-  script:
-    - echo "$IMAGE_REGISTRY_PASS" | podman login -u "$IMAGE_REGISTRY_USERNAME" --password-stdin "$CI_TEMPLATE_REGISTRY_HOST" --tls-verify=false
-    - podman build -t "$FULL_IMAGE" .
-    - podman push "$FULL_IMAGE" --tls-verify=false
-    - echo "SOURCE_IMAGE=$FULL_IMAGE" >> docker.env
-  artifacts:
-    reports:
-      dotenv: docker.env
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "develop"'
-    - when: never
-
-# =====================================================
-# 3) PROMOTE STAGES (SIT/UAT/PREPROD/PERF/PROD)
-# =====================================================
-.promote_template:
-  stage: promote
-  image: quay.io/podman/stable:latest
-  needs: ["dockerbuild"]
-  script:
-    - echo "$IMAGE_REGISTRY_PASS" | podman login -u "$IMAGE_REGISTRY_USERNAME" --password-stdin "$TARGET_REGISTRY_HOST" --tls-verify=false
-    - podman pull "$SOURCE_IMAGE" --tls-verify=false
-    - podman tag "$SOURCE_IMAGE" "$TARGET_REGISTRY_HOST/$TARGET_NAMESPACE/$APP_NAME:$VERSION"
-    - podman push "$TARGET_REGISTRY_HOST/$TARGET_NAMESPACE/$APP_NAME:$VERSION" --tls-verify=false
-  when: manual
-
-# sit
-promote_sit:
-  extends: .promote_template
-  variables:
-    TARGET_REGISTRY_HOST: "registry.dev.sbiepay.sbi:8443"
-    TARGET_NAMESPACE: "library"
-  rules:
-    - if: '$CI_COMMIT_BRANCH =~ /^release\/.*/'
-
-# uat
-promote_uat:
-  extends: .promote_template
-  variables:
-    TARGET_REGISTRY_HOST: "registry.dev.sbiepay.sbi:8443"
-    TARGET_NAMESPACE: "library"
-  rules:
-    - if: '$CI_COMMIT_BRANCH =~ /^release\/.*/'
-
-# preprod
-promote_preprod:
-  extends: .promote_template
-  variables:
-    TARGET_REGISTRY_HOST: "epaynonprod-registry-quay-quay-enterprise.apps.preprod.epay.sbi"
-    TARGET_NAMESPACE: "fe"
-  rules:
-    - if: '$CI_COMMIT_BRANCH =~ /^release\/.*/'
-
-# perf
-promote_perf:
-  extends: .promote_template
-  variables:
-    TARGET_REGISTRY_HOST: "epaynonprod-registry-quay-quay-enterprise.apps.preprod.epay.sbi"
-    TARGET_NAMESPACE: "fe"
-  rules:
-    - if: '$CI_COMMIT_BRANCH =~ /^release\/.*/'
-
-# prod
-promote_prod:
-  extends: .promote_template
-  variables:
-    TARGET_REGISTRY_HOST: "registry.prod.epay.sbi:8443"
-    TARGET_NAMESPACE: "fe"
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-
-# =====================================================
-# 4) DEPLOY PIPELINE
-# =====================================================
-.deploy_template:
-  stage: deploy
-  trigger:
-    project: "epay/devops/deployment"
-    branch: "feature/dynamicnginx"
-    strategy: depend
-    forward:
-      yaml_variables: true
-      pipeline_variables: true
-  when: manual
-
-deploy_sit:
-  extends: .deploy_template
-  variables:
-    ENV: sit
-  rules:
-    - if: '$CI_COMMIT_BRANCH =~ /^release\/.*/'
-
-deploy_uat:
-  extends: .deploy_template
-  variables:
-    ENV: uat
-  rules:
-    - if: '$CI_COMMIT_BRANCH =~ /^release\/.*/'
-
-deploy_preprod:
-  extends: .deploy_template
-  variables:
-    ENV: pre-prod
-  rules:
-    - if: '$CI_COMMIT_BRANCH =~ /^release\/.*/'
-
-deploy_perf:
-  extends: .deploy_template
-  variables:
-    ENV: perf
-  rules:
-    - if: '$CI_COMMIT_BRANCH =~ /^release\/.*/'
-
-deploy_prod:
-  extends: .deploy_template
-  variables:
-    ENV: prod
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
+Running with gitlab-runner 17.8.0 (e4f782b3)
+  on DC-Gitlab-Runner rMTQxLq3, system ID: s_948d0ccb739a
+Resolving secrets
+Preparing the "docker" executor
+00:05
+Using Docker executor with image registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113 ...
+Using helper image:  registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest  (overridden, default would be  registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-v17.8.0 )
+Pulling docker image registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest ...
+Using docker image sha256:c95744588b6d7e170a6866854932de40eaf1b5ed229ed818cba6a87a1f885773 for registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest with digest registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper@sha256:ebbf1c21e4272ae1f8c18b034d390809c836c2fc68c0f0f6d3a5aff9760aabf5 ...
+Using helper image:  registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest  (overridden, default would be  registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-v17.8.0 )
+Using docker image sha256:c95744588b6d7e170a6866854932de40eaf1b5ed229ed818cba6a87a1f885773 for registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest with digest registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper@sha256:ebbf1c21e4272ae1f8c18b034d390809c836c2fc68c0f0f6d3a5aff9760aabf5 ...
+Pulling docker image registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113 ...
+Using docker image sha256:c1037efa7a6cfce811caf269e33c408144a2058361edcd7ab9d99c1aa67433c8 for registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113 with digest registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm@sha256:96ab8f99d7e94b7d955b4129daa1a36556977e216b5ff4b392c07e2d8a776e58 ...
+Preparing environment
+00:02
+Using helper image:  registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest  (overridden, default would be  registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-v17.8.0 )
+Using docker image sha256:c95744588b6d7e170a6866854932de40eaf1b5ed229ed818cba6a87a1f885773 for registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest with digest registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper@sha256:ebbf1c21e4272ae1f8c18b034d390809c836c2fc68c0f0f6d3a5aff9760aabf5 ...
+Running on runner-rmtqxlq3-project-53-concurrent-0 via Gitlab-DC-Runr...
+Getting source from Git repository
+00:02
+$ git config --global http.proxy $HTTP_PROXY; git config --global https.proxy $HTTPS_PROXY; git config --global no.proxy $NO_PROXY
+Fetching changes with git depth set to 20...
+Reinitialized existing Git repository in /tmp/builds/epay/frontends/epay_merchant_simulator/.git/
+Checking out fec6ebf3 as detached HEAD (ref is develop)...
+Removing dist/
+Skipping Git submodules setup
+Executing "step_script" stage of the job script
+00:09
+Using docker image sha256:c1037efa7a6cfce811caf269e33c408144a2058361edcd7ab9d99c1aa67433c8 for registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113 with digest registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm@sha256:96ab8f99d7e94b7d955b4129daa1a36556977e216b5ff4b392c07e2d8a776e58 ...
+$ echo "===== FRONTEND BUILD ====="
+===== FRONTEND BUILD =====
+$ npm config delete proxy || true
+$ npm config delete https-proxy || true
+$ npm config set registry https://registry.npmjs.org/
+$ npm config set legacy-peer-deps true
+$ npm config set force true
+$ npm cache clean --force
+npm warn using --force Recommended protections disabled.
+$ npm ci --legacy-peer-deps --force || npm install --legacy-peer-deps --force
+npm warn using --force Recommended protections disabled.
+npm error code EINVALIDPROXY
+npm error Invalid protocol `serverswg.sbi.co.in:` connecting to proxy ``
+npm error A complete log of this run can be found in: /opt/app-root/src/.npm/_logs/2025-12-09T05_42_27_607Z-debug-0.log
+npm warn using --force Recommended protections disabled.
+npm error code EINVALIDPROXY
+npm error Invalid protocol `serverswg.sbi.co.in:` connecting to proxy ``
+npm error A complete log of this run can be found in: /opt/app-root/src/.npm/_logs/2025-12-09T05_42_30_352Z-debug-0.log
+Cleaning up project directory and file based variables
+00:01
+ERROR: Job failed: exit code 1
