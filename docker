@@ -1,5 +1,4 @@
 include:
-  # SAST & FORTIFY (from working CI)
   - project: 'epay/devops/ci-templates'
     ref: main
     file: 'ci/sast/sast.yml'
@@ -22,9 +21,9 @@ variables:
   DEV_REGISTRY_NAMESPACE: "ubi9"
   FE_BUILD_IMAGE: "registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113"
 
-#####################################################################
-# 1) FRONTEND BUILD  (uses old working logic)
-#####################################################################
+#############################################
+# 1) FRONTEND BUILD  (Your working logic)
+#############################################
 fe_build:
   stage: build
   image:
@@ -32,55 +31,43 @@ fe_build:
     pull_policy: always
 
   script:
-    - echo "===== DYNAMIC FRONTEND BUILD ====="
-    - echo "ENV = dev"
-
-    # SBI corporate proxy REQUIRED
+    - echo "===== FRONTEND BUILD ====="
+    - pwd
     - npm config set proxy http://serverswg.sbi.co.in:80
     - npm config set https-proxy http://serverswg.sbi.co.in:9090
-
     - npm cache clean --force
-
-    # MUST use npm install (NOT npm ci)
-    - npm install --legacy-peer-deps
-
-    # Build for develop environment
+    - npm install
     - npm run build:dev
-
-    - ls -ltrh
+    - ls -lrth
 
   artifacts:
     paths:
       - dist/
-    expire_in: 1 week
 
   rules:
     - if: '$CI_COMMIT_BRANCH == "develop"'
 
-
-#####################################################################
-# 2) SAST (working template)
-#####################################################################
+#############################################
+# 2) SAST
+#############################################
 sast:
   extends: .sast
   stage: sast
   rules:
     - if: '$CI_COMMIT_BRANCH == "develop"'
 
-
-#####################################################################
-# 3) HP FORTIFY (working template)
-#####################################################################
+#############################################
+# 3) HP FORTIFY
+#############################################
 hp-fortify:
   extends: .HPFortify
   stage: hp-fortify
   rules:
     - if: '$CI_COMMIT_BRANCH == "develop"'
 
-
-#####################################################################
-# 4) DOCKER BUILD (same as your working microservice)
-#####################################################################
+#############################################
+# 4) DOCKER BUILD (Dynamic — Fully fixed)
+#############################################
 dockerbuild:
   stage: dockerbuild
   image: quay.io/podman/stable:latest
@@ -90,25 +77,25 @@ dockerbuild:
   script:
     - echo "===== DOCKER BUILD (DYNAMIC TAG) ====="
 
-    # Tag Logic (100% same as your working service)
-    - TARGET_BRANCH="${CI_MERGE_REQUEST_TARGET_BRANCH_NAME:-$CI_COMMIT_REF_NAME}"
+    # Generate TAG
+    - TARGET_BRANCH="${CI_MERGE_REQUEST_TARGET_BRANCH_NAME:-${CI_COMMIT_REF_NAME}}"
     - TIMESTAMP=$(date +"%Y%m%d%H%M%S")
     - TAG="${TARGET_BRANCH}-${TIMESTAMP}"
     - echo "$TAG" > tag.txt
     - echo "Generated TAG: $TAG"
 
-    # Podman login
+    # Login
     - podman login -u "$DEV_REGISTRY_USERNAME" -p "$DEV_REGISTRY_PASSWORD" "$DEV_REGISTRY_HOST" --tls-verify=false
 
-    # Final Image name
-    - IMAGE="$DEV_REGISTRY_HOST/$DEV_REGISTRY_NAMESPACE/$APP_NAME:$TAG"
+    # Build full image path
+    - IMAGE="${DEV_REGISTRY_HOST}/${DEV_REGISTRY_NAMESPACE}/${APP_NAME}:${TAG}"
     - echo "IMAGE=$IMAGE"
 
-    # Build & Push
+    # Docker build & push
     - podman build -t "$IMAGE" -f Dockerfile --tls-verify=false
     - podman push "$IMAGE" --tls-verify=false
 
-    # Export for deploy
+    # Save for deployment
     - echo "SOURCE_IMAGE=$IMAGE" > docker.env
 
   artifacts:
@@ -124,17 +111,16 @@ dockerbuild:
     - if: '$CI_COMMIT_BRANCH == "main"'
     - when: never
 
-
-#####################################################################
-# 5) DEPLOY DEV (dynamic nginx pipeline)
-#####################################################################
+#############################################
+# 5) DEPLOY DEV (Dynamic NGINX)
+#############################################
 deploy_dev:
   stage: deploy
 
   variables:
     ENV: "dev"
-    VERSION: "$VERSION"
     APP_NAME: "$APP_NAME"
+    VERSION: "$VERSION"
 
   trigger:
     project: "epay/devops/deployment"
