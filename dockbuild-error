@@ -1,3 +1,216 @@
+include:
+  # SAST & Fortify (your existing, working templates)
+  - project: 'epay/devops/ci-templates'
+    ref: main
+    file: 'ci/sast/sast.yml'
+  - project: 'epay/devops/ci-templates'
+    ref: main
+    file: 'ci/sast/fortify.sast.yml'
+  # Versioning job (runs in .pre, exports VERSION via dotenv)
+  - project: 'epay/devops/ci-templates'
+    ref: main
+    file: 'ci/release/version.yml'
+
+stages:
+  # .pre stage is injected by the included version.yml automatically
+  - build
+  - sast
+  - hp-fortify
+  - dockerbuild
+  - promote
+  - deploy
+
+# ----------------------------
+# GLOBAL VARIABLES
+# ----------------------------
 variables:
-  RELEASE_NAME: transactionfe
-  CHART_NAME: transaction-frontend
+  # App + build image
+  APP_NAME: "epay-merchant-simulator"
+  FE_BUILD_IMAGE: "registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113"
+
+  # DEV registry (podman)
+  DEV_REGISTRY_HOST: "registry.dev.sbiepay.sbi:8443"
+  DEV_REGISTRY_NAMESPACE: "ubi9"
+
+  # dynamic deploy (helm) trigger repo/branch
+  DEPLOY_TRIGGER_PROJECT: "epay/devops/deployment"
+  DEPLOY_TRIGGER_BRANCH: "feature/dynamicnginx"
+
+  # *** FIX FOR SERVICE PATH ***
+  # These 3 map to your service.yml entry for epay_merchant_simulator
+  RELEASE_NAME: "demo"                   # from service.yml (release: demo)
+  CHART_NAME: "epay_merchant_simulator"  # chart directory name
+  SERVICE_NAME: "epay_merchant_simulator" # <---- this fixes dev/charts//values.yaml
+
+# ----------------------------
+# 1) FRONTEND BUILD (uses your working proxy flow)
+# ----------------------------
+fe_build:
+  stage: build
+  image:
+    name: "$FE_BUILD_IMAGE"
+    pull_policy: always
+  script:
+    - echo "===== FRONTEND BUILD ====="
+    # your known-working proxy setup
+    - npm config set proxy http://serverswg.sbi.co.in:80
+    - npm config set https-proxy http://serverswg.sbi.co.in:9090
+    - npm cache clean --force
+    # match the working job (avoid npm ci here)
+    - npm install --legacy-peer-deps
+    # if you only have build:dev in package.json, keep this:
+    - npm run build:dev
+    - ls -lrth
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 week
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - if: '$CI_COMMIT_BRANCH =~ /^release\//'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - when: never
+
+# ----------------------------
+# 2) SAST
+# ----------------------------
+sast:
+  extends: .sast
+  stage: sast
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - when: never
+
+# ----------------------------
+# 3) HP FORTIFY
+# ----------------------------
+hp-fortify:
+  extends: .HPFortify
+  stage: hp-fortify
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - when: never
+
+# ----------------------------
+# 4) DOCKER BUILD (podman): login, build, push
+#    - pulls VERSION from the version job, falls back cleanly
+# ----------------------------
+dockerbuild:
+  stage: dockerbuild
+  image: "quay.io/podman/stable:latest"
+  needs:
+    - fe_build
+  variables:
+    # VERSION is normally exported by the version job (dotenv)
+    # Fallback if not present: branch+timestamp
+    _FALLBACK_TAG: "${CI_COMMIT_REF_NAME}-$(date +%Y%m%d%H%M%S)"
+  script:
+    - echo "===== DOCKER BUILD START ====="
+    # choose tag = VERSION (from version.yml) or fallback
+    - TAG="${VERSION:-${_FALLBACK_TAG}}"
+    - echo "Using tag: $TAG" && echo "$TAG" > tag.txt
+
+    # IMPORTANT: login before build so base image can be pulled if private
+    # Prefer masked variables DEV_REGISTRY_USERNAME / DEV_REGISTRY_PASSWORD in project CI variables
+    - podman login -u "$DEV_REGISTRY_USERNAME" -p "$DEV_REGISTRY_PASSWORD" "$DEV_REGISTRY_HOST" --tls-verify=false
+
+    # Compose image path and build/push
+    - IMAGE="${DEV_REGISTRY_HOST}/${DEV_REGISTRY_NAMESPACE}/${APP_NAME}:${TAG}"
+    - echo "IMAGE=$IMAGE"
+    - podman build -t "$IMAGE" -f Dockerfile --tls-verify=false
+    - podman push "$IMAGE" --tls-verify=false
+
+    # Export for downstream jobs
+    - echo "SOURCE_IMAGE=$IMAGE" > docker.env
+    - echo "VERSION=$TAG" >> docker.env
+  artifacts:
+    paths:
+      - tag.txt
+    reports:
+      dotenv: docker.env
+    expire_in: 1 week
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - if: '$CI_COMMIT_BRANCH =~ /^release\//'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - when: never
+
+# ----------------------------
+# 5) PROMOTE (manual gates) — re-tags SOURCE_IMAGE to target registries
+# ----------------------------
+.promote_template: &promote_template
+  stage: promote
+  image: "quay.io/podman/stable:latest"
+  needs:
+    - dockerbuild
+  script:
+    - echo "PROMOTE → $TARGET_ENV"
+    - echo "$TARGET_REGISTRY_PASSWORD" | podman login --username "$TARGET_REGISTRY_USERNAME" --password-stdin "$TARGET_REGISTRY_HOST" --tls-verify=false
+    - podman pull "$SOURCE_IMAGE" --tls-verify=false
+    - TARGET_IMAGE="$TARGET_REGISTRY_HOST/$TARGET_NAMESPACE/$APP_NAME:$VERSION"
+    - podman tag "$SOURCE_IMAGE" "$TARGET_IMAGE"
+    - podman push "$TARGET_IMAGE" --tls-verify=false
+  when: manual
+  rules:
+    - when: manual
+
+# example promotes (wire your real creds/hosts/namespaces as needed)
+promote_sit:
+  <<: *promote_template
+  variables:
+    TARGET_ENV: "sit"
+    TARGET_REGISTRY_HOST: "$DEV_REGISTRY_HOST"
+    TARGET_NAMESPACE: "$DEV_REGISTRY_NAMESPACE"
+    TARGET_REGISTRY_USERNAME: "$DEV_REGISTRY_USERNAME"
+    TARGET_REGISTRY_PASSWORD: "$DEV_REGISTRY_PASSWORD"
+  rules:
+    - if: '$CI_COMMIT_BRANCH =~ /^release\//'
+      when: manual
+
+promote_uat:
+  <<: *promote_template
+  variables:
+    TARGET_ENV: "uat"
+    TARGET_REGISTRY_HOST: "$DEV_REGISTRY_HOST"
+    TARGET_NAMESPACE: "$DEV_REGISTRY_NAMESPACE"
+    TARGET_REGISTRY_USERNAME: "$DEV_REGISTRY_USERNAME"
+    TARGET_REGISTRY_PASSWORD: "$DEV_REGISTRY_PASSWORD"
+  rules:
+    - if: '$CI_COMMIT_BRANCH =~ /^release\//'
+      when: manual
+
+# add more promote_* jobs for pre-prod/perf/prod... as you already had
+
+# ----------------------------
+# 6) DEPLOY (Dynamic NGINX) — DEV example
+# ----------------------------
+.deploy_template: &deploy_template
+  stage: deploy
+  trigger:
+    project: "$DEPLOY_TRIGGER_PROJECT"
+    branch: "$DEPLOY_TRIGGER_BRANCH"
+    strategy: depend
+    forward:
+      yaml_variables: true
+      pipeline_variables: true
+  variables:
+    # required by deployment pipeline
+    SOURCE_IMAGE: "$SOURCE_IMAGE"
+    VERSION: "$VERSION"
+
+    # *** dynamic nginx & chart resolution ***
+    RELEASE_NAME: "$RELEASE_NAME"
+    CHART_NAME: "$CHART_NAME"
+    SERVICE_NAME: "$SERVICE_NAME"
+  rules:
+    - when: manual
+
+deploy_dev:
+  <<: *deploy_template
+  variables:
+    ENV: "dev"
+  needs:
+    - dockerbuild
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+      when: manual
