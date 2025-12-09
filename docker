@@ -15,14 +15,12 @@ stages:
 
 variables:
   APP_NAME: "epay-merchant-simulator"
-  VERSION: "$CI_COMMIT_SHORT_SHA"
-
   DEV_REGISTRY_HOST: "registry.dev.sbiepay.sbi:8443"
   DEV_REGISTRY_NAMESPACE: "ubi9"
   FE_BUILD_IMAGE: "registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113"
 
 #############################################
-# 1) FRONTEND BUILD  (Your working logic)
+# FRONTEND BUILD (Your working logic)
 #############################################
 fe_build:
   stage: build
@@ -32,7 +30,6 @@ fe_build:
 
   script:
     - echo "===== FRONTEND BUILD ====="
-    - pwd
     - npm config set proxy http://serverswg.sbi.co.in:80
     - npm config set https-proxy http://serverswg.sbi.co.in:9090
     - npm cache clean --force
@@ -48,7 +45,7 @@ fe_build:
     - if: '$CI_COMMIT_BRANCH == "develop"'
 
 #############################################
-# 2) SAST
+# SAST
 #############################################
 sast:
   extends: .sast
@@ -57,7 +54,7 @@ sast:
     - if: '$CI_COMMIT_BRANCH == "develop"'
 
 #############################################
-# 3) HP FORTIFY
+# HP FORTIFY
 #############################################
 hp-fortify:
   extends: .HPFortify
@@ -66,7 +63,7 @@ hp-fortify:
     - if: '$CI_COMMIT_BRANCH == "develop"'
 
 #############################################
-# 4) DOCKER BUILD (Dynamic — Fully fixed)
+# DOCKER BUILD (FIXED — NO INVALID SYNTAX)
 #############################################
 dockerbuild:
   stage: dockerbuild
@@ -75,27 +72,24 @@ dockerbuild:
     - fe_build
 
   script:
-    - echo "===== DOCKER BUILD (DYNAMIC TAG) ====="
+    - echo "===== DOCKER BUILD ====="
 
-    # Generate TAG
-    - TARGET_BRANCH="${CI_MERGE_REQUEST_TARGET_BRANCH_NAME:-${CI_COMMIT_REF_NAME}}"
+    # FIXED: no YAML parameter expansion
+    - if [ -n "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" ]; then export TARGET_BRANCH="$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"; else export TARGET_BRANCH="$CI_COMMIT_REF_NAME"; fi
+
     - TIMESTAMP=$(date +"%Y%m%d%H%M%S")
     - TAG="${TARGET_BRANCH}-${TIMESTAMP}"
     - echo "$TAG" > tag.txt
     - echo "Generated TAG: $TAG"
 
-    # Login
     - podman login -u "$DEV_REGISTRY_USERNAME" -p "$DEV_REGISTRY_PASSWORD" "$DEV_REGISTRY_HOST" --tls-verify=false
 
-    # Build full image path
     - IMAGE="${DEV_REGISTRY_HOST}/${DEV_REGISTRY_NAMESPACE}/${APP_NAME}:${TAG}"
     - echo "IMAGE=$IMAGE"
 
-    # Docker build & push
     - podman build -t "$IMAGE" -f Dockerfile --tls-verify=false
     - podman push "$IMAGE" --tls-verify=false
 
-    # Save for deployment
     - echo "SOURCE_IMAGE=$IMAGE" > docker.env
 
   artifacts:
@@ -112,15 +106,10 @@ dockerbuild:
     - when: never
 
 #############################################
-# 5) DEPLOY DEV (Dynamic NGINX)
+# DEPLOY DEV
 #############################################
 deploy_dev:
   stage: deploy
-
-  variables:
-    ENV: "dev"
-    APP_NAME: "$APP_NAME"
-    VERSION: "$VERSION"
 
   trigger:
     project: "epay/devops/deployment"
