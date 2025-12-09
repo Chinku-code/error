@@ -1,338 +1,366 @@
+version:
+  stage: .pre
+  image: $CI_TEMPLATE_REGISTRY_HOST/library/rhelgit:latest
+  variables:
+    VERSION_TYPE: PATCH
+  before_script:
+    - git config --global http.sslVerify false
+    - git config --global --add safe.directory '*'
+  script:
+    - |
+      handle_error() {
+        local exit_code=$?
+        local script_line_number=$1
+        local error_message=$2
+        local function_name=$3
+        
+        echo "ERROR: $error_message"
+        echo "ERROR: $error_message" >> version_error.log
+        echo "ERROR_DETAILS: Function=$function_name, Script_Line=$script_line_number, Exit_Code=$exit_code" >> version_error.log
+        
+        echo "ERROR_OCCURRED=true" >> version.env
+        echo "ERROR_MESSAGE=$error_message" >> version.env
+        echo "ERROR_FUNCTION=$function_name" >> version.env
+        echo "ERROR_SCRIPT_LINE=$script_line_number" >> version.env
+        echo "ERROR_EXIT_CODE=$exit_code" >> version.env
+        
+        exit $exit_code
+      }
+      
+      set -e
+      
+      echo "Starting version generation for branch: $CI_COMMIT_BRANCH"
+      
+      # Fetch git tags
+      git fetch --tags || handle_error ${LINENO} "Failed to fetch git tags" "git_fetch"
+      
+      # Version logic for different branch types
+      if [[ "$CI_COMMIT_BRANCH" =~ ^(main)$ ]]; then
+        # Standard semantic versioning for main/develop
+        echo "Processing main/develop branch versioning..."
+        
+        LAST_TAG=$(git tag --sort=-v:refname | head -n 1 || echo "")
+        echo "Last Tag: $LAST_TAG"
+        
+        if [[ -z "$LAST_TAG" ]]; then
+          echo "WARNING: No tags found, using default version v0.0.0"
+          LAST_TAG="v0.0.0"
+        fi
+        
+        # Validate tag format
+        if ! [[ "$LAST_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo "WARNING: Invalid tag format '$LAST_TAG', using default version v0.0.0"
+          LAST_TAG="v0.0.0"
+        fi
+        
+        VERSION=$LAST_TAG
+        LAST_TAG="${LAST_TAG//v/}"
+        
+        # Extract version components
+        MAJOR=$(echo $LAST_TAG | cut -d '.' -f 1)
+        MINOR=$(echo $LAST_TAG | cut -d '.' -f 2)
+        PATCH=$(echo $LAST_TAG | cut -d '.' -f 3)
+        
+        # Validate version components
+        if ! [[ "$MAJOR" =~ ^[0-9]+$ ]] || ! [[ "$MINOR" =~ ^[0-9]+$ ]] || ! [[ "$PATCH" =~ ^[0-9]+$ ]]; then
+          handle_error ${LINENO} "Invalid version components: MAJOR=$MAJOR, MINOR=$MINOR, PATCH=$PATCH" "version_validation"
+        fi
+        
+        echo "Version components - MAJOR: $MAJOR, MINOR: $MINOR, PATCH: $PATCH"
+        
+        # Increment version based on VERSION_TYPE
+        case "$VERSION_TYPE" in
+          "MAJOR")
+            VERSION="v$((MAJOR+1)).0.0"
+            echo "Incrementing MAJOR version"
+            ;;
+          "MINOR")
+            VERSION="v${MAJOR}.$((MINOR+1)).0"
+            echo "Incrementing MINOR version"
+            ;;
+          "PATCH")
+            VERSION="v${MAJOR}.${MINOR}.$((PATCH+1))"
+            echo "Incrementing PATCH version"
+            ;;
+          *)
+            echo "WARNING: Unknown VERSION_TYPE '$VERSION_TYPE', defaulting to PATCH increment"
+            VERSION="v${MAJOR}.${MINOR}.$((PATCH+1))"
+            ;;
+        esac
+        
+        echo "Calculated version: $VERSION"
+        
+      elif [[ "$CI_COMMIT_BRANCH" =~ ^release/v([0-9]+\.[0-9]+)\.([0-9]+)$ ]]; then
+        # Release branch versioning - extract version from branch name
+        echo "Processing release branch versioning..."
+        
+        # Extract major.minor from branch name (e.g., 0.1 from release/v0.1.0)
+        BRANCH_MAJOR_MINOR="${BASH_REMATCH[1]}"  # 0.1
+        BRANCH_PATCH="${BASH_REMATCH[2]}"        # 0
+        
+        # Validate extracted version components
+        if [[ -z "$BRANCH_MAJOR_MINOR" ]] || [[ -z "$BRANCH_PATCH" ]]; then
+          handle_error ${LINENO} "Failed to extract version from branch name: $CI_COMMIT_BRANCH" "branch_version_extraction"
+        fi
+        
+        # Validate major.minor format
+        if ! [[ "$BRANCH_MAJOR_MINOR" =~ ^[0-9]+\.[0-9]+$ ]]; then
+          handle_error ${LINENO} "Invalid major.minor format: $BRANCH_MAJOR_MINOR" "branch_version_validation"
+        fi
+        
+        # Validate patch format
+        if ! [[ "$BRANCH_PATCH" =~ ^[0-9]+$ ]]; then
+          handle_error ${LINENO} "Invalid patch format: $BRANCH_PATCH" "branch_patch_validation"
+        fi
+        
+        echo "Branch Major.Minor: $BRANCH_MAJOR_MINOR"
+        echo "Branch Patch: $BRANCH_PATCH"
+        
+        # Find the latest patch version for this major.minor series
+        echo "Searching for existing tags in series v${BRANCH_MAJOR_MINOR}.*"
+        
+        GREP_PATTERN="^v${BRANCH_MAJOR_MINOR}\."
+        LATEST_PATCH_TAG=$(git tag --sort=-v:refname | grep "$GREP_PATTERN" | head -n 1 || true)
+        
+        if [[ -n "$LATEST_PATCH_TAG" ]]; then
+          # Extract patch number from latest tag
+          echo "Latest patch tag found: $LATEST_PATCH_TAG"
+          
+          # Validate tag format
+          if ! [[ "$LATEST_PATCH_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            handle_error ${LINENO} "Invalid tag format found: $LATEST_PATCH_TAG" "tag_format_validation"
+          fi
+          
+          LATEST_PATCH=$(echo $LATEST_PATCH_TAG | cut -d '.' -f 3)
+          
+          # Validate extracted patch number
+          if ! [[ "$LATEST_PATCH" =~ ^[0-9]+$ ]]; then
+            handle_error ${LINENO} "Invalid patch number extracted: $LATEST_PATCH from tag: $LATEST_PATCH_TAG" "patch_extraction_validation"
+          fi
+          
+          NEW_PATCH=$((LATEST_PATCH + 1))
+          VERSION="v${BRANCH_MAJOR_MINOR}.${NEW_PATCH}"
+          
+          echo "Latest patch: $LATEST_PATCH"
+          echo "Incrementing patch to: $NEW_PATCH"
+        else
+          # No existing tags for this series, start with patch 1
+          echo "No existing tags for series v${BRANCH_MAJOR_MINOR}, starting with patch 1"
+          VERSION="v${BRANCH_MAJOR_MINOR}.1"
+        fi
+        
+        # Validate final version format
+        if ! [[ "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          handle_error ${LINENO} "Invalid final version generated: $VERSION" "final_version_validation"
+        fi
+        
+        echo "Release branch version: $VERSION"
+        
+      else
+        # Feature branch versioning with timestamp
+        echo "Processing feature branch versioning..."
+        
+        if [[ -z "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" && -z "$CI_COMMIT_REF_NAME" ]]; then
+          handle_error ${LINENO} "Both CI_MERGE_REQUEST_TARGET_BRANCH_NAME and CI_COMMIT_REF_NAME are empty" "branch_validation"
+        fi
+        
+        BRANCH_NAME="${CI_MERGE_REQUEST_TARGET_BRANCH_NAME:-$CI_COMMIT_REF_NAME}"
+        
+        # Validate branch name
+        if [[ -z "$BRANCH_NAME" ]]; then
+          handle_error ${LINENO} "Branch name is empty after extraction" "branch_name_validation"
+        fi
+        
+        TIMESTAMP=$(date +"%Y%m%d%H%M%S")
+        
+        if [[ -z "$TIMESTAMP" ]]; then
+          handle_error ${LINENO} "Failed to generate timestamp" "timestamp_generation"
+        fi
+        
+        # Validate timestamp format
+        if ! [[ "$TIMESTAMP" =~ ^[0-9]{14}$ ]]; then
+          handle_error ${LINENO} "Invalid timestamp format: $TIMESTAMP" "timestamp_format_validation"
+        fi
+        
+        VERSION="v-${BRANCH_NAME}-${TIMESTAMP}"
+        VERSION="${VERSION//\//-}"
+        
+        # Validate final feature branch version
+        if [[ -z "$VERSION" ]]; then
+          handle_error ${LINENO} "Generated feature branch version is empty" "feature_version_validation"
+        fi
+        
+        echo "Feature branch version: $VERSION"
+      fi
+      
+      # Validate final version
+      if [[ -z "$VERSION" ]]; then
+        handle_error ${LINENO} "VERSION is empty after processing" "final_validation"
+      fi
+      
+      # Output version information
+      echo "VERSION=$VERSION" >> version.env
+      echo "VERSION_GENERATED_AT=$(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> version.env
+      echo "VERSION_TYPE_USED=$VERSION_TYPE" >> version.env
+      echo "BRANCH_USED=$CI_COMMIT_BRANCH" >> version.env
+      echo "ERROR_OCCURRED=false" >> version.env
+      
+      echo "SUCCESS: New version generated: $VERSION"
+      echo "Version information saved to version.env"
+      
+      echo "=== Version Generation Summary ==="
+      echo "Generated Version: $VERSION"
+      echo "Version Type: $VERSION_TYPE"
+      echo "Branch: $CI_COMMIT_BRANCH"
+      echo "Timestamp: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+      echo "=================================="
+  artifacts:
+    reports:
+      dotenv: version.env
+    paths:
+      - version_error.log
+    expire_in: 1 week
+  rules:
+   - when: on_success
+  allow_failure: false
 
-# 👇 NEW PHP BUILD STAGE
-.php_build:
+ata mora version yml use hauchi and mu aku mo gitlabyml re refarance deichi abe error auschi 
+error -----
+Running with gitlab-runner 17.8.0 (e4f782b3)
+  on DC-Gitlab-Runner rMTQxLq3, system ID: s_948d0ccb739a
+Resolving secrets
+Preparing the "docker" executor
+00:05
+Using Docker executor with image registry.gitlab.com/library/rhelgit:latest ...
+Using helper image:  registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest  (overridden, default would be  registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-v17.8.0 )
+Pulling docker image registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest ...
+Using docker image sha256:c95744588b6d7e170a6866854932de40eaf1b5ed229ed818cba6a87a1f885773 for registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest with digest registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper@sha256:ebbf1c21e4272ae1f8c18b034d390809c836c2fc68c0f0f6d3a5aff9760aabf5 ...
+Using helper image:  registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest  (overridden, default would be  registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-v17.8.0 )
+Using docker image sha256:c95744588b6d7e170a6866854932de40eaf1b5ed229ed818cba6a87a1f885773 for registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest with digest registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper@sha256:ebbf1c21e4272ae1f8c18b034d390809c836c2fc68c0f0f6d3a5aff9760aabf5 ...
+Pulling docker image registry.gitlab.com/library/rhelgit:latest ...
+WARNING: Failed to pull image with policy "always": Error response from daemon: {"message":"Forbidden"} (manager.go:254:1s)
+ERROR: Job failed: failed to pull image "registry.gitlab.com/library/rhelgit:latest" with specified policies [always]: Error response from daemon: {"message":"Forbidden"} (manager.go:254:1s)
+
+au ata mora gitlab.ciyml__________________________________________________
+include:
+  - project: 'epay/devops/ci-templates'
+    ref: main
+    file: 'ci/sast/sast.yml'
+  - project: 'epay/devops/ci-templates'
+    ref: main
+    file: 'ci/sast/fortify.sast.yml'
+  - project: 'epay/devops/ci-templates'
+    ref: main
+    file: 'ci/release/version.yml'
+
+stages:
+  - build
+  - sast
+  - hp-fortify
+  - dockerbuild
+  - deploy
+
+variables:
+  APP_NAME: "epay-merchant-simulator"
+  VERSION: "$CI_COMMIT_SHORT_SHA"
+  FE_BUILD_IMAGE: "registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113"
+  DEV_REGISTRY_HOST: "registry.dev.sbiepay.sbi:8443"
+  DEV_REGISTRY_NAMESPACE: "ubi9"
+
+fe_build:
   stage: build
   image:
-    name: registry.dev.sbiepay.sbi:8443/library/php:8.2    # adjust PHP image
+    name: "$FE_BUILD_IMAGE"
     pull_policy: always
   script:
-    - pwd
-    - php -v
-    - composer --version || true
-    - |
-      if [ ! -f composer.phar ]; then
-        echo "Downloading composer..."
-        php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-        php composer-setup.php --install-dir=/usr/local/bin --filename=composer
-        php -r "unlink('composer-setup.php');"
-      fi
-    - composer install --no-dev --prefer-dist --optimize-autoloader
+    - echo "===== FRONTEND BUILD ====="
+    - npm config set proxy http://serverswg.sbi.co.in:80
+    - npm config set https-proxy http://serverswg.sbi.co.in:9090
+    - npm cache clean --force
+    - npm install --legacy-peer-deps
+    - npm run build:dev
     - ls -lrth
   artifacts:
     paths:
-      - vendor/
-      - public/          # if you build a public folder
-    when: on_success
+      - dist/
     expire_in: 1 week
-
-facing error__________________
-Pipeline cannot be run.
-build: unknown keys in `extends` (.build)
-
-_____________________________________________________
-
-here is the reffrance pipeline i used --
-
-include:
-  - project: 'epay/devops/ci-templates'
-    ref: feature/CIfrontend
-    file: 'ci/sast/sast.yml'
-  - project: 'epay/devops/ci-templates'
-    ref: feature/CIfrontend
-    file: 'ci/sast/fortify.sast.yml'
-  - project: 'epay/devops/ci-templates'
-    ref: feature/CIfrontend
-    file: 'ci/release/version.yml'
-  - project: 'epay/devops/ci-templates'
-    ref: feature/CIfrontend
-    file: 'ci/release/release.yml'
-  - project: 'epay/devops/ci-templates'
-    ref: feature/CIfrontend
-    file: 'ci/build/podman.container.yml'
-  - project: 'epay/devops/ci-templates'
-    ref: feature/CIfrontend
-    file: 'ci/deploy/deployment.yml'
-
-stages:
-- build
-- test
-- sast
-- hp-fortify
-- release
-- dockerbuild
-- deploy
-
-variables:
-  CI_TEMPLATE_REGISTRY_HOST: "registry.dev.sbiepay.sbi:8443"
-  CI_TEMPLATE_REGISTRY_HOST_PREPROD: "epaynonprod-registry-quay-quay-enterprise.apps.preprod.epay.sbi"
-  CI_TEMPLATE_REGISTRY_HOST_PROD: "registry.prod.epay.sbi:8443"
-  CI_TEMPLATE_REGISTRY_HOST_PRODDR: "epayproddr-registry-quay-quay-enterprise.apps.dr.prod.epay.sbi"
-  CI_TEMPLATE_REGISTRY_HOST_PRODDC: "proddc-registry-route-quay-enterprise.apps.dc.prod.epay.sbi"
-  GIT_STRATEGY: clone
-  CI_USERNAME: "gitlab-ci-token"
-  RELEASE_NAME: null
-  CHART_NAME: null
-  IMAGE_NAME: "ubi9/$CHART_NAME"
-
-.rules:
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(main)|(develop)|(release)(\/.+)*$/'
-    - if: '$CI_COMMIT_BRANCH =~ /^(main)|(develop)|(release)(\/.+)*$/'
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - if: '$CI_COMMIT_BRANCH =~ /^release\//'
+    - if: '$CI_COMMIT_BRANCH == "main"'
     - when: never
-
-build:
-  extends: 
-    - .build
-    - .rules
-
 
 sast:
-  extends:
-    - .sast
-    - .rules
-
+  extends: .sast
+  stage: sast
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - when: never
 
 hp-fortify:
-  extends:
-    - .HPFortify
-    - .rules
-
-tag:
-  extends:
-    - .tag
-
-# Docker build jobs for each environment
+  extends: .HPFortify
+  stage: hp-fortify
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - when: never
 
 dockerbuild:
-  extends:
-    - .dockerbuild
-    - .rules
-
-# Deploy jobs with proper dependencies
-deploy-dev:
-  variables:
-    ENV: dev
-    SERVICE_NAME: $CI_PROJECT_NAME
-  extends:
-    - .trigger_cd
-  rules:
-    - if: $CI_COMMIT_BRANCH =~ /^(develop)$/
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(develop)$/
-      when: manual
-      allow_failure: true
-    - when: never
-
-deploy-sit:
-  variables:
-    ENV: sit
-    SERVICE_NAME: $CI_PROJECT_NAME
-  extends:
-    - .trigger_cd
-  rules:
-    - if: $CI_COMMIT_BRANCH =~ /^(release)(\/.+)*$/
-      when: manual
-      allow_failure: true
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(release)(\/.+)*$/
-      when: manual
-      allow_failure: true
-    - when: never
-
-deploy-uat:
-  variables:
-    ENV: uat
-    SERVICE_NAME: $CI_PROJECT_NAME
-  extends:
-    - .trigger_cd
-  rules:
-    - if: $CI_COMMIT_BRANCH =~ /^(release)(\/.+)*$/
-      when: manual
-      allow_failure: true
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(release)(\/.+)*$/
-      when: manual
-      allow_failure: true
-    - when: never
-
-
-promote-image-pre-prod:
-  stage: deploy
-  variables:
-    REGISTRY_USERNAME: $PREPROD_REGISTRY_USERNAME
-    REGISTRY_PASSWORD: $PREPROD_REGISTRY_PASSWORD
-    TARGET_IMAGE_NAME: "microservices/$CHART_NAME"
+  stage: dockerbuild
+  image: "quay.io/podman/stable:latest"
+  needs:
+    - fe_build
   script:
-    - podman login -u $IMAGE_REGISTRY_USERNAME -p $IMAGE_REGISTRY_PASS $CI_TEMPLATE_REGISTRY_HOST --tls-verify=false
-    - podman login -u microservices+preprod -p Y37PK8H33NIJVND7HA68OJQZX776SKHPP81XI7BQ94JH92UAJ1GVA144GPYC9PGU epaynonprod-registry-quay-quay-enterprise.apps.preprod.epay.sbi --tls-verify=false
-    #- podman login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD $CI_TEMPLATE_REGISTRY_HOST_PREPROD --tls-verify=false
-    - podman pull $CI_TEMPLATE_REGISTRY_HOST/$IMAGE_NAME:$VERSION --tls-verify=false
-    - podman tag $CI_TEMPLATE_REGISTRY_HOST/$IMAGE_NAME:$VERSION $CI_TEMPLATE_REGISTRY_HOST_PREPROD/$TARGET_IMAGE_NAME:$VERSION
-    - podman push $CI_TEMPLATE_REGISTRY_HOST_PREPROD/$TARGET_IMAGE_NAME:$VERSION --tls-verify=false
-  rules:
-    - if: $CI_COMMIT_BRANCH =~ /^(release)(\/.+)*$/
-      when: manual
-      allow_failure: true
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(release)(\/.+)*$/
-      when: manual
-      allow_failure: true
-    - when: never
+    - |
+      echo "===== DOCKER BUILD START ====="
 
-deploy-pre-prod:
-  variables:
-    ENV: pre-prod
-    SERVICE_NAME: $CI_PROJECT_NAME
-    DEPLOYMENT_BRANCH: main
-  extends:
-    - .trigger_cd
-  rules:
-    - if: $CI_COMMIT_BRANCH =~ /^(release)(\/.+)*$/
-      when: manual
-      allow_failure: true
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(release)(\/.+)*$/
-      when: manual
-      allow_failure: true
-    - when: never
+      if [ -n "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" ]; then
+        TARGET_BRANCH="$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"
+      else
+        TARGET_BRANCH="$CI_COMMIT_REF_NAME"
+      fi
 
-deploy-perf:
-  variables:
-    ENV: perf
-    SERVICE_NAME: $CI_PROJECT_NAME
-    DEPLOYMENT_BRANCH: main
-    VERSION: $VERSION
-  extends:
-    - .trigger_cd
-  rules:
-    - if: $CI_COMMIT_BRANCH =~ /^(release)(\/.+)*$/
-      when: manual
-      allow_failure: true
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(release)(\/.+)*$/
-      when: manual
-      allow_failure: true
-    - when: never
+      TIMESTAMP=$(date +"%Y%m%d%H%M%S")
+      TAG="${TARGET_BRANCH}-${TIMESTAMP}"
+      echo "$TAG" > tag.txt
 
-promote-image-pre-prod-dc:
-  stage: deploy
-  variables:
-    REGISTRY_USERNAME: $PREPROD_DC_REGISTRY_USERNAME
-    REGISTRY_PASSWORD: $PREPROD_DC_REGISTRY_PASSWORD
-    TARGET_IMAGE_NAME: "microservices/$CHART_NAME"
-  script:
-    - podman login -u $IMAGE_REGISTRY_USERNAME -p $IMAGE_REGISTRY_PASS $CI_TEMPLATE_REGISTRY_HOST --tls-verify=false
-    - podman login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD $CI_TEMPLATE_REGISTRY_HOST_PREPROD --tls-verify=false
-    - podman pull $CI_TEMPLATE_REGISTRY_HOST/$IMAGE_NAME:$VERSION --tls-verify=false
-    - podman tag $CI_TEMPLATE_REGISTRY_HOST/$IMAGE_NAME:$VERSION $CI_TEMPLATE_REGISTRY_HOST_PREPROD/$TARGET_IMAGE_NAME:$VERSION
-    - podman push $CI_TEMPLATE_REGISTRY_HOST_PREPROD/$TARGET_IMAGE_NAME:$VERSION --tls-verify=false
-  rules:
-    - if: $CI_COMMIT_BRANCH =~ /^(release)(\/.+)*$/
-      when: manual
-      allow_failure: true
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(release)(\/.+)*$/
-      when: manual
-      allow_failure: true
-    - when: never
+      #podman login -u "$DEV_REGISTRY_USERNAME" -p "$DEV_REGISTRY_PASSWORD" "$DEV_REGISTRY_HOST" --tls-verify=false
+      podman login -u "root" -p "root@123" "$DEV_REGISTRY_HOST" --tls-verify=false
 
-deploy-pre-prod-dc:
-  variables:
-    ENV: pre-prod-dc
-    SERVICE_NAME: $CI_PROJECT_NAME
-    VERSION: $VERSION
-  extends:
-    - .trigger_cd
-  rules:
-    - if: $CI_COMMIT_BRANCH =~ /^(release)(\/.+)*$/
-      when: manual
-      allow_failure: true
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(release)(\/.+)*$/
-      when: manual
-      allow_failure: true
-    - when: never
+      IMAGE="${DEV_REGISTRY_HOST}/${DEV_REGISTRY_NAMESPACE}/${APP_NAME}:${TAG}"
+      echo "$IMAGE"
 
-promote-image-prod-dr:
-  stage: deploy
-  variables:
-    REGISTRY_USERNAME: $PROD_DR_REGISTRY_USERNAME
-    REGISTRY_PASSWORD: $PROD_DR_REGISTRY_PASSWORD
-    TARGET_IMAGE_NAME: "microservices/$CHART_NAME"
-  script:
-    - podman login -u $IMAGE_REGISTRY_USERNAME -p $IMAGE_REGISTRY_PASS $CI_TEMPLATE_REGISTRY_HOST --tls-verify=false
-    #- podman login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD $CI_TEMPLATE_REGISTRY_HOST_PRODDR --tls-verify=false
-    - podman login -u='microservices+microservices' -p='27WT1N9G0GSIF7RMVD84W1BLAUFF3FRZ6H42HZL47MXMR51U3DAWF9NSLVEJYDHS' epayproddr-registry-quay-quay-enterprise.apps.dr.prod.epay.sbi --tls-verify=false
-    - podman pull $CI_TEMPLATE_REGISTRY_HOST/$IMAGE_NAME:$VERSION --tls-verify=false
-    - podman tag $CI_TEMPLATE_REGISTRY_HOST/$IMAGE_NAME:$VERSION $CI_TEMPLATE_REGISTRY_HOST_PRODDR/$TARGET_IMAGE_NAME:$VERSION
-    - podman push $CI_TEMPLATE_REGISTRY_HOST_PRODDR/$TARGET_IMAGE_NAME:$VERSION --tls-verify=false
-  rules:
-    - if: $CI_COMMIT_BRANCH =~ /^(main)$/
-      when: manual
-      allow_failure: true
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(main)$/
-      when: manual
-      allow_failure: true
-    - when: never
+      podman build -t "$IMAGE" -f Dockerfile --tls-verify=false
+      podman push "$IMAGE" --tls-verify=false
 
-deploy-prod-dr:
-  variables:
-    ENV: prod-dr
-    SERVICE_NAME: $CI_PROJECT_NAME
-    DEPLOYMENT_BRANCH: main
-    VERSION: $VERSION
-  extends:
-    - .trigger_cd
-  rules:
-    - if: $CI_COMMIT_BRANCH =~ /^(main)$/
-      when: manual
-      allow_failure: true
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(main)$/
-      when: manual
-      allow_failure: true
-    - when: never
-
-promote-image-prod-dc:
-  stage: deploy
-  variables:
-    REGISTRY_USERNAME: $PROD_DC_REGISTRY_USERNAME
-    REGISTRY_PASSWORD: $PROD_DC_REGISTRY_PASSWORD
-    TARGET_IMAGE_NAME: "microservices/$CHART_NAME"
-  script:
-    - podman login -u $IMAGE_REGISTRY_USERNAME -p $IMAGE_REGISTRY_PASS $CI_TEMPLATE_REGISTRY_HOST --tls-verify=false
-    - echo "$REGISTRY_USERNAME:$REGISTRY_PASSWORD"
-    - podman login -u='microservices+microservices' -p='VY62CTW20B8V2TGIO0WNZGAZXDQCZUGN5F83VHY2ORR4MJRKRPO4DAPFIZ97LRYR' proddc-registry-route-quay-enterprise.apps.dc.prod.epay.sbi --tls-verify=false
-    - podman pull $CI_TEMPLATE_REGISTRY_HOST/$IMAGE_NAME:$VERSION --tls-verify=false
-    - podman tag $CI_TEMPLATE_REGISTRY_HOST/$IMAGE_NAME:$VERSION $CI_TEMPLATE_REGISTRY_HOST_PRODDC/$TARGET_IMAGE_NAME:$VERSION
-    - podman push $CI_TEMPLATE_REGISTRY_HOST_PRODDC/$TARGET_IMAGE_NAME:$VERSION --tls-verify=false
-  rules:
-    - if: $CI_COMMIT_BRANCH =~ /^(main)$/
-      when: manual
-      allow_failure: true
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(main)$/
-      when: manual
-      allow_failure: true
-    - when: never
-
-deploy-prod-dc:
-  variables:
-    ENV: prod-dc
-    SERVICE_NAME: $CI_PROJECT_NAME
-    DEPLOYMENT_BRANCH: main
-    VERSION: $VERSION
-  extends:
-    - .trigger_cd
-  rules:
-    - if: $CI_COMMIT_BRANCH =~ /^(main)$/
-      when: manual
-      allow_failure: true
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(main)$/
-      when: manual
-      allow_failure: true
-    - when: never
-
-plz find the error and give the correct solution
-
--------------------------------------------------------------------
-
-.php_build:
-  stage: build
-  image: registry.dev.sbiepay.sbi:8443/library/php:8.2
-  script:
-    - php -v
-    - composer install --no-dev --prefer-dist
+      echo "SOURCE_IMAGE=$IMAGE" > docker.env
   artifacts:
     paths:
-      - vendor/
+      - tag.txt
+    reports:
+      dotenv: docker.env
+    expire_in: 1 week
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - if: '$CI_COMMIT_BRANCH =~ /^release\//'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - when: never
+
+deploy_dev:
+  stage: deploy
+  trigger:
+    project: "epay/devops/deployment"
+    branch: "feature/dynamicnginx"
+    strategy: depend
+    forward:
+      yaml_variables: true
+      pipeline_variables: true
+  variables:
+    ENV: "dev"
+    APP_NAME: "$APP_NAME"
+    SOURCE_IMAGE: "$SOURCE_IMAGE"
+    VERSION: "$VERSION"
+  needs:
+    - dockerbuild
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+      when: manual
