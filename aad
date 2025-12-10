@@ -1,0 +1,5 @@
+version:
+  image: "registry.dev.sbiepay.sbi:8443/library/rhelgit:latest"
+
+- TAG="${VERSION:-${CI_COMMIT_REF_NAME}-$(date +%Y%m%d%H%M%S)}"
+- echo "$TAG" > tag.txt
