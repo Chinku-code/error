@@ -5,9 +5,7 @@ include:
   - project: 'epay/devops/ci-templates'
     ref: main
     file: 'ci/sast/fortify.sast.yml'
-  - project: 'epay/devops/ci-templates'
-    ref: main
-    file: 'ci/release/version.yml'   # <-- THIS CREATES VERSION JOB
+  # VERSION REMOVED
 
 stages:
   - build
@@ -17,14 +15,11 @@ stages:
   - deploy
 
 variables:
+  CI_TEMPLATE_REGISTRY_HOST: "registry.dev.sbiepay.sbi:8443"
   APP_NAME: "epay-merchant-simulator"
   FE_BUILD_IMAGE: "registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113"
-
   DEV_REGISTRY_HOST: "registry.dev.sbiepay.sbi:8443"
   DEV_REGISTRY_NAMESPACE: "ubi9"
-
-  # remove VERSION override (important!)
-  # VERSION is taken from version.env
 
 # ------------------------------------------------------------
 # FRONTEND BUILD
@@ -41,6 +36,7 @@ fe_build:
     - npm cache clean --force
     - npm install --legacy-peer-deps
     - npm run build:dev
+    - ls -lrth
   artifacts:
     paths:
       - dist/
@@ -72,34 +68,37 @@ hp-fortify:
     - when: never
 
 # ------------------------------------------------------------
-# DOCKER BUILD (USES VERSION FROM version.env)
+# DOCKER BUILD (NO VERSION)
 # ------------------------------------------------------------
 dockerbuild:
   stage: dockerbuild
   image: "quay.io/podman/stable:latest"
   needs:
-    - version       # <-- IMPORTANT
     - fe_build
   script:
-    - echo "===== DOCKER BUILD START ====="
-    - echo "VERSION from version.env = $VERSION"
+    - |
+      echo "===== DOCKER BUILD START ====="
 
-    # TAG = VERSION (DO NOT auto-create timestamp again)
-    - TAG="$VERSION"
-    - echo "$TAG" > tag.txt
+      if [ -n "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" ]; then
+        TARGET_BRANCH="$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"
+      else
+        TARGET_BRANCH="$CI_COMMIT_REF_NAME"
+      fi
 
-    # Registry login
-    - podman login -u "root" -p "root@123" "$DEV_REGISTRY_HOST" --tls-verify=false
+      TIMESTAMP=$(date +"%Y%m%d%H%M%S")
+      TAG="${TARGET_BRANCH}-${TIMESTAMP}"
+      echo "$TAG" > tag.txt
 
-    # Build + Push
-    - IMAGE="${DEV_REGISTRY_HOST}/${DEV_REGISTRY_NAMESPACE}/${APP_NAME}:${TAG}"
-    - echo "IMAGE = $IMAGE"
-    - podman build -t "$IMAGE" -f Dockerfile --tls-verify=false
-    - podman push "$IMAGE" --tls-verify=false
+      podman login -u "root" -p "root@123" "$DEV_REGISTRY_HOST" --tls-verify=false
 
-    # Export image for deploy stage
-    - echo "SOURCE_IMAGE=$IMAGE" > docker.env
-    - echo "VERSION=$TAG" >> docker.env
+      IMAGE="${DEV_REGISTRY_HOST}/${DEV_REGISTRY_NAMESPACE}/${APP_NAME}:${TAG}"
+      echo "$IMAGE"
+
+      podman build -t "$IMAGE" -f Dockerfile --tls-verify=false
+      podman push "$IMAGE" --tls-verify=false
+
+      echo "SOURCE_IMAGE=$IMAGE" > docker.env
+      echo "VERSION=$TAG" >> docker.env
 
   artifacts:
     paths:
@@ -114,7 +113,7 @@ dockerbuild:
     - when: never
 
 # ------------------------------------------------------------
-# DEPLOY (DYNAMIC NGINX)
+# DEPLOY (dynamic nginx)
 # ------------------------------------------------------------
 deploy_dev:
   stage: deploy
