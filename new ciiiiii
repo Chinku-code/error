@@ -1,0 +1,156 @@
+include:
+  # SAST + Fortify
+  - project: 'epay/devops/ci-templates'
+    ref: main
+    file: 'ci/sast/sast.yml'
+
+  - project: 'epay/devops/ci-templates'
+    ref: main
+    file: 'ci/sast/fortify.sast.yml'
+
+  # VERSION JOB (must run first)
+  - project: 'epay/devops/ci-templates'
+    ref: main
+    file: 'ci/release/version.yml'
+
+
+stages:
+  - build
+  - sast
+  - hp-fortify
+  - dockerbuild
+  - deploy
+
+
+variables:
+  CI_TEMPLATE_REGISTRY_HOST: "registry.dev.sbiepay.sbi:8443"
+
+  APP_NAME: "epay-merchant-simulator"
+  FE_BUILD_IMAGE: "registry.dev.sbiepay.sbi:8443/ubi9/reactjs_npm:20241113"
+
+  DEV_REGISTRY_HOST: "registry.dev.sbiepay.sbi:8443"
+  DEV_REGISTRY_NAMESPACE: "ubi9"
+
+  DEPLOY_TRIGGER_PROJECT: "epay/devops/deployment"
+  DEPLOY_TRIGGER_BRANCH: "main"
+
+  # ---------------------------
+  # REQUIRED FOR DYNAMIC NGINX
+  # ---------------------------
+  SERVICE_NAME: "epay_merchant_simulator"      # ✔️ FIXED
+  CHART_NAME: "epay_merchant_simulator"        # ✔️ FIXED
+  RELEASE_NAME: "demo"
+  # ---------------------------
+
+
+# ---------- BUILD ----------
+fe_build:
+  stage: build
+  image:
+    name: "$FE_BUILD_IMAGE"
+    pull_policy: always
+  script:
+    - echo "===== FRONTEND BUILD ====="
+    - npm config set proxy http://serverswg.sbi.co.in:80
+    - npm config set https-proxy http://serverswg.sbi.co.in:9090
+    - npm cache clean --force
+    - npm install --legacy-peer-deps
+    - npm run build:dev
+    - ls -ltrh
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 week
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - if: '$CI_COMMIT_BRANCH =~ /^release\//'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - when: never
+
+
+# ---------- SAST ----------
+sast:
+  extends: .sast
+  stage: sast
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+
+
+# ---------- HP FORTIFY ----------
+hp-fortify:
+  extends: .HPFortify
+  stage: hp-fortify
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+
+
+# ---------- DOCKER BUILD ----------
+dockerbuild:
+  stage: dockerbuild
+  image: "quay.io/podman/stable:latest"
+  needs: [fe_build, version]
+  script:
+    - echo "===== DOCKER BUILD START ====="
+
+    - |
+      if [ -n "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" ]; then
+        TARGET_BRANCH="$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"
+      else
+        TARGET_BRANCH="$CI_COMMIT_REF_NAME"
+      fi
+
+    - echo "Using version: $VERSION"
+
+    - podman login -u "$DEV_REGISTRY_USERNAME" -p "$DEV_REGISTRY_PASSWORD" "$DEV_REGISTRY_HOST" --tls-verify=false
+
+    - IMAGE="${DEV_REGISTRY_HOST}/${DEV_REGISTRY_NAMESPACE}/${APP_NAME}:${VERSION}"
+    - echo "$IMAGE"
+
+    - podman build -t "$IMAGE" -f Dockerfile --tls-verify=false
+    - podman push "$IMAGE" --tls-verify=false
+
+    - echo "SOURCE_IMAGE=$IMAGE" > docker.env
+    - echo "VERSION=$VERSION" >> docker.env
+  artifacts:
+    paths:
+      - docker.env
+    reports:
+      dotenv: docker.env
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - if: '$CI_COMMIT_BRANCH =~ /^release\//'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - when: never
+
+
+# ---------- DEPLOY (DYNAMIC NGINX) ----------
+.deploy_template: &deploy_template
+  stage: deploy
+  trigger:
+    project: "$DEPLOY_TRIGGER_PROJECT"
+    branch: "$DEPLOY_TRIGGER_BRANCH"
+    strategy: depend
+    forward:
+      yaml_variables: true
+      pipeline_variables: true
+  variables:
+    ENV: "$ENV"
+    SERVICE_NAME: "$SERVICE_NAME"       # ✔️ DYNAMIC FIX
+    CHART_NAME: "$CHART_NAME"           # ✔️ DYNAMIC FIX
+    RELEASE_NAME: "$RELEASE_NAME"
+    VERSION: "$VERSION"
+    SOURCE_IMAGE: "$SOURCE_IMAGE"
+  rules:
+    - when: manual
+
+
+deploy_dev:
+  <<: *deploy_template
+  variables:
+    ENV: "dev"
+  needs:
+    - version
+    - dockerbuild
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+      when: manual
