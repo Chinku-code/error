@@ -135,3 +135,9 @@ deploy_dev:
   rules:
     - if: '$CI_COMMIT_BRANCH == "develop"'
       when: manual
+
+-------------------------------------------------------------------
+Reinitialized existing Git repository in /tmp/builds/epay/frontends/epay_merchant_simulator/.git/
+error: insufficient permission for adding an object to repository database .git/objects
+fatal: failed to write object
+fatal: unpack-objects failed
