@@ -7,39 +7,15 @@
   script:
     - pwd
     - ls -la
-
     - |
-      if [ -n "$VERSION" ]; then
-        echo "Version is $VERSION"
-        echo "$VERSION" > VERSION.txt
-      else
-        echo "No version provided"
-      fi
-
-    # Install dependencies
-    - |
-      if [ -f composer.json ]; then
-        composer install --no-interaction --prefer-dist --no-progress
-      else
-        echo "composer.json not found, skipping composer install"
-      fi
-
-    # Optional test step
-    - |
-      if [ -f vendor/bin/phpunit ]; then
-        vendor/bin/phpunit
-      else
-        echo "PHPUnit not found, skipping tests"
-      fi
-
-    # Package build output
-    - mkdir -p build
-    - cp -r . build/
-
-    - ls -lrth build
+        if [ -n "$VERSION" ]; then
+          echo "version $VERSION"
+        fi
+    - php -v
+    - ls -lrth
 
   artifacts:
     paths:
-      - build/
+      - .
     when: on_success
     expire_in: 1 week
