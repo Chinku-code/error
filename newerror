@@ -57,7 +57,6 @@ So simply remove it and do:
 
 git tag || true
 
-
 Replace:
 
 git fetch --tags
@@ -98,3 +97,8 @@ Then SOLUTION 1 is best and 100% reliable.
 🚀 I can rewrite your entire version.yml in Solution-1 style if you say:
 
 “Rewrite version.yml using clean clone method”
+
+
+
+
+https://GitHub.com/saadi2047
