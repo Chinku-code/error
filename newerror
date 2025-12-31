@@ -1,104 +1,11 @@
-Yes — there are 2 alternative solutions that require NO permission changes, and they work 100% in GitLab runners that have strict filesystem permissions.
-These are used in enterprise environments exactly like SBI infra.
 
-✅ SOLUTION 1: Run version job in a CLEAN TEMP DIRECTORY (Recommended)
+Dear Akshata,
 
-Instead of doing git operations inside the project workspace (which has bad permissions), you do:
+    My office access card has not been working properly for the last few days. The access team has checked it and advised me to raise a support ticket from my Bank ID is V1021008 so that a new access card can be issued.
 
-Create a temporary directory
-
-Clone repo fresh
-
-Run version script there
-
-Save output to version.env
-
-✅ Add this to your version job:
-
-Replace your entire script: with this wrapper:
-
-  script:
-    - echo "===== VERSION JOB USING CLEAN CLONE ====="
-
-    # Create fresh temp directory
-    - mkdir /tmp/version-job
-    - cd /tmp/version-job
-
-    # Clone repository freshly (no permission issues)
-    - git clone "$CI_REPOSITORY_URL" repo
-    - cd repo
-
-    # Checkout correct commit
-    - git checkout "$CI_COMMIT_SHA"
-
-    # Create version.env here
-    - echo "Running version logic..."
-    # Run your existing version logic here (same code)
-    # Just append everything to version.env inside this directory
-
-    # Copy result back to workspace
-    - cp version.env "$CI_PROJECT_DIR/version.env"
-
-Why this works?
-
-✔ You avoid GitLab runner workspace
-✔ No .git/objects permission issues
-✔ You operate in your own folder
-✔ Git runs cleanly
-
-✅ SOLUTION 2: Disable tag fetching completely (simplest fix)
-
-Your version job fails at:
-
-git fetch --tags
+I request you to please help with issuing a new access card at the earliest. Please let me know if any additional details or formalities are required from my side.
 
 
-So simply remove it and do:
-
-git tag || true
-
-Replace:
-
-git fetch --tags
-
-
-With:
-
-git tag || echo "Skipping tag fetch"
-
-Why this works?
-
-✔ git fetch hits .git/objects
-✔ git tag only reads metadata
-✔ Version generation still works for feature/develop branches
-✔ No permission requirement
-✔ This is exactly why your other pipelines run — they don’t fetch tags
-
-✅ SOLUTION 3: Use GitLab API instead of git commands
-
-Do not touch .git at all.
-Use GitLab API to get tags:
-
-curl --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
-     "https://gitlab.epay.sbi/api/v4/projects/$CI_PROJECT_ID/repository/tags"
-
-
-Parse JSON and generate version.
-Zero dependency on workspace permissions.
-
-⭐ RECOMMENDATION
-
-Because you said:
-
-"We won't be able to change permissions"
-
-Then SOLUTION 1 is best and 100% reliable.
-
-🚀 I can rewrite your entire version.yml in Solution-1 style if you say:
-
-“Rewrite version.yml using clean clone method”
-
-
-
-
-https://GitHub.com/saadi2047
+Thanks & Regards 
+Namdev Gadve
+8975696952
