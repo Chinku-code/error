@@ -98,4 +98,14 @@ total 2308
 drwxr-x--- 2 root root      60 Dec 30 18:35 Jar
 -rw-r----- 1 root root 2359060 Dec 30 12:43 springboot-spark-stream-csv-2.zip
 [root@registry spark]#
+__________________________________________________________________________________
+
+
+FROM registry.dev.sbiepay.sbi:8443/spark/sparkrecon:4.0.0_12092025v43
+
+WORKDIR /app
+COPY Jar/springboot-spark-stream-csv-0.0.1-SNAPSHOT.jar spark.jar
+
+ENTRYPOINT ["spark-submit"]
+CMD ["spark.jar"]
 
