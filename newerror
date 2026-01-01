@@ -1,105 +1,5 @@
-FROM registry.dev.sbiepay.sbi:8443/ubi9/openjdk-21-runtime:1.23-6.1758133907
 
-ENV SPARK_HOME=/opt/spark
-ENV PATH=$SPARK_HOME/bin:$PATH
-
-RUN curl -L https://archive.apache.org/dist/spark/spark-3.5.1/spark-3.5.1-bin-hadoop3.tgz \
- | tar -xz -C /opt && \
- mv /opt/spark-3.5.1-bin-hadoop3 /opt/spark
-
-WORKDIR /app
-COPY Jar/springboot-spark-stream-csv-0.0.1-SNAPSHOT.jar spark.jar
-
-ENTRYPOINT ["spark-submit"]
-CMD ["spark.jar"]
-
-##############################################################
-
-[root@registry spark]#  podman build -t registry.dev.sbiepay.sbi:8443/library/spark:v5 -f Dockerfile
-STEP 1/8: FROM registry.dev.sbiepay.sbi:8443/ubi9/openjdk-21-runtime:1.23-6.1758133907
-STEP 2/8: ENV SPARK_HOME=/opt/spark
---> Using cache deff6df6dd913852045a38fac633ef4787ecd3f9ec59f33025e8f37c3bb58954
---> deff6df6dd91
-STEP 3/8: ENV PATH=$SPARK_HOME/bin:$PATH
---> Using cache 522d417d5455fa29538ba51b01cce65bd835bb8bc5d7d2b12fa27324579c1cee
---> 522d417d5455
-STEP 4/8: RUN curl -L https://archive.apache.org/dist/spark/spark-3.5.1/spark-3.5.1-bin-hadoop3.tgz  | tar -xz -C /opt &&  mv /opt/spark-3.5.1-bin-hadoop3 /opt/spark
-tar (grandchild): gzip: Cannot exec: No such file or directory
-tar (grandchild): Error is not recoverable: exiting now
-  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:--  0:01:14 --:--:--     0curl: (56) Received HTTP code 503 from proxy after CONNECT
-tar: Child returned status 2
-tar: Error is not recoverable: exiting now
-Error: building at STEP "RUN curl -L https://archive.apache.org/dist/spark/spark-3.5.1/spark-3.5.1-bin-hadoop3.tgz  | tar -xz -C /opt &&  mv /opt/spark-3.5.1-bin-hadoop3 /opt/spark": while running runtime: exit status 2
-[root@registry spark]#
-#########################################################
-
-registry.dev.sbiepay.sbi:8443/spark/sparkrecon:4.0.0_12092025v43
-
-
-
-
-registry.dev.sbiepay.sbi:8443/ubi9/stackable-apache-spark-k8s-operator:25.11.0
-
-registry.connect.redhat.com/stackable/stackable-apache-spark-k8s-operator:25.11.0
-
-Commands
-podman run --rm -it registry.dev.sbiepay.sbi:8443/spark/sparkrecon:4.0.0_12092025v43 spark-submit --version
-
-_______________________________________________
-[root@registry spark]# podman run --rm -it registry.dev.sbiepay.sbi:8443/spark/sparkrecon:4.0.0_12092025v43 spark-submit --version
-WARNING: Using incubator modules: jdk.incubator.vector
-Welcome to
-      ____              __
-     / __/__  ___ _____/ /__
-    _\ \/ _ \/ _ `/ __/  '_/
-   /___/ .__/\_,_/_/ /_/\_\   version 4.0.0
-      /_/
-
-Using Scala version 2.13.16, OpenJDK 64-Bit Server VM, 21.0.7
-Branch HEAD
-Compiled by user wenchen on 2025-05-19T07:58:03Z
-Revision fa33ea000a0bda9e5a3fa1af98e8e85b8cc5e4d4
-Url https://github.com/apache/spark
-Type --help for more information.
-[root@registry spark]#
-
-
-
-_________________________________________________________
-
-FROM registry.dev.sbiepay.sbi:8443/spark/sparkrecon:4.0.0_12092025v43
-
-WORKDIR /app
-COPY Jar/springboot-spark-stream-csv-0.0.1-SNAPSHOT.jar spark.jar
-
-ENTRYPOINT ["spark-submit"]
-CMD ["spark.jar"]
-________________________________________________________
-
-[root@registry spark]# podman build -t registry.dev.sbiepay.sbi:8443/library/spark:v5 -f Dockerfile
-STEP 1/5: FROM registry.dev.sbiepay.sbi:8443/spark/sparkrecon:4.0.0_12092025v43
-STEP 2/5: WORKDIR /app
---> 75e9661013af
-STEP 3/5: COPY Jar/springboot-spark-stream-csv-0.0.1-SNAPSHOT.jar spark.jar
-Error: building at STEP "COPY Jar/springboot-spark-stream-csv-0.0.1-SNAPSHOT.jar spark.jar": checking on sources under "/root/spark": copier: stat: "/Jar/springboot-spark-stream-csv-0.0.1-SNAPSHOT.jar": no such file or directory
-[root@registry spark]# ^C
-[root@registry spark]# ^C
-[root@registry spark]# ll
-total 262100
--rwxrwxrwx 1 root   root         197 Jan  1 13:52 Dockerfile
-drwxr-x--- 3 root   root          76 Dec 30 18:52 spark
--rw-r----- 1 osuser osuser 268382635 Dec 30 18:13 spark.zip
-[root@registry spark]# cd spark/
-[root@registry spark]# ll
-total 2308
--rw-r----- 1 root root     350 Dec 30 18:52 Dockerfile
-drwxr-x--- 2 root root      60 Dec 30 18:35 Jar
--rw-r----- 1 root root 2359060 Dec 30 12:43 springboot-spark-stream-csv-2.zip
-[root@registry spark]#
-__________________________________________________________________________________
-
+___________________________________________________________________
 
 FROM registry.dev.sbiepay.sbi:8443/spark/sparkrecon:4.0.0_12092025v43
 
@@ -134,3 +34,63 @@ refund-refundservice    ["dev-istio-system/dev-gateway"]   ["dev.epay.sbi"]   10
 sftp-sftpservice        ["dev-istio-system/dev-gateway"]   ["dev.epay.sbi"]   50d
 sparkutility            ["dev-istio-system/dev-gateway"]   ["dev.epay.sbi"]   2d21h
 
+________________________________
+
+WARNING: Using incubator modules: jdk.incubator.vector
+26/01/01 08:41:21 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+26/01/01 08:41:22 ERROR SpringApplication: Application run failed
+java.lang.NoSuchMethodError: org.yaml.snakeyaml.representer.Representer: method 'void <init>()' not found
+	at org.springframework.boot.env.OriginTrackedYamlLoader.createYaml(OriginTrackedYamlLoader.java:76)
+	at org.springframework.boot.env.OriginTrackedYamlLoader.createYaml(OriginTrackedYamlLoader.java:71)
+	at org.springframework.beans.factory.config.YamlProcessor.process(YamlProcessor.java:164)
+	at org.springframework.boot.env.OriginTrackedYamlLoader.load(OriginTrackedYamlLoader.java:84)
+	at org.springframework.boot.env.YamlPropertySourceLoader.load(YamlPropertySourceLoader.java:50)
+	at org.springframework.boot.context.config.StandardConfigDataLoader.load(StandardConfigDataLoader.java:54)
+	at org.springframework.boot.context.config.StandardConfigDataLoader.load(StandardConfigDataLoader.java:36)
+	at org.springframework.boot.context.config.ConfigDataLoaders.load(ConfigDataLoaders.java:107)
+	at org.springframework.boot.context.config.ConfigDataImporter.load(ConfigDataImporter.java:128)
+	at org.springframework.boot.context.config.ConfigDataImporter.resolveAndLoad(ConfigDataImporter.java:86)
+	at org.springframework.boot.context.config.ConfigDataEnvironmentContributors.withProcessedImports(ConfigDataEnvironmentContributors.java:116)
+	at org.springframework.boot.context.config.ConfigDataEnvironment.processInitial(ConfigDataEnvironment.java:240)
+	at org.springframework.boot.context.config.ConfigDataEnvironment.processAndApply(ConfigDataEnvironment.java:227)
+	at org.springframework.boot.context.config.ConfigDataEnvironmentPostProcessor.postProcessEnvironment(ConfigDataEnvironmentPostProcessor.java:102)
+	at org.springframework.boot.context.config.ConfigDataEnvironmentPostProcessor.postProcessEnvironment(ConfigDataEnvironmentPostProcessor.java:94)
+	at org.springframework.boot.env.EnvironmentPostProcessorApplicationListener.onApplicationEnvironmentPreparedEvent(EnvironmentPostProcessorApplicationListener.java:102)
+	at org.springframework.boot.env.EnvironmentPostProcessorApplicationListener.onApplicationEvent(EnvironmentPostProcessorApplicationListener.java:87)
+	at org.springframework.context.event.SimpleApplicationEventMulticaster.doInvokeListener(SimpleApplicationEventMulticaster.java:176)
+	at org.springframework.context.event.SimpleApplicationEventMulticaster.invokeListener(SimpleApplicationEventMulticaster.java:169)
+	at org.springframework.context.event.SimpleApplicationEventMulticaster.multicastEvent(SimpleApplicationEventMulticaster.java:143)
+	at org.springframework.context.event.SimpleApplicationEventMulticaster.multicastEvent(SimpleApplicationEventMulticaster.java:131)
+	at org.springframework.boot.context.event.EventPublishingRunListener.environmentPrepared(EventPublishingRunListener.java:85)
+	at org.springframework.boot.SpringApplicationRunListeners.lambda$environmentPrepared$2(SpringApplicationRunListeners.java:66)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at org.springframework.boot.SpringApplicationRunListeners.doWithListeners(SpringApplicationRunListeners.java:120)
+	at org.springframework.boot.SpringApplicationRunListeners.doWithListeners(SpringApplicationRunListeners.java:114)
+	at org.springframework.boot.SpringApplicationRunListeners.environmentPrepared(SpringApplicationRunListeners.java:65)
+	at org.springframework.boot.SpringApplication.prepareEnvironment(SpringApplication.java:344)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:302)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1306)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1295)
+	at com.spark.springboot_spark_stream_csv.SpringbootSparkStreamCsvApplication.main(SpringbootSparkStreamCsvApplication.java:10)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:75)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:52)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.springframework.boot.loader.MainMethodRunner.run(MainMethodRunner.java:49)
+	at org.springframework.boot.loader.Launcher.launch(Launcher.java:108)
+	at org.springframework.boot.loader.Launcher.launch(Launcher.java:58)
+	at org.springframework.boot.loader.JarLauncher.main(JarLauncher.java:65)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:75)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:52)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.apache.spark.deploy.JavaMainApplication.start(SparkApplication.scala:52)
+	at org.apache.spark.deploy.SparkSubmit.org$apache$spark$deploy$SparkSubmit$$runMain(SparkSubmit.scala:1027)
+	at org.apache.spark.deploy.SparkSubmit.doRunMain$1(SparkSubmit.scala:204)
+	at org.apache.spark.deploy.SparkSubmit.submit(SparkSubmit.scala:227)
+	at org.apache.spark.deploy.SparkSubmit.doSubmit(SparkSubmit.scala:96)
+	at org.apache.spark.deploy.SparkSubmit$$anon$2.doSubmit(SparkSubmit.scala:1132)
+	at org.apache.spark.deploy.SparkSubmit$.main(SparkSubmit.scala:1141)
+	at org.apache.spark.deploy.SparkSubmit.main(SparkSubmit.scala)
+26/01/01 08:41:22 INFO ShutdownHookManager: Shutdown hook called
+26/01/01 08:41:22 INFO ShutdownHookManager: Deleting directory /tmp/spark-354e0291-de3c-4180-b1bb-856471881d22
