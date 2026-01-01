@@ -76,4 +76,26 @@ COPY Jar/springboot-spark-stream-csv-0.0.1-SNAPSHOT.jar spark.jar
 
 ENTRYPOINT ["spark-submit"]
 CMD ["spark.jar"]
+________________________________________________________
+
+[root@registry spark]# podman build -t registry.dev.sbiepay.sbi:8443/library/spark:v5 -f Dockerfile
+STEP 1/5: FROM registry.dev.sbiepay.sbi:8443/spark/sparkrecon:4.0.0_12092025v43
+STEP 2/5: WORKDIR /app
+--> 75e9661013af
+STEP 3/5: COPY Jar/springboot-spark-stream-csv-0.0.1-SNAPSHOT.jar spark.jar
+Error: building at STEP "COPY Jar/springboot-spark-stream-csv-0.0.1-SNAPSHOT.jar spark.jar": checking on sources under "/root/spark": copier: stat: "/Jar/springboot-spark-stream-csv-0.0.1-SNAPSHOT.jar": no such file or directory
+[root@registry spark]# ^C
+[root@registry spark]# ^C
+[root@registry spark]# ll
+total 262100
+-rwxrwxrwx 1 root   root         197 Jan  1 13:52 Dockerfile
+drwxr-x--- 3 root   root          76 Dec 30 18:52 spark
+-rw-r----- 1 osuser osuser 268382635 Dec 30 18:13 spark.zip
+[root@registry spark]# cd spark/
+[root@registry spark]# ll
+total 2308
+-rw-r----- 1 root root     350 Dec 30 18:52 Dockerfile
+drwxr-x--- 2 root root      60 Dec 30 18:35 Jar
+-rw-r----- 1 root root 2359060 Dec 30 12:43 springboot-spark-stream-csv-2.zip
+[root@registry spark]#
 
