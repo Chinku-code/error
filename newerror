@@ -108,4 +108,29 @@ COPY Jar/springboot-spark-stream-csv-0.0.1-SNAPSHOT.jar spark.jar
 
 ENTRYPOINT ["spark-submit"]
 CMD ["spark.jar"]
+____________________________________
+
+[osuser@bastion ~]$ oc apply -f spark.yaml -n dev-rns
+virtualservice.networking.istio.io/sparkutility unchanged
+[osuser@bastion ~]$ oc project dev-rns
+Already on project "dev-rns" on server "https://api.dev.sbiepay.sbi:6443".
+[osuser@bastion ~]$ oc get po
+NAME                                     READY   STATUS             RESTARTS            AGE
+ops-operationsservice-6cdf7fdc54-zmjgb   2/2     Running            0                   2d22h
+refund-refundservice-59955c9988-rdx67    2/2     Running            0                   2d20h
+sftp-sftpservice-64549474b9-lxs59        1/2     CrashLoopBackOff   11501 (4m19s ago)   41d
+spark-apache-98cb855d9-zwmrx             1/2     CrashLoopBackOff   12 (2m13s ago)      43m
+[osuser@bastion ~]$ oc get deployment
+NAME                    READY   UP-TO-DATE   AVAILABLE   AGE
+ops-operationsservice   1/1     1            1           8d
+refund-refundservice    1/1     1            1           154d
+sftp-sftpservice        0/1     1            0           50d
+spark-apache            0/1     1            0           43m
+[osuser@bastion ~]$ oc get vs
+Warning: short name "vs" could also match lower priority resource volumesnapshots.snapshot.storage.k8s.io
+NAME                    GATEWAYS                           HOSTS              AGE
+ops-operationsservice   ["dev-istio-system/dev-gateway"]   ["dev.epay.sbi"]   8d
+refund-refundservice    ["dev-istio-system/dev-gateway"]   ["dev.epay.sbi"]   10d
+sftp-sftpservice        ["dev-istio-system/dev-gateway"]   ["dev.epay.sbi"]   50d
+sparkutility            ["dev-istio-system/dev-gateway"]   ["dev.epay.sbi"]   2d21h
 
