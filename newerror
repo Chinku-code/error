@@ -43,3 +43,7 @@ registry.dev.sbiepay.sbi:8443/spark/sparkrecon:4.0.0_12092025v43
 registry.dev.sbiepay.sbi:8443/ubi9/stackable-apache-spark-k8s-operator:25.11.0
 
 registry.connect.redhat.com/stackable/stackable-apache-spark-k8s-operator:25.11.0
+
+Commands
+podman run --rm -it registry.dev.sbiepay.sbi:8443/spark/sparkrecon:4.0.0_12092025v43 spark-submit --version
+
