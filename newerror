@@ -12,3 +12,24 @@ COPY Jar/springboot-spark-stream-csv-0.0.1-SNAPSHOT.jar spark.jar
 
 ENTRYPOINT ["spark-submit"]
 CMD ["spark.jar"]
+
+##############################################################
+
+[root@registry spark]#  podman build -t registry.dev.sbiepay.sbi:8443/library/spark:v5 -f Dockerfile
+STEP 1/8: FROM registry.dev.sbiepay.sbi:8443/ubi9/openjdk-21-runtime:1.23-6.1758133907
+STEP 2/8: ENV SPARK_HOME=/opt/spark
+--> Using cache deff6df6dd913852045a38fac633ef4787ecd3f9ec59f33025e8f37c3bb58954
+--> deff6df6dd91
+STEP 3/8: ENV PATH=$SPARK_HOME/bin:$PATH
+--> Using cache 522d417d5455fa29538ba51b01cce65bd835bb8bc5d7d2b12fa27324579c1cee
+--> 522d417d5455
+STEP 4/8: RUN curl -L https://archive.apache.org/dist/spark/spark-3.5.1/spark-3.5.1-bin-hadoop3.tgz  | tar -xz -C /opt &&  mv /opt/spark-3.5.1-bin-hadoop3 /opt/spark
+tar (grandchild): gzip: Cannot exec: No such file or directory
+tar (grandchild): Error is not recoverable: exiting now
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:--  0:01:14 --:--:--     0curl: (56) Received HTTP code 503 from proxy after CONNECT
+tar: Child returned status 2
+tar: Error is not recoverable: exiting now
+Error: building at STEP "RUN curl -L https://archive.apache.org/dist/spark/spark-3.5.1/spark-3.5.1-bin-hadoop3.tgz  | tar -xz -C /opt &&  mv /opt/spark-3.5.1-bin-hadoop3 /opt/spark": while running runtime: exit status 2
+[root@registry spark]#
