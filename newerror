@@ -64,3 +64,16 @@ Revision fa33ea000a0bda9e5a3fa1af98e8e85b8cc5e4d4
 Url https://github.com/apache/spark
 Type --help for more information.
 [root@registry spark]#
+
+
+
+_________________________________________________________
+
+FROM registry.dev.sbiepay.sbi:8443/spark/sparkrecon:4.0.0_12092025v43
+
+WORKDIR /app
+COPY Jar/springboot-spark-stream-csv-0.0.1-SNAPSHOT.jar spark.jar
+
+ENTRYPOINT ["spark-submit"]
+CMD ["spark.jar"]
+
