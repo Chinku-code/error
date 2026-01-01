@@ -1,12 +1,14 @@
-[root@registry spark]# cat Dockerfile
-#FROM registry.dev.sbiepay.sbi:8443/ubi9/openjdk-21-runtime:1.23-6.1758133907
-#COPY spark_jar/springboot-spark-stream-csv-0.0.1-SNAPSHOT.jar spark.jar
-#ENTRYPOINT sh -c 'spark-submit spark.jar'
-# Use the exact image you pull from your private registry
 FROM registry.dev.sbiepay.sbi:8443/ubi9/openjdk-21-runtime:1.23-6.1758133907
 
-# Copy the jar (case‑sensitive!)
+ENV SPARK_HOME=/opt/spark
+ENV PATH=$SPARK_HOME/bin:$PATH
+
+RUN curl -L https://archive.apache.org/dist/spark/spark-3.5.1/spark-3.5.1-bin-hadoop3.tgz \
+ | tar -xz -C /opt && \
+ mv /opt/spark-3.5.1-bin-hadoop3 /opt/spark
+
+WORKDIR /app
 COPY Jar/springboot-spark-stream-csv-0.0.1-SNAPSHOT.jar spark.jar
 
-# Use JSON form for ENTRYPOINT – no shell parsing surprises
-ENTRYPOINT ["sh", "-c", "spark-submit spark.jar"]
+ENTRYPOINT ["spark-submit"]
+CMD ["spark.jar"]
