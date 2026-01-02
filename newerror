@@ -94,3 +94,9 @@ java.lang.NoSuchMethodError: org.yaml.snakeyaml.representer.Representer: method 
 	at org.apache.spark.deploy.SparkSubmit.main(SparkSubmit.scala)
 26/01/01 08:41:22 INFO ShutdownHookManager: Shutdown hook called
 26/01/01 08:41:22 INFO ShutdownHookManager: Deleting directory /tmp/spark-354e0291-de3c-4180-b1bb-856471881d22
+
+02.01.2026-----------
+
+https://catalog.redhat.com/software/container-stacks/detail/613f8de2a5ebcd070d16407d
+
+https://catalog.redhat.com/software/container-stacks/detail/5ec53f50ef29fd35586d9a56
