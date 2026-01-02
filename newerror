@@ -97,6 +97,4 @@ java.lang.NoSuchMethodError: org.yaml.snakeyaml.representer.Representer: method 
 
 02.01.2026-----------
 
-registry.redhat.io/ubi8/openjdk-8@sha256:849de50875667273a0e318b60411f6e2d72fc4a74513464041e8d7eb31fdf4d7
-
-registry.redhat.io/ubi8/openjdk-8-runtime@sha256:e8b9180679f8c0a7e1e4cccc56cd56b66ea71f3d349098843a905e824199734b
+registry.dev.sbiepay.sbi:8443/ubi9/openjdk-8-runtime:1.23-3.1766067609
