@@ -97,6 +97,6 @@ java.lang.NoSuchMethodError: org.yaml.snakeyaml.representer.Representer: method 
 
 02.01.2026-----------
 
-https://catalog.redhat.com/software/container-stacks/detail/613f8de2a5ebcd070d16407d
+registry.redhat.io/ubi8/openjdk-8@sha256:849de50875667273a0e318b60411f6e2d72fc4a74513464041e8d7eb31fdf4d7
 
-https://catalog.redhat.com/software/container-stacks/detail/5ec53f50ef29fd35586d9a56
+registry.redhat.io/ubi8/openjdk-8-runtime@sha256:e8b9180679f8c0a7e1e4cccc56cd56b66ea71f3d349098843a905e824199734b
