@@ -1,14 +1,214 @@
-[root@registry spark]# cat Dockerfile
+Perfect — thanks for sharing the **actual Dockerfile** 👍
+Now I’ll **surgically fix it** (no unnecessary changes) and give you the **correct YAMLs** that will stop the **NotReady / restart loop** permanently.
+
+---
+
+# 🔴 Root cause (recap, based on YOUR Dockerfile)
+
+Your container runs:
+
+```bash
+spark-submit /app/app.jar
+```
+
+Spark **finishes successfully** → container **exits** →
+Deployment thinks container died → **restarts pod** → **NotReady loop**
+
+✔ Spark is behaving correctly
+❌ Deployment type is wrong for a batch job
+
+---
+
+# ✅ WHAT I’M CHANGING (minimal & correct)
+
+1. **Keep your base image**
+2. **Move data paths to writable volume (`/data`)**
+3. **Use Job instead of Deployment**
+4. **Keep `spark-submit` (no hacks like `sleep`)**
+
+---
+
+# 1️⃣ UPDATED DOCKERFILE (based on yours)
+
+### ✅ Correct & OpenShift-safe
+
+```dockerfile
 FROM registry.dev.sbiepay.sbi:8443/spark/sparkrecon:4.0.0_12092025v43
 
 WORKDIR /app
 
+# Spark temp artifacts
 ENV SPARK_SUBMIT_OPTS="-Dspark.sql.artifact.dir=/tmp/spark-artifacts"
 
-RUN mkdir -p /app/input_files /app/output_files /tmp/spark-artifacts \
-    && chmod -R 777 /app
+# Create writable directories
+RUN mkdir -p /data/input_files \
+             /data/output_files \
+             /tmp/spark-artifacts \
+    && chmod -R 777 /data /tmp
 
+# Copy application JAR
 COPY spring-context-spark-1.0.jar /app/app.jar
-COPY 1766041567850-1000003_Transaction_spark_2.csv /app/1766041567850-1000003_Transaction_spark_2.csv
+
+# Copy CSV (only if static input)
+COPY 1766041567850-1000003_Transaction_spark_2.csv /data/input_files/
+
+# Run Spark batch job
 ENTRYPOINT ["spark-submit"]
 CMD ["/app/app.jar"]
+```
+
+### 🔑 Why this is correct
+
+* `/app` → image layer (read-only in OpenShift)
+* `/data` → PVC-mounted, writable
+* No fake `sleep` / `tail -f` hacks
+* Spark exits → Job completes
+
+---
+
+# 2️⃣ PVC YAML (REQUIRED)
+
+```yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: spark-pvc
+  namespace: dev-rns
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+```
+
+Apply once:
+
+```bash
+oc apply -f spark-pvc.yaml
+```
+
+---
+
+# 3️⃣ 🔥 REPLACE Deployment WITH Job (MOST IMPORTANT)
+
+🚫 **DELETE Deployment**
+
+```bash
+oc delete deploy spark-v9 -n dev-rns
+```
+
+---
+
+## ✅ Spark Job YAML (FINAL & CORRECT)
+
+```yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: spark-v9
+  namespace: dev-rns
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app: spark-v9
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: spark-v9
+        image: image-registry.openshift-image-registry.svc:5000/dev-rns/spark-v9:v9
+
+        env:
+        - name: SPARK_SUBMIT_OPTS
+          value: "-Dspark.sql.artifact.dir=/tmp/spark-artifacts"
+
+        volumeMounts:
+        - name: spark-data
+          mountPath: /data
+
+      volumes:
+      - name: spark-data
+        persistentVolumeClaim:
+          claimName: spark-pvc
+```
+
+Apply:
+
+```bash
+oc apply -f spark-job.yaml
+```
+
+---
+
+# 4️⃣ REQUIRED Spark Code Path Change
+
+### ❌ CURRENT (problematic)
+
+```
+file:///app/1766041567850-1000003_Transaction_spark_2.csv
+file:///app/output_files
+```
+
+### ✅ FIX
+
+```
+file:///data/input_files/1766041567850-1000003_Transaction_spark_2.csv
+file:///data/output_files
+```
+
+Example:
+
+```java
+spark.read()
+     .option("header", true)
+     .csv("/data/input_files/1766041567850-1000003_Transaction_spark_2.csv");
+
+df.write()
+  .mode("overwrite")
+  .csv("/data/output_files");
+```
+
+---
+
+# 5️⃣ How to verify (important)
+
+```bash
+oc get jobs -n dev-rns
+oc get pods -n dev-rns
+oc logs job/spark-v9 -n dev-rns
+```
+
+### ✅ Expected
+
+```
+STATUS: Completed
+```
+
+✔ No NotReady
+✔ No restart
+✔ Output persists
+✔ Spark exits cleanly
+
+---
+
+# 🎯 FINAL SUMMARY
+
+| Problem            | Fixed By               |
+| ------------------ | ---------------------- |
+| NotReady loop      | Deployment → Job       |
+| Read-only FS risk  | PVC + `/data`          |
+| Spark exit restart | `restartPolicy: Never` |
+| Data loss          | PVC                    |
+
+---
+
+If you want next:
+
+* 🔁 **CronJob** (run every X minutes)
+* 📊 **Spark History Server**
+* 🚀 **Executor tuning (memory / CPU)**
+* 🔐 **SecurityContext for restricted SCC**
+
+Just tell me what’s next 👌
