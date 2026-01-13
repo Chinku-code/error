@@ -1,18 +1,13 @@
 FROM registry.dev.sbiepay.sbi:8443/spark/sparkrecon:4.0.0_12092025v43
 
-# App runs from /app
 WORKDIR /app
 
-# Spark temp + artifact dirs (important for OpenShift / rootless)
 ENV SPARK_SUBMIT_OPTS="-Dspark.sql.artifact.dir=/tmp/spark-artifacts"
 
-# Create directories Spark will use
 RUN mkdir -p /app/input_files /app/output_files /tmp/spark-artifacts \
     && chmod -R 777 /app /tmp
 
-# Copy application JAR
 COPY spring-context-spark-1.0.jar /app/app.jar
 
-# Spark submit as container entrypoint
 ENTRYPOINT ["spark-submit"]
 CMD ["/app/app.jar"]
