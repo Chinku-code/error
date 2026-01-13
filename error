@@ -1,3 +1,76 @@
+Deployment.yaml
+
+[osuser@bastion ~]$ oc get deploy  spark-v9 -o yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    alpha.image.policy.openshift.io/resolve-names: '*'
+    app.openshift.io/route-disabled: "false"
+    deployment.kubernetes.io/revision: "1"
+    image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"spark-v9:v9","namespace":"dev-rns"},"fieldPath":"spec.template.spec.containers[?(@.name==\"spark-v9\")].image","paused":false}]'
+    openshift.io/generated-by: OpenShiftWebConsole
+  creationTimestamp: "2026-01-13T09:35:11Z"
+  generation: 1
+  labels:
+    app: spark-v9
+    app.kubernetes.io/component: spark-v9
+    app.kubernetes.io/instance: spark-v9
+    app.kubernetes.io/name: spark-v9
+    app.kubernetes.io/part-of: spark-app
+    app.openshift.io/runtime-namespace: dev-rns
+  name: spark-v9
+  namespace: dev-rns
+  resourceVersion: "569775984"
+  uid: 8bc8bd9a-bb02-4226-b54c-be7d72918f14
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: spark-v9
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftWebConsole
+      creationTimestamp: null
+      labels:
+        app: spark-v9
+        deployment: spark-v9
+    spec:
+      containers:
+      - image: image-registry.openshift-image-registry.svc:5000/dev-rns/spark-v9@sha256:0094b762d50b46b1f8d62d7944d329ad026dd865e679c00068549ffe81f7f8da
+        imagePullPolicy: IfNotPresent
+        name: spark-v9
+        ports:
+        - containerPort: 18080
+          protocol: TCP
+        - containerPort: 4040
+          protocol: TCP
+        - containerPort: 7077
+          protocol: TCP
+        - containerPort: 8080
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+
+
+-==================================================================================================  Spark ppd logs ===============================================
+
+
+
 [osuser@bastion ~]$ oc logs spark-v9-687f746599-j9kqm
 WARNING: Using incubator modules: jdk.incubator.vector
 26/01/13 09:37:35 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
