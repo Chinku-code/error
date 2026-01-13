@@ -1,3 +1,7 @@
+total 937148
+-rw-r----- 1 osuser osuser   3947411 Jan 13 12:39 1766041567850-1000003_Transaction_spark_2.csv
+-rwxrwxrwx 1 root   root         350 Jan 13 12:54 Dockerfile
+-rw-r----- 1 osuser osuser 955685447 Jan 13 12:39 spring-context-spark-1.0.jar
 [root@registry spark]# cat Dockerfile
 FROM registry.dev.sbiepay.sbi:8443/spark/sparkrecon:4.0.0_12092025v43
 
