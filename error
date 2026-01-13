@@ -1,4 +1,4 @@
-      - name: INPUT_FILE_PATH
-        value: /opt/spark/data/input_files/
-      - name: OUTPUT_FILE_PATH
-        value: /opt/spark/data/output_files/
+oc set env deployment/apache-spark-v8 \
+  INPUT_FILE_PATH=/opt/spark/data/input_files/ \
+  OUTPUT_FILE_PATH=/opt/spark/data/output_files/ \
+  -n dev-rns
