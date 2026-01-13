@@ -1,74 +1,18 @@
-WARNING: Using incubator modules: jdk.incubator.vector
-26/01/13 06:31:39 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
-Hello world!
-Using Spark's default log4j profile: org/apache/spark/log4j2-defaults.properties
-26/01/13 06:31:44 INFO SparkContext: Running Spark version 4.0.0
-26/01/13 06:31:44 INFO SparkContext: OS info Linux, 5.14.0-427.87.1.el9_4.x86_64, amd64
-26/01/13 06:31:44 INFO SparkContext: Java version 21.0.7
-26/01/13 06:31:44 INFO ResourceUtils: ==============================================================
-26/01/13 06:31:44 INFO ResourceUtils: No custom resources configured for spark.driver.
-26/01/13 06:31:44 INFO ResourceUtils: ==============================================================
-26/01/13 06:31:44 INFO SparkContext: Submitted application: spring-context-spark
-26/01/13 06:31:44 INFO ResourceProfile: Default ResourceProfile created, executor resources: Map(cores -> name: cores, amount: 1, script: , vendor: , memory -> name: memory, amount: 1024, script: , vendor: , offHeap -> name: offHeap, amount: 0, script: , vendor: ), task resources: Map(cpus -> name: cpus, amount: 1.0)
-26/01/13 06:31:44 INFO ResourceProfile: Limiting resource is cpu
-26/01/13 06:31:44 INFO ResourceProfileManager: Added ResourceProfile id: 0
-26/01/13 06:31:44 INFO SecurityManager: Changing view acls to: 1001520000
-26/01/13 06:31:44 INFO SecurityManager: Changing modify acls to: 1001520000
-26/01/13 06:31:44 INFO SecurityManager: Changing view acls groups to: 1001520000
-26/01/13 06:31:44 INFO SecurityManager: Changing modify acls groups to: 1001520000
-26/01/13 06:31:44 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users with view permissions: 1001520000 groups with view permissions: EMPTY; users with modify permissions: 1001520000; groups with modify permissions: EMPTY; RPC SSL disabled
-26/01/13 06:31:44 INFO Utils: Successfully started service 'sparkDriver' on port 36747.
-26/01/13 06:31:44 INFO SparkEnv: Registering MapOutputTracker
-26/01/13 06:31:45 INFO SparkEnv: Registering BlockManagerMaster
-26/01/13 06:31:45 INFO BlockManagerMasterEndpoint: Using org.apache.spark.storage.DefaultTopologyMapper for getting topology information
-26/01/13 06:31:45 INFO BlockManagerMasterEndpoint: BlockManagerMasterEndpoint up
-26/01/13 06:31:45 INFO SparkEnv: Registering BlockManagerMasterHeartbeat
-26/01/13 06:31:45 INFO DiskBlockManager: Created local directory at /tmp/blockmgr-3a40c2f6-437b-46cb-9bf2-f9adafbe28ae
-26/01/13 06:31:45 INFO SparkEnv: Registering OutputCommitCoordinator
-26/01/13 06:31:45 INFO JettyUtils: Start Jetty 0.0.0.0:4040 for SparkUI
-26/01/13 06:31:45 INFO Utils: Successfully started service 'SparkUI' on port 4040.
-26/01/13 06:31:45 INFO SparkContext: Added JAR file:/app/app.jar at spark://spark-new-68c6f98754-9vpt7:36747/jars/app.jar with timestamp 1768285904071
-26/01/13 06:31:45 INFO SecurityManager: Changing view acls to: 1001520000
-26/01/13 06:31:45 INFO SecurityManager: Changing modify acls to: 1001520000
-26/01/13 06:31:45 INFO SecurityManager: Changing view acls groups to: 1001520000
-26/01/13 06:31:45 INFO SecurityManager: Changing modify acls groups to: 1001520000
-26/01/13 06:31:45 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users with view permissions: 1001520000 groups with view permissions: EMPTY; users with modify permissions: 1001520000; groups with modify permissions: EMPTY; RPC SSL disabled
-26/01/13 06:31:46 INFO Executor: Starting executor ID driver on host spark-new-68c6f98754-9vpt7
-26/01/13 06:31:46 INFO Executor: OS info Linux, 5.14.0-427.87.1.el9_4.x86_64, amd64
-26/01/13 06:31:46 INFO Executor: Java version 21.0.7
-26/01/13 06:31:46 INFO Executor: Starting executor with user classpath (userClassPathFirst = false): ''
-26/01/13 06:31:46 INFO Executor: Created or updated repl class loader org.apache.spark.util.MutableURLClassLoader@68454ed5 for default.
-26/01/13 06:31:46 INFO Executor: Fetching spark://spark-new-68c6f98754-9vpt7:36747/jars/app.jar with timestamp 1768285904071
-26/01/13 06:31:46 INFO TransportClientFactory: Successfully created connection to spark-new-68c6f98754-9vpt7/172.16.9.209:36747 after 55 ms (0 ms spent in bootstraps)
-26/01/13 06:31:46 INFO Utils: Fetching spark://spark-new-68c6f98754-9vpt7:36747/jars/app.jar to /tmp/spark-e9ee9cc4-2bb4-4f40-a162-c00831b05de7/userFiles-16c03b2b-3847-4d22-85f0-bb162aafc87b/fetchFileTemp12209613124609418707.tmp
-26/01/13 06:31:49 INFO Executor: Adding file:/tmp/spark-e9ee9cc4-2bb4-4f40-a162-c00831b05de7/userFiles-16c03b2b-3847-4d22-85f0-bb162aafc87b/app.jar to class loader default
-26/01/13 06:31:49 INFO Utils: Successfully started service 'org.apache.spark.network.netty.NettyBlockTransferService' on port 44665.
-26/01/13 06:31:49 INFO NettyBlockTransferService: Server created on spark-new-68c6f98754-9vpt7:44665
-26/01/13 06:31:49 INFO BlockManager: Using org.apache.spark.storage.RandomBlockReplicationPolicy for block replication policy
-26/01/13 06:31:49 INFO BlockManagerMaster: Registering BlockManager BlockManagerId(driver, spark-new-68c6f98754-9vpt7, 44665, None)
-26/01/13 06:31:49 INFO BlockManagerMasterEndpoint: Registering block manager spark-new-68c6f98754-9vpt7:44665 with 434.4 MiB RAM, BlockManagerId(driver, spark-new-68c6f98754-9vpt7, 44665, None)
-26/01/13 06:31:49 INFO BlockManagerMaster: Registered BlockManager BlockManagerId(driver, spark-new-68c6f98754-9vpt7, 44665, None)
-26/01/13 06:31:49 INFO BlockManager: Initialized BlockManager: BlockManagerId(driver, spark-new-68c6f98754-9vpt7, 44665, None)
-Application Context Created!!!
-26/01/13 06:31:52 INFO CsvStreamingService: startStreamingWithFile method started
-26/01/13 06:31:52 INFO SharedState: Setting hive.metastore.warehouse.dir ('null') to the value of spark.sql.warehouse.dir.
-26/01/13 06:31:52 INFO SharedState: Warehouse path is 'file:/app/spark-warehouse'.
-26/01/13 06:31:54 WARN FileStreamSink: Assume no metadata directory. Error while looking for metadata directory in the path: input_files/1766041567850-1000003_Transaction_spark_2.csv.
-java.io.FileNotFoundException: File input_files/1766041567850-1000003_Transaction_spark_2.csv does not exist
-______________________________________________
-this error im facing and this is my dockerfile;;;;
 FROM registry.dev.sbiepay.sbi:8443/spark/sparkrecon:4.0.0_12092025v43
 
-# Working directory (read-only bhi chalega)
+# App runs from /app
 WORKDIR /app
 
-# Spark 4 permission issue ka FIX
-# /tmp hamesha writable hota hai (podman + openshift)
+# Spark temp + artifact dirs (important for OpenShift / rootless)
 ENV SPARK_SUBMIT_OPTS="-Dspark.sql.artifact.dir=/tmp/spark-artifacts"
 
-# Application jar
+# Create directories Spark will use
+RUN mkdir -p /app/input_files /app/output_files /tmp/spark-artifacts \
+    && chmod -R 777 /app /tmp
+
+# Copy application JAR
 COPY spring-context-spark-1.0.jar /app/app.jar
 
-# Spark run
+# Spark submit as container entrypoint
 ENTRYPOINT ["spark-submit"]
 CMD ["/app/app.jar"]
