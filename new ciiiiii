@@ -178,3 +178,32 @@ Processed : 9190
 26/01/13 10:00:15 INFO ShutdownHookManager: Deleting directory /tmp/spark-596c7b8c-c3b5-4c96-8e63-96784842b501
 26/01/13 10:00:15 INFO ShutdownHookManager: Deleting directory /app/artifacts/spark-98094fb3-e4f9-470d-86c6-c099bef7632d
 26/01/13 10:00:15 INFO ShutdownHookManager: Deleting directory /tmp/spark-e4a5fe84-29a3-4945-b0d8-bd826e0b5392
+
+
+this is my error logs and i have a pvc can u guid how i add this ..
+
+          # Add volume mounts here
+          volumeMounts:
+            - name: spark-storage
+              mountPath: /opt/spark/data  # Or your desired mount path
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: IfNotPresent
+      # Add volumes section here
+      volumes:
+        - name: spark-storage
+          persistentVolumeClaim:
+            claimName: spark-pvc
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600
