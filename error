@@ -1,18 +1,225 @@
-total 937148
--rw-r----- 1 osuser osuser   3947411 Jan 13 12:39 1766041567850-1000003_Transaction_spark_2.csv
--rwxrwxrwx 1 root   root         350 Jan 13 12:54 Dockerfile
--rw-r----- 1 osuser osuser 955685447 Jan 13 12:39 spring-context-spark-1.0.jar
-[root@registry spark]# cat Dockerfile
-FROM registry.dev.sbiepay.sbi:8443/spark/sparkrecon:4.0.0_12092025v43
-
-WORKDIR /app
-
-ENV SPARK_SUBMIT_OPTS="-Dspark.sql.artifact.dir=/tmp/spark-artifacts"
-
-RUN mkdir -p /app/input_files /app/output_files /tmp/spark-artifacts \
-    && chmod -R 777 /app
-
-COPY spring-context-spark-1.0.jar /app/app.jar
-
-ENTRYPOINT ["spark-submit"]
-CMD ["/app/app.jar"]
+[osuser@bastion ~]$ oc logs spark-v9-687f746599-j9kqm
+WARNING: Using incubator modules: jdk.incubator.vector
+26/01/13 09:37:35 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Hello world!
+Using Spark's default log4j profile: org/apache/spark/log4j2-defaults.properties
+26/01/13 09:37:38 INFO SparkContext: Running Spark version 4.0.0
+26/01/13 09:37:38 INFO SparkContext: OS info Linux, 5.14.0-427.87.1.el9_4.x86_64, amd64
+26/01/13 09:37:38 INFO SparkContext: Java version 21.0.7
+26/01/13 09:37:38 INFO ResourceUtils: ==============================================================
+26/01/13 09:37:38 INFO ResourceUtils: No custom resources configured for spark.driver.
+26/01/13 09:37:38 INFO ResourceUtils: ==============================================================
+26/01/13 09:37:38 INFO SparkContext: Submitted application: spring-context-spark
+26/01/13 09:37:39 INFO ResourceProfile: Default ResourceProfile created, executor resources: Map(cores -> name: cores, amount: 1, script: , vendor: , memory -> name: memory, amount: 1024, script: , vendor: , offHeap -> name: offHeap, amount: 0, script: , vendor: ), task resources: Map(cpus -> name: cpus, amount: 1.0)
+26/01/13 09:37:39 INFO ResourceProfile: Limiting resource is cpu
+26/01/13 09:37:39 INFO ResourceProfileManager: Added ResourceProfile id: 0
+26/01/13 09:37:39 INFO SecurityManager: Changing view acls to: 1001520000
+26/01/13 09:37:39 INFO SecurityManager: Changing modify acls to: 1001520000
+26/01/13 09:37:39 INFO SecurityManager: Changing view acls groups to: 1001520000
+26/01/13 09:37:39 INFO SecurityManager: Changing modify acls groups to: 1001520000
+26/01/13 09:37:39 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users with view permissions: 1001520000 groups with view permissions: EMPTY; users with modify permissions: 1001520000; groups with modify permissions: EMPTY; RPC SSL disabled
+26/01/13 09:37:39 INFO Utils: Successfully started service 'sparkDriver' on port 43687.
+26/01/13 09:37:39 INFO SparkEnv: Registering MapOutputTracker
+26/01/13 09:37:39 INFO SparkEnv: Registering BlockManagerMaster
+26/01/13 09:37:39 INFO BlockManagerMasterEndpoint: Using org.apache.spark.storage.DefaultTopologyMapper for getting topology information
+26/01/13 09:37:39 INFO BlockManagerMasterEndpoint: BlockManagerMasterEndpoint up
+26/01/13 09:37:39 INFO SparkEnv: Registering BlockManagerMasterHeartbeat
+26/01/13 09:37:39 INFO DiskBlockManager: Created local directory at /tmp/blockmgr-1600f9ac-0130-4fe6-8e4b-ba4d0d1f557d
+26/01/13 09:37:39 INFO SparkEnv: Registering OutputCommitCoordinator
+26/01/13 09:37:39 INFO JettyUtils: Start Jetty 0.0.0.0:4040 for SparkUI
+26/01/13 09:37:40 INFO Utils: Successfully started service 'SparkUI' on port 4040.
+26/01/13 09:37:40 INFO SparkContext: Added JAR file:/app/app.jar at spark://spark-v9-687f746599-j9kqm:43687/jars/app.jar with timestamp 1768297058877
+26/01/13 09:37:40 INFO SecurityManager: Changing view acls to: 1001520000
+26/01/13 09:37:40 INFO SecurityManager: Changing modify acls to: 1001520000
+26/01/13 09:37:40 INFO SecurityManager: Changing view acls groups to: 1001520000
+26/01/13 09:37:40 INFO SecurityManager: Changing modify acls groups to: 1001520000
+26/01/13 09:37:40 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users with view permissions: 1001520000 groups with view permissions: EMPTY; users with modify permissions: 1001520000; groups with modify permissions: EMPTY; RPC SSL disabled
+26/01/13 09:37:40 INFO Executor: Starting executor ID driver on host spark-v9-687f746599-j9kqm
+26/01/13 09:37:40 INFO Executor: OS info Linux, 5.14.0-427.87.1.el9_4.x86_64, amd64
+26/01/13 09:37:40 INFO Executor: Java version 21.0.7
+26/01/13 09:37:40 INFO Executor: Starting executor with user classpath (userClassPathFirst = false): ''
+26/01/13 09:37:40 INFO Executor: Created or updated repl class loader org.apache.spark.util.MutableURLClassLoader@68454ed5 for default.
+26/01/13 09:37:40 INFO Executor: Fetching spark://spark-v9-687f746599-j9kqm:43687/jars/app.jar with timestamp 1768297058877
+26/01/13 09:37:40 INFO TransportClientFactory: Successfully created connection to spark-v9-687f746599-j9kqm/172.16.9.227:43687 after 50 ms (0 ms spent in bootstraps)
+26/01/13 09:37:40 INFO Utils: Fetching spark://spark-v9-687f746599-j9kqm:43687/jars/app.jar to /tmp/spark-787db9da-789e-4e11-97a4-ca0900244e12/userFiles-f52a0e3c-c2cc-4e79-b1f9-00a0ace63d99/fetchFileTemp18108104035289555750.tmp
+[osuser@bastion ~]$ oc logs spark-v9-687f746599-j9kqm -f
+WARNING: Using incubator modules: jdk.incubator.vector
+26/01/13 09:37:35 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Hello world!
+Using Spark's default log4j profile: org/apache/spark/log4j2-defaults.properties
+26/01/13 09:37:38 INFO SparkContext: Running Spark version 4.0.0
+26/01/13 09:37:38 INFO SparkContext: OS info Linux, 5.14.0-427.87.1.el9_4.x86_64, amd64
+26/01/13 09:37:38 INFO SparkContext: Java version 21.0.7
+26/01/13 09:37:38 INFO ResourceUtils: ==============================================================
+26/01/13 09:37:38 INFO ResourceUtils: No custom resources configured for spark.driver.
+26/01/13 09:37:38 INFO ResourceUtils: ==============================================================
+26/01/13 09:37:38 INFO SparkContext: Submitted application: spring-context-spark
+26/01/13 09:37:39 INFO ResourceProfile: Default ResourceProfile created, executor resources: Map(cores -> name: cores, amount: 1, script: , vendor: , memory -> name: memory, amount: 1024, script: , vendor: , offHeap -> name: offHeap, amount: 0, script: , vendor: ), task resources: Map(cpus -> name: cpus, amount: 1.0)
+26/01/13 09:37:39 INFO ResourceProfile: Limiting resource is cpu
+26/01/13 09:37:39 INFO ResourceProfileManager: Added ResourceProfile id: 0
+26/01/13 09:37:39 INFO SecurityManager: Changing view acls to: 1001520000
+26/01/13 09:37:39 INFO SecurityManager: Changing modify acls to: 1001520000
+26/01/13 09:37:39 INFO SecurityManager: Changing view acls groups to: 1001520000
+26/01/13 09:37:39 INFO SecurityManager: Changing modify acls groups to: 1001520000
+26/01/13 09:37:39 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users with view permissions: 1001520000 groups with view permissions: EMPTY; users with modify permissions: 1001520000; groups with modify permissions: EMPTY; RPC SSL disabled
+26/01/13 09:37:39 INFO Utils: Successfully started service 'sparkDriver' on port 43687.
+26/01/13 09:37:39 INFO SparkEnv: Registering MapOutputTracker
+26/01/13 09:37:39 INFO SparkEnv: Registering BlockManagerMaster
+26/01/13 09:37:39 INFO BlockManagerMasterEndpoint: Using org.apache.spark.storage.DefaultTopologyMapper for getting topology information
+26/01/13 09:37:39 INFO BlockManagerMasterEndpoint: BlockManagerMasterEndpoint up
+26/01/13 09:37:39 INFO SparkEnv: Registering BlockManagerMasterHeartbeat
+26/01/13 09:37:39 INFO DiskBlockManager: Created local directory at /tmp/blockmgr-1600f9ac-0130-4fe6-8e4b-ba4d0d1f557d
+26/01/13 09:37:39 INFO SparkEnv: Registering OutputCommitCoordinator
+26/01/13 09:37:39 INFO JettyUtils: Start Jetty 0.0.0.0:4040 for SparkUI
+26/01/13 09:37:40 INFO Utils: Successfully started service 'SparkUI' on port 4040.
+26/01/13 09:37:40 INFO SparkContext: Added JAR file:/app/app.jar at spark://spark-v9-687f746599-j9kqm:43687/jars/app.jar with timestamp 1768297058877
+26/01/13 09:37:40 INFO SecurityManager: Changing view acls to: 1001520000
+26/01/13 09:37:40 INFO SecurityManager: Changing modify acls to: 1001520000
+26/01/13 09:37:40 INFO SecurityManager: Changing view acls groups to: 1001520000
+26/01/13 09:37:40 INFO SecurityManager: Changing modify acls groups to: 1001520000
+26/01/13 09:37:40 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users with view permissions: 1001520000 groups with view permissions: EMPTY; users with modify permissions: 1001520000; groups with modify permissions: EMPTY; RPC SSL disabled
+26/01/13 09:37:40 INFO Executor: Starting executor ID driver on host spark-v9-687f746599-j9kqm
+26/01/13 09:37:40 INFO Executor: OS info Linux, 5.14.0-427.87.1.el9_4.x86_64, amd64
+26/01/13 09:37:40 INFO Executor: Java version 21.0.7
+26/01/13 09:37:40 INFO Executor: Starting executor with user classpath (userClassPathFirst = false): ''
+26/01/13 09:37:40 INFO Executor: Created or updated repl class loader org.apache.spark.util.MutableURLClassLoader@68454ed5 for default.
+26/01/13 09:37:40 INFO Executor: Fetching spark://spark-v9-687f746599-j9kqm:43687/jars/app.jar with timestamp 1768297058877
+26/01/13 09:37:40 INFO TransportClientFactory: Successfully created connection to spark-v9-687f746599-j9kqm/172.16.9.227:43687 after 50 ms (0 ms spent in bootstraps)
+26/01/13 09:37:40 INFO Utils: Fetching spark://spark-v9-687f746599-j9kqm:43687/jars/app.jar to /tmp/spark-787db9da-789e-4e11-97a4-ca0900244e12/userFiles-f52a0e3c-c2cc-4e79-b1f9-00a0ace63d99/fetchFileTemp18108104035289555750.tmp
+26/01/13 09:37:43 INFO Executor: Adding file:/tmp/spark-787db9da-789e-4e11-97a4-ca0900244e12/userFiles-f52a0e3c-c2cc-4e79-b1f9-00a0ace63d99/app.jar to class loader default
+26/01/13 09:37:43 INFO Utils: Successfully started service 'org.apache.spark.network.netty.NettyBlockTransferService' on port 43475.
+26/01/13 09:37:43 INFO NettyBlockTransferService: Server created on spark-v9-687f746599-j9kqm:43475
+26/01/13 09:37:43 INFO BlockManager: Using org.apache.spark.storage.RandomBlockReplicationPolicy for block replication policy
+26/01/13 09:37:43 INFO BlockManagerMaster: Registering BlockManager BlockManagerId(driver, spark-v9-687f746599-j9kqm, 43475, None)
+26/01/13 09:37:43 INFO BlockManagerMasterEndpoint: Registering block manager spark-v9-687f746599-j9kqm:43475 with 434.4 MiB RAM, BlockManagerId(driver, spark-v9-687f746599-j9kqm, 43475, None)
+26/01/13 09:37:43 INFO BlockManagerMaster: Registered BlockManager BlockManagerId(driver, spark-v9-687f746599-j9kqm, 43475, None)
+26/01/13 09:37:43 INFO BlockManager: Initialized BlockManager: BlockManagerId(driver, spark-v9-687f746599-j9kqm, 43475, None)
+Application Context Created!!!
+26/01/13 09:37:45 INFO CsvStreamingService: startStreamingWithFile method started
+26/01/13 09:37:45 INFO SharedState: Setting hive.metastore.warehouse.dir ('null') to the value of spark.sql.warehouse.dir.
+26/01/13 09:37:45 INFO SharedState: Warehouse path is 'file:/app/spark-warehouse'.
+26/01/13 09:37:47 INFO InMemoryFileIndex: It took 47 ms to list leaf files for 1 paths.
+26/01/13 09:37:48 INFO FileSourceStrategy: Pushed Filters:
+26/01/13 09:37:48 INFO FileSourceStrategy: Post-Scan Filters: Set()
+26/01/13 09:37:48 INFO PathOutputCommitterFactory: No output committer factory defined, defaulting to FileOutputCommitterFactory
+26/01/13 09:37:48 INFO FileOutputCommitter: File Output Committer Algorithm version is 1
+26/01/13 09:37:48 INFO FileOutputCommitter: FileOutputCommitter skip cleanup _temporary folders under output directory:false, ignore cleanup failures: false
+26/01/13 09:37:48 INFO SQLHadoopMapReduceCommitProtocol: Using output committer class org.apache.hadoop.mapreduce.lib.output.FileOutputCommitter
+26/01/13 09:37:49 INFO CodeGenerator: Code generated in 447.607931 ms
+26/01/13 09:37:49 INFO MemoryStore: MemoryStore started with capacity 434.4 MiB
+26/01/13 09:37:49 INFO MemoryStore: Block broadcast_0 stored as values in memory (estimated size 214.0 KiB, free 434.2 MiB)
+26/01/13 09:37:49 INFO MemoryStore: Block broadcast_0_piece0 stored as bytes in memory (estimated size 38.5 KiB, free 434.2 MiB)
+26/01/13 09:37:49 INFO SparkContext: Created broadcast 0 from csv at CsvStreamingService.java:134
+26/01/13 09:37:49 INFO FileSourceScanExec: Planning scan with bin packing, max size: 4194304 bytes, open cost is considered as scanning 4194304 bytes.
+26/01/13 09:37:50 INFO SparkContext: Starting job: csv at CsvStreamingService.java:134
+26/01/13 09:37:50 INFO DAGScheduler: Got job 0 (csv at CsvStreamingService.java:134) with 1 output partitions
+26/01/13 09:37:50 INFO DAGScheduler: Final stage: ResultStage 0 (csv at CsvStreamingService.java:134)
+26/01/13 09:37:50 INFO DAGScheduler: Parents of final stage: List()
+26/01/13 09:37:50 INFO DAGScheduler: Missing parents: List()
+26/01/13 09:37:50 INFO DAGScheduler: Submitting ResultStage 0 (MapPartitionsRDD[3] at csv at CsvStreamingService.java:134), which has no missing parents
+26/01/13 09:37:50 INFO MemoryStore: Block broadcast_1 stored as values in memory (estimated size 260.0 KiB, free 433.9 MiB)
+26/01/13 09:37:50 INFO MemoryStore: Block broadcast_1_piece0 stored as bytes in memory (estimated size 93.1 KiB, free 433.8 MiB)
+26/01/13 09:37:50 INFO SparkContext: Created broadcast 1 from broadcast at DAGScheduler.scala:1676
+26/01/13 09:37:50 INFO DAGScheduler: Submitting 1 missing tasks from ResultStage 0 (MapPartitionsRDD[3] at csv at CsvStreamingService.java:134) (first 15 tasks are for partitions Vector(0))
+26/01/13 09:37:50 INFO TaskSchedulerImpl: Adding task set 0.0 with 1 tasks resource profile 0
+26/01/13 09:37:50 INFO TaskSetManager: Starting task 0.0 in stage 0.0 (TID 0) (spark-v9-687f746599-j9kqm,executor driver, partition 0, PROCESS_LOCAL, 10480 bytes)
+26/01/13 09:37:50 INFO Executor: Starting executor with user classpath (userClassPathFirst = false): ''
+26/01/13 09:37:50 INFO Executor: Using REPL class URI: spark://spark-v9-687f746599-j9kqm:43687/artifacts/2cf17c17-8879-4afe-9369-24f590338654/classes/
+26/01/13 09:37:50 INFO Executor: Created or updated repl class loader org.apache.spark.executor.ExecutorClassLoader@6a44ce9 for 2cf17c17-8879-4afe-9369-24f590338654.
+26/01/13 09:37:50 INFO Executor: Running task 0.0 in stage 0.0 (TID 0)
+26/01/13 09:37:51 INFO CodeGenerator: Code generated in 290.330661 ms
+26/01/13 09:37:51 INFO CodeGenerator: Code generated in 44.267287 ms
+26/01/13 09:37:51 INFO CodeGenerator: Code generated in 71.874841 ms
+26/01/13 09:37:51 INFO PathOutputCommitterFactory: No output committer factory defined, defaulting to FileOutputCommitterFactory
+26/01/13 09:37:51 INFO FileOutputCommitter: File Output Committer Algorithm version is 1
+26/01/13 09:37:51 INFO FileOutputCommitter: FileOutputCommitter skip cleanup _temporary folders under output directory:false, ignore cleanup failures: false
+26/01/13 09:37:51 INFO SQLHadoopMapReduceCommitProtocol: Using output committer class org.apache.hadoop.mapreduce.lib.output.FileOutputCommitter
+26/01/13 09:37:51 INFO CodeGenerator: Code generated in 39.272079 ms
+26/01/13 09:37:51 INFO FileScanRDD: Reading File path: file:///app/1766041567850-1000003_Transaction_spark_2.csv, range: 0-3947411, partition values: [empty row]
+26/01/13 09:37:51 INFO CodeGenerator: Code generated in 45.031284 ms
+26/01/13 09:37:51 INFO CodeGenerator: Code generated in 19.202062 ms
+26/01/13 09:37:52 INFO CodeGenerator: Code generated in 45.863004 ms
+26/01/13 09:37:52 INFO FileOutputCommitter: Saved output of task 'attempt_202601130937501933401757084303121_0000_m_000000_0' to file:/app/output_files/_temporary/0/task_202601130937501933401757084303121_0000_m_000000
+26/01/13 09:37:52 INFO SparkHadoopMapRedUtil: attempt_202601130937501933401757084303121_0000_m_000000_0: Committed. Elapsed time: 3 ms.
+26/01/13 09:37:52 INFO Executor: Finished task 0.0 in stage 0.0 (TID 0). 3721 bytes result sent to driver
+26/01/13 09:37:52 INFO TaskSetManager: Finished task 0.0 in stage 0.0 (TID 0) in 2047 ms on spark-v9-687f746599-j9kqm (executor driver) (1/1)
+26/01/13 09:37:52 INFO TaskSchedulerImpl: Removed TaskSet 0.0 whose tasks have all completed, from pool
+26/01/13 09:37:52 INFO DAGScheduler: ResultStage 0 (csv at CsvStreamingService.java:134) finished in 2228 ms
+26/01/13 09:37:52 INFO DAGScheduler: Job 0 is finished. Cancelling potential speculative or zombie tasks for this job
+26/01/13 09:37:52 INFO TaskSchedulerImpl: Canceling stage 0
+26/01/13 09:37:52 INFO TaskSchedulerImpl: Killing all running tasks in stage 0: Stage finished
+26/01/13 09:37:52 INFO DAGScheduler: Job 0 finished: csv at CsvStreamingService.java:134, took 2303.911359 ms
+26/01/13 09:37:52 INFO FileFormatWriter: Start to commit write Job 6b4c7288-e576-4d54-9abe-1fbe2e897ac1.
+26/01/13 09:37:52 INFO FileFormatWriter: Write Job 6b4c7288-e576-4d54-9abe-1fbe2e897ac1 committed. Elapsed time: 41 ms.
+26/01/13 09:37:52 INFO FileFormatWriter: Finished processing stats for write job 6b4c7288-e576-4d54-9abe-1fbe2e897ac1.
+26/01/13 09:37:53 INFO FileSourceStrategy: Pushed Filters:
+26/01/13 09:37:53 INFO FileSourceStrategy: Post-Scan Filters: Set()
+26/01/13 09:37:53 INFO CodeGenerator: Code generated in 35.587582 ms
+26/01/13 09:37:53 INFO MemoryStore: Block broadcast_2 stored as values in memory (estimated size 214.0 KiB, free 433.9 MiB)
+26/01/13 09:37:53 INFO MemoryStore: Block broadcast_2_piece0 stored as bytes in memory (estimated size 38.5 KiB, free 433.9 MiB)
+26/01/13 09:37:53 INFO SparkContext: Created broadcast 2 from show at CsvStreamingService.java:105
+26/01/13 09:37:53 INFO FileSourceScanExec: Planning scan with bin packing, max size: 4194304 bytes, open cost is considered as scanning 4194304 bytes.
+26/01/13 09:37:53 INFO SparkContext: Starting job: show at CsvStreamingService.java:105
+26/01/13 09:37:53 INFO DAGScheduler: Got job 1 (show at CsvStreamingService.java:105) with 1 output partitions
+26/01/13 09:37:53 INFO DAGScheduler: Final stage: ResultStage 1 (show at CsvStreamingService.java:105)
+26/01/13 09:37:53 INFO DAGScheduler: Parents of final stage: List()
+26/01/13 09:37:53 INFO DAGScheduler: Missing parents: List()
+26/01/13 09:37:53 INFO DAGScheduler: Submitting ResultStage 1 (MapPartitionsRDD[7] at show at CsvStreamingService.java:105), which has no missing parents
+26/01/13 09:37:53 INFO MemoryStore: Block broadcast_3 stored as values in memory (estimated size 28.8 KiB, free 433.9 MiB)
+26/01/13 09:37:53 INFO MemoryStore: Block broadcast_3_piece0 stored as bytes in memory (estimated size 10.5 KiB, free 433.9 MiB)
+26/01/13 09:37:53 INFO SparkContext: Created broadcast 3 from broadcast at DAGScheduler.scala:1676
+26/01/13 09:37:53 INFO DAGScheduler: Submitting 1 missing tasks from ResultStage 1 (MapPartitionsRDD[7] at show at CsvStreamingService.java:105) (first 15 tasks are for partitions Vector(0))
+26/01/13 09:37:53 INFO TaskSchedulerImpl: Adding task set 1.0 with 1 tasks resource profile 0
+26/01/13 09:37:53 INFO TaskSetManager: Starting task 0.0 in stage 1.0 (TID 1) (spark-v9-687f746599-j9kqm,executor driver, partition 0, PROCESS_LOCAL, 10480 bytes)
+26/01/13 09:37:53 INFO Executor: Running task 0.0 in stage 1.0 (TID 1)
+26/01/13 09:37:53 INFO CodeGenerator: Code generated in 41.349513 ms
+26/01/13 09:37:53 INFO FileScanRDD: Reading File path: file:///app/1766041567850-1000003_Transaction_spark_2.csv, range: 0-3947411, partition values: [empty row]
+26/01/13 09:37:53 INFO Executor: Finished task 0.0 in stage 1.0 (TID 1). 3771 bytes result sent to driver
+26/01/13 09:37:53 INFO TaskSetManager: Finished task 0.0 in stage 1.0 (TID 1) in 143 ms on spark-v9-687f746599-j9kqm (executor driver) (1/1)
+26/01/13 09:37:53 INFO TaskSchedulerImpl: Removed TaskSet 1.0 whose tasks have all completed, from pool
+26/01/13 09:37:53 INFO DAGScheduler: ResultStage 1 (show at CsvStreamingService.java:105) finished in 163 ms
+26/01/13 09:37:53 INFO DAGScheduler: Job 1 is finished. Cancelling potential speculative or zombie tasks for this job
+26/01/13 09:37:53 INFO TaskSchedulerImpl: Canceling stage 1
+26/01/13 09:37:53 INFO TaskSchedulerImpl: Killing all running tasks in stage 1: Stage finished
+26/01/13 09:37:53 INFO DAGScheduler: Job 1 finished: show at CsvStreamingService.java:105, took 169.667839 ms
+26/01/13 09:37:53 INFO CodeGenerator: Code generated in 24.05987 ms
++-------------------------------+-------------------------------+-----------------+--------------------+-------+--------------------+--------------------+-------------+--------------------+--------+--------------------+---------------------+----------------------+----------+---+------------+------------------+-----------------+-------------+-----------------+---------------+-----------------+----------+----------------------+
+|Transaction Request Date & Time|Transaction Success Date & Time|Merchant Order No|    SBIEPAY ORDER ID|Cust Id|                ATRN|Gateway Trace Number|Pay_Mode_Code|        Gateway Name|Pay Proc|Transaction Currency|Merchant Order Amount|Gateway Posting Amount|Commission|GST|Order Status|Transaction Status|Settlement Status|Refund Status|Chargeback Status|Amount Refunded|Amount Chargeback|CIN Number|Merchant Other Details|
++-------------------------------+-------------------------------+-----------------+--------------------+-------+--------------------+--------------------+-------------+--------------------+--------+--------------------+---------------------+----------------------+----------+---+------------+------------------+-----------------+-------------+-----------------+---------------+-----------------+----------+----------------------+
+|               04-11-2025 06:49|                           NULL|       hfy5y6trrr|01D53C06E7EE47B9B9C1|   NULL|DC003XM8L7KHMPRKF2SL|                  NA|           DC|State Bank of Ind...|    VISA|                 INR|                    1|                     0|         0| 18|      FAILED|            FAILED|             NULL|         NULL|             NULL|              0|                0|  1.00E+15|                  NULL|
+|               04-11-2025 06:49|                           NULL|       4yr65t4611|17AFD6143DBE4CFD8B83|   NULL|NB003OU8L7KHMXOHILZS|                  NA|           NB| State Bank of India|    SELF|                 INR|                    1|                     0|         0| 18|      FAILED|            FAILED|             NULL|         NULL|             NULL|              0|                0|  1.00E+15|                  NULL|
+|               04-11-2025 06:49|               04-11-2025 06:49|       yey16yrre1|FC6F2513816B4F87B57A|   NULL|NB0031M8L7KHMMAKZJEZ|          yey16yrre1|           NB| State Bank of India|    SELF|                 INR|                    1|                     0|         0| 18|        PAID|           SUCCESS|             NULL|         NULL|             NULL|              0|                0|  1.00E+15|                  NULL|
+|               04-11-2025 06:49|               04-11-2025 06:49|       45y54rthrd|5B167FCC28CA47409ABB|   NULL|NB003ZA8L7KHMQZP5TVB|          45y54rthrd|           NB| State Bank of India|    SELF|                 INR|                    1|                     0|         0| 18|        PAID|           SUCCESS|             NULL|         NULL|             NULL|              0|                0|  1.00E+15|                  NULL|
+|               04-11-2025 06:49|                           NULL|       g6dftrrtyt|BF876091993A4D2B9C2A|   NULL|DC003W58L7KHM8GO6IL6|                  NA|           DC|State Bank of Ind...|    VISA|                 INR|                    1|                     0|         0| 18|      FAILED|            FAILED|             NULL|         NULL|             NULL|              0|                0|  1.00E+15|                  NULL|
+|               04-11-2025 06:49|               04-11-2025 06:49|       f5eyg4yg4r|F9057334EA074AEAACE4|   NULL|NB003F38L7KHMLXWYXY3|          f5eyg4yg4r|           NB| State Bank of India|    SELF|                 INR|                    1|                     0|         0| 18|        PAID|           SUCCESS|             NULL|         NULL|             NULL|              0|                0|  1.00E+15|                  NULL|
+|               04-11-2025 06:49|               04-11-2025 06:49|       55trtyhhtg|173672A7483F4341933D|   NULL|NB003118L7KHMT7JX4AB|          55trtyhhtg|           NB| State Bank of India|    SELF|                 INR|                    1|                     0|         0| 18|        PAID|           SUCCESS|             NULL|         NULL|             NULL|              0|                0|  1.00E+15|                  NULL|
+|               04-11-2025 06:49|                           NULL|       yter4gdytt|E4BFB5DBFEDB4F06B586|   NULL|DC003908L7KHMWK8NN4H|                  NA|           DC|State Bank of Ind...|    VISA|                 INR|                    1|                     0|         0| 18|      FAILED|            FAILED|             NULL|         NULL|             NULL|              0|                0|  1.00E+15|                  NULL|
+|               04-11-2025 06:49|               04-11-2025 06:49|       gr6t64dy54|019F4B7F24B74D5AAFF3|   NULL|NB003O87L7KHMXXKMNYY|          gr6t64dy54|           NB| State Bank of India|    SELF|                 INR|                    1|                     0|         0| 18|        PAID|           SUCCESS|             NULL|         NULL|             NULL|              0|                0|  1.00E+15|                  NULL|
+|               04-11-2025 06:49|                           NULL|       555htrfhrg|2D9D8EA519F1438D8397|   NULL|UP003CK7L7KHMJT7LPJ7|                  NA|          UPI|   SBIePay Test Bank|    SELF|                 INR|                    1|                     0|         0| 18|      FAILED|            FAILED|             NULL|         NULL|             NULL|              0|                0|  1.00E+15|                  NULL|
+|               04-11-2025 06:49|               04-11-2025 06:49|       dh6ftregh5|0391BFCFD6074BD7A0C0|   NULL|DC003U47L7KHMQODIXZ8|          dh6ftregh5|           DC|State Bank of Ind...|    VISA|                 INR|                    1|                     0|         0| 18|        PAID|           SUCCESS|             NULL|         NULL|             NULL|              0|                0|  1.00E+15|                  NULL|
+|               04-11-2025 06:49|               04-11-2025 06:49|       dtyr5666r6|1E44D0115C3D4ACDBA8B|   NULL|NB003RJ7L7KHMLRI0YD2|          dtyr5666r6|           NB| State Bank of India|    SELF|                 INR|                    1|                     0|         0| 18|        PAID|           SUCCESS|             NULL|         NULL|             NULL|              0|                0|  1.00E+15|                  NULL|
+|               04-11-2025 06:49|               04-11-2025 06:49|       6ttttg1yrr|3166E479E03C487EB74D|   NULL|UP003277L7KHMPMAI6WA|            1.00E+11|          UPI|   SBIePay Test Bank|    SELF|                 INR|                    1|                     0|         0| 18|        PAID|           SUCCESS|             NULL|         NULL|             NULL|              0|                0|  1.00E+15|                  NULL|
+|               04-11-2025 06:49|               04-11-2025 06:49|       yd66y1564t|5BD4EC4DD49E487BBF38|   NULL|NB0039X6L7KHMFFR0SXW|          yd66y1564t|           NB| State Bank of India|    SELF|                 INR|                    1|                     0|         0| 18|        PAID|           SUCCESS|             NULL|         NULL|             NULL|              0|                0|  1.00E+15|                  NULL|
+|               04-11-2025 06:49|               04-11-2025 06:49|       556ed1erry|34EE7ADED09048AB8905|   NULL|DC0033D6L7KHMEWVIXBE|          556ed1erry|           DC|State Bank of Ind...|    VISA|                 INR|                    1|                     0|         0| 18|        PAID|           SUCCESS|             NULL|         NULL|             NULL|              0|                0|  1.00E+15|                  NULL|
+|               04-11-2025 06:49|               04-11-2025 06:49|       4erryerrf6|C4A6207DC6BF4919A2F2|   NULL|NB003AE6L7KHM1BLAJHQ|          4erryerrf6|           NB| State Bank of India|    SELF|                 INR|                    1|                     0|         0| 18|        PAID|           SUCCESS|             NULL|         NULL|             NULL|              0|                0|  1.00E+15|                  NULL|
+|               04-11-2025 06:49|               04-11-2025 06:49|       g5t11546et|23F98963E46E4F9CAFF2|   NULL|DC0030I6L7KHM8DFNIIR|          g5t11546et|           DC|State Bank of Ind...|    VISA|                 INR|                    1|                     0|         0| 18|        PAID|           SUCCESS|             NULL|         NULL|             NULL|              0|                0|  1.00E+15|                  NULL|
+|               04-11-2025 06:49|               04-11-2025 06:49|       h4thr14rrh|01E65699A12B4BCD9A2D|   NULL|UP003DN6L7KHMNCE8H4R|            1.00E+11|          UPI|   SBIePay Test Bank|    SELF|                 INR|                    1|                     0|         0| 18|        PAID|           SUCCESS|             NULL|         NULL|             NULL|              0|                0|  1.00E+15|                  NULL|
+|               04-11-2025 06:49|               04-11-2025 06:49|       r4t645td6y|3FF64BB71170460E854B|   NULL|NB003FF6L7KHMHNYIFUN|          r4t645td6y|           NB| State Bank of India|    SELF|                 INR|                    1|                     0|         0| 18|        PAID|           SUCCESS|             NULL|         NULL|             NULL|              0|                0|  1.00E+15|                  NULL|
+|               04-11-2025 06:49|               04-11-2025 06:49|       5ryydr466h|64FC9E74BD214089A113|   NULL|UP003J66L7KHMLZFJCKQ|            1.00E+11|          UPI|   SBIePay Test Bank|    SELF|                 INR|                    1|                     0|         0| 18|        PAID|           SUCCESS|             NULL|         NULL|             NULL|              0|                0|  1.00E+15|                  NULL|
++-------------------------------+-------------------------------+-----------------+--------------------+-------+--------------------+--------------------+-------------+--------------------+--------+--------------------+---------------------+----------------------+----------+---+------------+------------------+-----------------+-------------+-----------------+---------------+-----------------+----------+----------------------+
+only showing top 20 rows
+26/01/13 09:37:53 INFO CsvStreamingService: stream completed in 7647
+Processed : 7647
+26/01/13 09:37:53 INFO SparkContext: Invoking stop() from shutdown hook
+26/01/13 09:37:53 INFO SparkContext: SparkContext is stopping with exitCode 0 from run at Executors.java:572.
+26/01/13 09:37:53 INFO SparkUI: Stopped Spark web UI at http://spark-v9-687f746599-j9kqm:4040
+26/01/13 09:37:53 INFO MapOutputTrackerMasterEndpoint: MapOutputTrackerMasterEndpoint stopped!
+26/01/13 09:37:53 INFO MemoryStore: MemoryStore cleared
+26/01/13 09:37:53 INFO BlockManager: BlockManager stopped
+26/01/13 09:37:53 INFO BlockManagerMaster: BlockManagerMaster stopped
+26/01/13 09:37:53 INFO OutputCommitCoordinator$OutputCommitCoordinatorEndpoint: OutputCommitCoordinator stopped!
+26/01/13 09:37:53 INFO SparkContext: Successfully stopped SparkContext
+26/01/13 09:37:53 INFO ShutdownHookManager: Shutdown hook called
+26/01/13 09:37:53 INFO ShutdownHookManager: Deleting directory /tmp/spark-787db9da-789e-4e11-97a4-ca0900244e12
+26/01/13 09:37:53 INFO ShutdownHookManager: Deleting directory /tmp/spark-ea826fb9-866d-4609-bc25-6d795185bba2
+26/01/13 09:37:53 INFO ShutdownHookManager: Deleting directory /app/artifacts/spark-efdf5498-a471-4d83-b630-49df9ba7a964
