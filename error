@@ -1,13 +1,15 @@
-FROM registry.dev.sbiepay.sbi:8443/spark/sparkrecon:4.0.0_12092025v43
+[root@registry spark]# podman build -t registry.dev.sbiepay.sbi:8443/library/spark:v8 -f Dockerfile
+STEP 1/7: FROM registry.dev.sbiepay.sbi:8443/spark/sparkrecon:4.0.0_12092025v43
+STEP 2/7: WORKDIR /app
+--> Using cache 75e9661013af169f8cefa2b571dc1ed464241a45511f2be3be101edef83febcb
+--> 75e9661013af
+STEP 3/7: ENV SPARK_SUBMIT_OPTS="-Dspark.sql.artifact.dir=/tmp/spark-artifacts"
+--> Using cache d56fe81b83bb717563b8e38e8f800fe0d854108b5133205a27bd438bebcb45ae
+--> d56fe81b83bb
+STEP 4/7: RUN mkdir -p /app/input_files /app/output_files /tmp/spark-artifacts     && chmod -R 777 /app /tmp
+chmod: changing permissions of '/tmp': Operation not permitted
+chmod: changing permissions of '/tmp/hsperfdata_root': Operation not permitted
+Error: building at STEP "RUN mkdir -p /app/input_files /app/output_files /tmp/spark-artifacts     && chmod -R 777 /app /tmp": while running runtime: exit status 1
+[root@registry spark]#
 
-WORKDIR /app
-
-ENV SPARK_SUBMIT_OPTS="-Dspark.sql.artifact.dir=/tmp/spark-artifacts"
-
-RUN mkdir -p /app/input_files /app/output_files /tmp/spark-artifacts \
-    && chmod -R 777 /app /tmp
-
-COPY spring-context-spark-1.0.jar /app/app.jar
-
-ENTRYPOINT ["spark-submit"]
-CMD ["/app/app.jar"]
+there is no permisooin for artifacts 
