@@ -1,57 +1,322 @@
+[osuser@bastion ~]$ oc logs apache-spark-v8-6796d6ff87-tts6k
 WARNING: Using incubator modules: jdk.incubator.vector
-26/01/13 07:34:07 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+26/01/13 08:44:28 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
 Hello world!
 Using Spark's default log4j profile: org/apache/spark/log4j2-defaults.properties
-26/01/13 07:34:10 INFO SparkContext: Running Spark version 4.0.0
-26/01/13 07:34:10 INFO SparkContext: OS info Linux, 5.14.0-427.87.1.el9_4.x86_64, amd64
-26/01/13 07:34:10 INFO SparkContext: Java version 21.0.7
-26/01/13 07:34:10 INFO ResourceUtils: ==============================================================
-26/01/13 07:34:10 INFO ResourceUtils: No custom resources configured for spark.driver.
-26/01/13 07:34:10 INFO ResourceUtils: ==============================================================
-26/01/13 07:34:10 INFO SparkContext: Submitted application: spring-context-spark
-26/01/13 07:34:10 INFO ResourceProfile: Default ResourceProfile created, executor resources: Map(cores -> name: cores, amount: 1, script: , vendor: , memory -> name: memory, amount: 1024, script: , vendor: , offHeap -> name: offHeap, amount: 0, script: , vendor: ), task resources: Map(cpus -> name: cpus, amount: 1.0)
-26/01/13 07:34:10 INFO ResourceProfile: Limiting resource is cpu
-26/01/13 07:34:10 INFO ResourceProfileManager: Added ResourceProfile id: 0
-26/01/13 07:34:10 INFO SecurityManager: Changing view acls to: 1001520000
-26/01/13 07:34:10 INFO SecurityManager: Changing modify acls to: 1001520000
-26/01/13 07:34:10 INFO SecurityManager: Changing view acls groups to: 1001520000
-26/01/13 07:34:10 INFO SecurityManager: Changing modify acls groups to: 1001520000
-26/01/13 07:34:10 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users with view permissions: 1001520000 groups with view permissions: EMPTY; users with modify permissions: 1001520000; groups with modify permissions: EMPTY; RPC SSL disabled
-26/01/13 07:34:11 INFO Utils: Successfully started service 'sparkDriver' on port 37691.
-26/01/13 07:34:11 INFO SparkEnv: Registering MapOutputTracker
-26/01/13 07:34:11 INFO SparkEnv: Registering BlockManagerMaster
-26/01/13 07:34:11 INFO BlockManagerMasterEndpoint: Using org.apache.spark.storage.DefaultTopologyMapper for getting topology information
-26/01/13 07:34:11 INFO BlockManagerMasterEndpoint: BlockManagerMasterEndpoint up
-26/01/13 07:34:11 INFO SparkEnv: Registering BlockManagerMasterHeartbeat
-26/01/13 07:34:11 INFO DiskBlockManager: Created local directory at /tmp/blockmgr-6f146278-3363-4850-a01a-74d52d863fd5
-26/01/13 07:34:11 INFO SparkEnv: Registering OutputCommitCoordinator
-26/01/13 07:34:11 INFO JettyUtils: Start Jetty 0.0.0.0:4040 for SparkUI
-26/01/13 07:34:11 INFO Utils: Successfully started service 'SparkUI' on port 4040.
-26/01/13 07:34:11 INFO SparkContext: Added JAR file:/app/app.jar at spark://apache-spark-v8-5657f47b-s5hbl:37691/jars/app.jar with timestamp 1768289650504
-26/01/13 07:34:11 INFO SecurityManager: Changing view acls to: 1001520000
-26/01/13 07:34:11 INFO SecurityManager: Changing modify acls to: 1001520000
-26/01/13 07:34:11 INFO SecurityManager: Changing view acls groups to: 1001520000
-26/01/13 07:34:11 INFO SecurityManager: Changing modify acls groups to: 1001520000
-26/01/13 07:34:11 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users with view permissions: 1001520000 groups with view permissions: EMPTY; users with modify permissions: 1001520000; groups with modify permissions: EMPTY; RPC SSL disabled
-26/01/13 07:34:12 INFO Executor: Starting executor ID driver on host apache-spark-v8-5657f47b-s5hbl
-26/01/13 07:34:12 INFO Executor: OS info Linux, 5.14.0-427.87.1.el9_4.x86_64, amd64
-26/01/13 07:34:12 INFO Executor: Java version 21.0.7
-26/01/13 07:34:12 INFO Executor: Starting executor with user classpath (userClassPathFirst = false): ''
-26/01/13 07:34:12 INFO Executor: Created or updated repl class loader org.apache.spark.util.MutableURLClassLoader@3f64d943 for default.
-26/01/13 07:34:12 INFO Executor: Fetching spark://apache-spark-v8-5657f47b-s5hbl:37691/jars/app.jar with timestamp 1768289650504
-26/01/13 07:34:12 INFO TransportClientFactory: Successfully created connection to apache-spark-v8-5657f47b-s5hbl/172.16.14.77:37691 after 41 ms (0 ms spent in bootstraps)
-26/01/13 07:34:12 INFO Utils: Fetching spark://apache-spark-v8-5657f47b-s5hbl:37691/jars/app.jar to /tmp/spark-0669d5eb-28ed-439a-a613-46d9085d7c0b/userFiles-ec0885dc-5b98-4dc7-baa6-3a2b0db7cc62/fetchFileTemp5542918912761885434.tmp
-26/01/13 07:34:14 INFO Executor: Adding file:/tmp/spark-0669d5eb-28ed-439a-a613-46d9085d7c0b/userFiles-ec0885dc-5b98-4dc7-baa6-3a2b0db7cc62/app.jar to class loader default
-26/01/13 07:34:14 INFO Utils: Successfully started service 'org.apache.spark.network.netty.NettyBlockTransferService' on port 42201.
-26/01/13 07:34:14 INFO NettyBlockTransferService: Server created on apache-spark-v8-5657f47b-s5hbl:42201
-26/01/13 07:34:14 INFO BlockManager: Using org.apache.spark.storage.RandomBlockReplicationPolicy for block replication policy
-26/01/13 07:34:14 INFO BlockManagerMaster: Registering BlockManager BlockManagerId(driver, apache-spark-v8-5657f47b-s5hbl, 42201, None)
-26/01/13 07:34:14 INFO BlockManagerMasterEndpoint: Registering block manager apache-spark-v8-5657f47b-s5hbl:42201 with 434.4 MiB RAM, BlockManagerId(driver, apache-spark-v8-5657f47b-s5hbl, 42201, None)
-26/01/13 07:34:14 INFO BlockManagerMaster: Registered BlockManager BlockManagerId(driver, apache-spark-v8-5657f47b-s5hbl, 42201, None)
-26/01/13 07:34:14 INFO BlockManager: Initialized BlockManager: BlockManagerId(driver, apache-spark-v8-5657f47b-s5hbl, 42201, None)
+26/01/13 08:44:31 INFO SparkContext: Running Spark version 4.0.0
+26/01/13 08:44:31 INFO SparkContext: OS info Linux, 5.14.0-427.87.1.el9_4.x86_64, amd64
+26/01/13 08:44:31 INFO SparkContext: Java version 21.0.7
+26/01/13 08:44:32 INFO ResourceUtils: ==============================================================
+26/01/13 08:44:32 INFO ResourceUtils: No custom resources configured for spark.driver.
+26/01/13 08:44:32 INFO ResourceUtils: ==============================================================
+26/01/13 08:44:32 INFO SparkContext: Submitted application: spring-context-spark
+26/01/13 08:44:32 INFO ResourceProfile: Default ResourceProfile created, executor resources: Map(cores -> name: cores, amount: 1, script: , vendor: , memory -> name: memory, amount: 1024, script: , vendor: , offHeap -> name: offHeap, amount: 0, script: , vendor: ), task resources: Map(cpus -> name: cpus, amount: 1.0)
+26/01/13 08:44:32 INFO ResourceProfile: Limiting resource is cpu
+26/01/13 08:44:32 INFO ResourceProfileManager: Added ResourceProfile id: 0
+26/01/13 08:44:32 INFO SecurityManager: Changing view acls to: 1001520000
+26/01/13 08:44:32 INFO SecurityManager: Changing modify acls to: 1001520000
+26/01/13 08:44:32 INFO SecurityManager: Changing view acls groups to: 1001520000
+26/01/13 08:44:32 INFO SecurityManager: Changing modify acls groups to: 1001520000
+26/01/13 08:44:32 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users with view permissions: 1001520000 groups with view permissions: EMPTY; users with modify permissions: 1001520000; groups with modify permissions: EMPTY; RPC SSL disabled
+26/01/13 08:44:32 INFO Utils: Successfully started service 'sparkDriver' on port 44167.
+26/01/13 08:44:32 INFO SparkEnv: Registering MapOutputTracker
+26/01/13 08:44:32 INFO SparkEnv: Registering BlockManagerMaster
+26/01/13 08:44:32 INFO BlockManagerMasterEndpoint: Using org.apache.spark.storage.DefaultTopologyMapper for getting topology information
+26/01/13 08:44:32 INFO BlockManagerMasterEndpoint: BlockManagerMasterEndpoint up
+26/01/13 08:44:32 INFO SparkEnv: Registering BlockManagerMasterHeartbeat
+26/01/13 08:44:32 INFO DiskBlockManager: Created local directory at /tmp/blockmgr-5250aa68-2301-428d-8feb-938ccc81baf8
+26/01/13 08:44:32 INFO SparkEnv: Registering OutputCommitCoordinator
+26/01/13 08:44:32 INFO JettyUtils: Start Jetty 0.0.0.0:4040 for SparkUI
+26/01/13 08:44:33 INFO Utils: Successfully started service 'SparkUI' on port 4040.
+26/01/13 08:44:33 INFO SparkContext: Added JAR file:/app/app.jar at spark://apache-spark-v8-6796d6ff87-tts6k:44167/jars/app.jar with timestamp 1768293871924
+26/01/13 08:44:33 INFO SecurityManager: Changing view acls to: 1001520000
+26/01/13 08:44:33 INFO SecurityManager: Changing modify acls to: 1001520000
+26/01/13 08:44:33 INFO SecurityManager: Changing view acls groups to: 1001520000
+26/01/13 08:44:33 INFO SecurityManager: Changing modify acls groups to: 1001520000
+26/01/13 08:44:33 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users with view permissions: 1001520000 groups with view permissions: EMPTY; users with modify permissions: 1001520000; groups with modify permissions: EMPTY; RPC SSL disabled
+26/01/13 08:44:33 INFO Executor: Starting executor ID driver on host apache-spark-v8-6796d6ff87-tts6k
+26/01/13 08:44:33 INFO Executor: OS info Linux, 5.14.0-427.87.1.el9_4.x86_64, amd64
+26/01/13 08:44:33 INFO Executor: Java version 21.0.7
+26/01/13 08:44:33 INFO Executor: Starting executor with user classpath (userClassPathFirst = false): ''
+26/01/13 08:44:33 INFO Executor: Created or updated repl class loader org.apache.spark.util.MutableURLClassLoader@3f64d943 for default.
+26/01/13 08:44:33 INFO Executor: Fetching spark://apache-spark-v8-6796d6ff87-tts6k:44167/jars/app.jar with timestamp 1768293871924
+26/01/13 08:44:33 INFO TransportClientFactory: Successfully created connection to apache-spark-v8-6796d6ff87-tts6k/172.16.14.78:44167 after 35 ms (0 ms spent in bootstraps)
+26/01/13 08:44:33 INFO Utils: Fetching spark://apache-spark-v8-6796d6ff87-tts6k:44167/jars/app.jar to /tmp/spark-27ab37ea-3740-4734-bebc-2cfe8abecf00/userFiles-982a5ca8-0a68-432d-b6fd-0a2f8e863da9/fetchFileTemp2272509774859489823.tmp
+26/01/13 08:44:35 INFO Executor: Adding file:/tmp/spark-27ab37ea-3740-4734-bebc-2cfe8abecf00/userFiles-982a5ca8-0a68-432d-b6fd-0a2f8e863da9/app.jar to class loader default
+26/01/13 08:44:35 INFO Utils: Successfully started service 'org.apache.spark.network.netty.NettyBlockTransferService' on port 35205.
+26/01/13 08:44:35 INFO NettyBlockTransferService: Server created on apache-spark-v8-6796d6ff87-tts6k:35205
+26/01/13 08:44:35 INFO BlockManager: Using org.apache.spark.storage.RandomBlockReplicationPolicy for block replication policy
+26/01/13 08:44:35 INFO BlockManagerMaster: Registering BlockManager BlockManagerId(driver, apache-spark-v8-6796d6ff87-tts6k, 35205, None)
+26/01/13 08:44:35 INFO BlockManagerMasterEndpoint: Registering block manager apache-spark-v8-6796d6ff87-tts6k:35205 with 434.4 MiB RAM, BlockManagerId(driver, apache-spark-v8-6796d6ff87-tts6k, 35205, None)
+26/01/13 08:44:35 INFO BlockManagerMaster: Registered BlockManager BlockManagerId(driver, apache-spark-v8-6796d6ff87-tts6k, 35205, None)
+26/01/13 08:44:35 INFO BlockManager: Initialized BlockManager: BlockManagerId(driver, apache-spark-v8-6796d6ff87-tts6k, 35205, None)
 Application Context Created!!!
-26/01/13 07:34:16 INFO CsvStreamingService: startStreamingWithFile method started
-26/01/13 07:34:16 INFO SharedState: Setting hive.metastore.warehouse.dir ('null') to the value of spark.sql.warehouse.dir.
-26/01/13 07:34:16 INFO SharedState: Warehouse path is 'file:/app/spark-warehouse'.
-26/01/13 07:34:18 WARN FileStreamSink: Assume no metadata directory. Error while looking for metadata directory in the path: /app/1766041567850-1000003_Transaction_spark_2.csv.
+26/01/13 08:44:38 INFO CsvStreamingService: startStreamingWithFile method started
+26/01/13 08:44:38 INFO SharedState: Setting hive.metastore.warehouse.dir ('null') to the value of spark.sql.warehouse.dir.
+26/01/13 08:44:38 INFO SharedState: Warehouse path is 'file:/app/spark-warehouse'.
+26/01/13 08:44:39 WARN FileStreamSink: Assume no metadata directory. Error while looking for metadata directory in the path: /app/1766041567850-1000003_Transaction_spark_2.csv.
 java.io.FileNotFoundException: File /app/1766041567850-1000003_Transaction_spark_2.csv does not exist
+        at org.apache.hadoop.fs.RawLocalFileSystem.deprecatedGetFileStatus(RawLocalFileSystem.java:917)
+        at org.apache.hadoop.fs.RawLocalFileSystem.getFileLinkStatusInternal(RawLocalFileSystem.java:1238)
+        at org.apache.hadoop.fs.RawLocalFileSystem.getFileStatus(RawLocalFileSystem.java:907)
+        at org.apache.hadoop.fs.FilterFileSystem.getFileStatus(FilterFileSystem.java:462)
+        at org.apache.spark.sql.execution.streaming.FileStreamSink$.hasMetadata(FileStreamSink.scala:56)
+        at org.apache.spark.sql.execution.datasources.DataSource.resolveRelation(DataSource.scala:381)
+        at org.apache.spark.sql.catalyst.analysis.ResolveDataSource.org$apache$spark$sql$catalyst$analysis$ResolveDataSource$$loadV1BatchSource(ResolveDataSource.scala:143)
+        at org.apache.spark.sql.catalyst.analysis.ResolveDataSource$$anonfun$apply$1.$anonfun$applyOrElse$2(ResolveDataSource.scala:61)
+        at scala.Option.getOrElse(Option.scala:201)
+        at org.apache.spark.sql.catalyst.analysis.ResolveDataSource$$anonfun$apply$1.applyOrElse(ResolveDataSource.scala:61)
+        at org.apache.spark.sql.catalyst.analysis.ResolveDataSource$$anonfun$apply$1.applyOrElse(ResolveDataSource.scala:45)
+        at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.$anonfun$resolveOperatorsUpWithPruning$3(AnalysisHelper.scala:139)
+        at org.apache.spark.sql.catalyst.trees.CurrentOrigin$.withOrigin(origin.scala:86)
+        at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.$anonfun$resolveOperatorsUpWithPruning$1(AnalysisHelper.scala:139)
+        at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper$.allowInvokingTransformsInAnalyzer(AnalysisHelper.scala:416)
+        at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.resolveOperatorsUpWithPruning(AnalysisHelper.scala:135)
+        at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.resolveOperatorsUpWithPruning$(AnalysisHelper.scala:131)
+        at org.apache.spark.sql.catalyst.plans.logical.LogicalPlan.resolveOperatorsUpWithPruning(LogicalPlan.scala:37)
+        at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.resolveOperatorsUp(AnalysisHelper.scala:112)
+        at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.resolveOperatorsUp$(AnalysisHelper.scala:111)
+        at org.apache.spark.sql.catalyst.plans.logical.LogicalPlan.resolveOperatorsUp(LogicalPlan.scala:37)
+        at org.apache.spark.sql.catalyst.analysis.ResolveDataSource.apply(ResolveDataSource.scala:45)
+        at org.apache.spark.sql.catalyst.analysis.ResolveDataSource.apply(ResolveDataSource.scala:43)
+        at org.apache.spark.sql.catalyst.rules.RuleExecutor.$anonfun$execute$2(RuleExecutor.scala:242)
+        at scala.collection.LinearSeqOps.foldLeft(LinearSeq.scala:183)
+        at scala.collection.LinearSeqOps.foldLeft$(LinearSeq.scala:179)
+        at scala.collection.immutable.List.foldLeft(List.scala:79)
+        at org.apache.spark.sql.catalyst.rules.RuleExecutor.$anonfun$execute$1(RuleExecutor.scala:239)
+        at org.apache.spark.sql.catalyst.rules.RuleExecutor.$anonfun$execute$1$adapted(RuleExecutor.scala:231)
+        at scala.collection.immutable.List.foreach(List.scala:334)
+        at org.apache.spark.sql.catalyst.rules.RuleExecutor.execute(RuleExecutor.scala:231)
+        at org.apache.spark.sql.catalyst.analysis.Analyzer.org$apache$spark$sql$catalyst$analysis$Analyzer$$executeSameContext(Analyzer.scala:290)
+        at org.apache.spark.sql.catalyst.analysis.Analyzer.$anonfun$execute$1(Analyzer.scala:286)
+        at org.apache.spark.sql.catalyst.analysis.AnalysisContext$.withNewAnalysisContext(Analyzer.scala:234)
+        at org.apache.spark.sql.catalyst.analysis.Analyzer.execute(Analyzer.scala:286)
+        at org.apache.spark.sql.catalyst.analysis.Analyzer.execute(Analyzer.scala:249)
+        at org.apache.spark.sql.catalyst.rules.RuleExecutor.$anonfun$executeAndTrack$1(RuleExecutor.scala:201)
+        at org.apache.spark.sql.catalyst.QueryPlanningTracker$.withTracker(QueryPlanningTracker.scala:89)
+        at org.apache.spark.sql.catalyst.rules.RuleExecutor.executeAndTrack(RuleExecutor.scala:201)
+        at org.apache.spark.sql.catalyst.analysis.resolver.HybridAnalyzer.resolveInFixedPoint(HybridAnalyzer.scala:190)
+        at org.apache.spark.sql.catalyst.analysis.resolver.HybridAnalyzer.$anonfun$apply$1(HybridAnalyzer.scala:76)
+        at org.apache.spark.sql.catalyst.analysis.resolver.HybridAnalyzer.withTrackedAnalyzerBridgeState(HybridAnalyzer.scala:111)
+        at org.apache.spark.sql.catalyst.analysis.resolver.HybridAnalyzer.apply(HybridAnalyzer.scala:71)
+        at org.apache.spark.sql.catalyst.analysis.Analyzer.$anonfun$executeAndCheck$1(Analyzer.scala:280)
+        at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper$.markInAnalyzer(AnalysisHelper.scala:423)
+        at org.apache.spark.sql.catalyst.analysis.Analyzer.executeAndCheck(Analyzer.scala:280)
+        at org.apache.spark.sql.execution.QueryExecution.$anonfun$lazyAnalyzed$2(QueryExecution.scala:110)
+        at org.apache.spark.sql.catalyst.QueryPlanningTracker.measurePhase(QueryPlanningTracker.scala:148)
+        at org.apache.spark.sql.execution.QueryExecution.$anonfun$executePhase$2(QueryExecution.scala:278)
+        at org.apache.spark.sql.execution.QueryExecution$.withInternalError(QueryExecution.scala:654)
+        at org.apache.spark.sql.execution.QueryExecution.$anonfun$executePhase$1(QueryExecution.scala:278)
+        at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:804)
+        at org.apache.spark.sql.execution.QueryExecution.executePhase(QueryExecution.scala:277)
+        at org.apache.spark.sql.execution.QueryExecution.$anonfun$lazyAnalyzed$1(QueryExecution.scala:110)
+        at scala.util.Try$.apply(Try.scala:217)
+        at org.apache.spark.util.Utils$.doTryWithCallerStacktrace(Utils.scala:1378)
+        at org.apache.spark.util.LazyTry.tryT$lzycompute(LazyTry.scala:46)
+        at org.apache.spark.util.LazyTry.tryT(LazyTry.scala:46)
+        at org.apache.spark.util.LazyTry.get(LazyTry.scala:58)
+        at org.apache.spark.sql.execution.QueryExecution.analyzed(QueryExecution.scala:121)
+        at org.apache.spark.sql.execution.QueryExecution.assertAnalyzed(QueryExecution.scala:80)
+        at org.apache.spark.sql.classic.Dataset$.$anonfun$ofRows$1(Dataset.scala:115)
+        at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:804)
+        at org.apache.spark.sql.classic.Dataset$.ofRows(Dataset.scala:113)
+        at org.apache.spark.sql.classic.DataFrameReader.load(DataFrameReader.scala:109)
+        at org.apache.spark.sql.classic.DataFrameReader.load(DataFrameReader.scala:58)
+        at org.apache.spark.sql.DataFrameReader.csv(DataFrameReader.scala:392)
+        at org.apache.spark.sql.classic.DataFrameReader.csv(DataFrameReader.scala:259)
+        at org.apache.spark.sql.classic.DataFrameReader.csv(DataFrameReader.scala:58)
+        at org.apache.spark.sql.DataFrameReader.csv(DataFrameReader.scala:352)
+        at org.apache.spark.sql.classic.DataFrameReader.csv(DataFrameReader.scala:196)
+        at org.apache.spark.sql.classic.DataFrameReader.csv(DataFrameReader.scala:58)
+        at org.example.src.CsvStreamingService.startStreamingWithFile(CsvStreamingService.java:96)
+        at org.example.Main.main(Main.java:27)
+        at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:75)
+        at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:52)
+        at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+        at org.apache.spark.deploy.JavaMainApplication.start(SparkApplication.scala:52)
+        at org.apache.spark.deploy.SparkSubmit.org$apache$spark$deploy$SparkSubmit$$runMain(SparkSubmit.scala:1027)
+        at org.apache.spark.deploy.SparkSubmit.doRunMain$1(SparkSubmit.scala:204)
+        at org.apache.spark.deploy.SparkSubmit.submit(SparkSubmit.scala:227)
+        at org.apache.spark.deploy.SparkSubmit.doSubmit(SparkSubmit.scala:96)
+        at org.apache.spark.deploy.SparkSubmit$$anon$2.doSubmit(SparkSubmit.scala:1132)
+        at org.apache.spark.deploy.SparkSubmit$.main(SparkSubmit.scala:1141)
+        at org.apache.spark.deploy.SparkSubmit.main(SparkSubmit.scala)
+org.apache.spark.sql.AnalysisException: [PATH_NOT_FOUND] Path does not exist: file:/app/1766041567850-1000003_Transaction_spark_2.csv. SQLSTATE: 42K03
+        at org.apache.spark.sql.errors.QueryCompilationErrors$.dataPathNotExistError(QueryCompilationErrors.scala:1670)
+        at org.apache.spark.sql.execution.datasources.DataSource$.$anonfun$checkAndGlobPathIfNecessary$4(DataSource.scala:810)
+        at org.apache.spark.sql.execution.datasources.DataSource$.$anonfun$checkAndGlobPathIfNecessary$4$adapted(DataSource.scala:807)
+        at ... run in separate thread using org.apache.spark.util.ThreadUtils ... ()
+        at org.apache.spark.sql.execution.datasources.DataSource$.checkAndGlobPathIfNecessary(DataSource.scala:814)
+        at org.apache.spark.sql.execution.datasources.DataSource.checkAndGlobPathIfNecessary(DataSource.scala:575)
+        at org.apache.spark.sql.execution.datasources.DataSource.resolveRelation(DataSource.scala:419)
+        at org.apache.spark.sql.catalyst.analysis.ResolveDataSource.org$apache$spark$sql$catalyst$analysis$ResolveDataSource$$loadV1BatchSource(ResolveDataSource.scala:143)
+        at org.apache.spark.sql.catalyst.analysis.ResolveDataSource$$anonfun$apply$1.$anonfun$applyOrElse$2(ResolveDataSource.scala:61)
+        at scala.Option.getOrElse(Option.scala:201)
+        at org.apache.spark.sql.catalyst.analysis.ResolveDataSource$$anonfun$apply$1.applyOrElse(ResolveDataSource.scala:61)
+        at org.apache.spark.sql.catalyst.analysis.ResolveDataSource$$anonfun$apply$1.applyOrElse(ResolveDataSource.scala:45)
+        at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.$anonfun$resolveOperatorsUpWithPruning$3(AnalysisHelper.scala:139)
+        at org.apache.spark.sql.catalyst.trees.CurrentOrigin$.withOrigin(origin.scala:86)
+        at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.$anonfun$resolveOperatorsUpWithPruning$1(AnalysisHelper.scala:139)
+        at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper$.allowInvokingTransformsInAnalyzer(AnalysisHelper.scala:416)
+        at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.resolveOperatorsUpWithPruning(AnalysisHelper.scala:135)
+        at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.resolveOperatorsUpWithPruning$(AnalysisHelper.scala:131)
+        at org.apache.spark.sql.catalyst.plans.logical.LogicalPlan.resolveOperatorsUpWithPruning(LogicalPlan.scala:37)
+        at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.resolveOperatorsUp(AnalysisHelper.scala:112)
+        at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.resolveOperatorsUp$(AnalysisHelper.scala:111)
+        at org.apache.spark.sql.catalyst.plans.logical.LogicalPlan.resolveOperatorsUp(LogicalPlan.scala:37)
+        at org.apache.spark.sql.catalyst.analysis.ResolveDataSource.apply(ResolveDataSource.scala:45)
+        at org.apache.spark.sql.catalyst.analysis.ResolveDataSource.apply(ResolveDataSource.scala:43)
+        at org.apache.spark.sql.catalyst.rules.RuleExecutor.$anonfun$execute$2(RuleExecutor.scala:242)
+        at scala.collection.LinearSeqOps.foldLeft(LinearSeq.scala:183)
+        at scala.collection.LinearSeqOps.foldLeft$(LinearSeq.scala:179)
+        at scala.collection.immutable.List.foldLeft(List.scala:79)
+        at org.apache.spark.sql.catalyst.rules.RuleExecutor.$anonfun$execute$1(RuleExecutor.scala:239)
+        at org.apache.spark.sql.catalyst.rules.RuleExecutor.$anonfun$execute$1$adapted(RuleExecutor.scala:231)
+        at scala.collection.immutable.List.foreach(List.scala:334)
+        at org.apache.spark.sql.catalyst.rules.RuleExecutor.execute(RuleExecutor.scala:231)
+        at org.apache.spark.sql.catalyst.analysis.Analyzer.org$apache$spark$sql$catalyst$analysis$Analyzer$$executeSameContext(Analyzer.scala:290)
+        at org.apache.spark.sql.catalyst.analysis.Analyzer.$anonfun$execute$1(Analyzer.scala:286)
+        at org.apache.spark.sql.catalyst.analysis.AnalysisContext$.withNewAnalysisContext(Analyzer.scala:234)
+        at org.apache.spark.sql.catalyst.analysis.Analyzer.execute(Analyzer.scala:286)
+        at org.apache.spark.sql.catalyst.analysis.Analyzer.execute(Analyzer.scala:249)
+        at org.apache.spark.sql.catalyst.rules.RuleExecutor.$anonfun$executeAndTrack$1(RuleExecutor.scala:201)
+        at org.apache.spark.sql.catalyst.QueryPlanningTracker$.withTracker(QueryPlanningTracker.scala:89)
+        at org.apache.spark.sql.catalyst.rules.RuleExecutor.executeAndTrack(RuleExecutor.scala:201)
+        at org.apache.spark.sql.catalyst.analysis.resolver.HybridAnalyzer.resolveInFixedPoint(HybridAnalyzer.scala:190)
+        at org.apache.spark.sql.catalyst.analysis.resolver.HybridAnalyzer.$anonfun$apply$1(HybridAnalyzer.scala:76)
+        at org.apache.spark.sql.catalyst.analysis.resolver.HybridAnalyzer.withTrackedAnalyzerBridgeState(HybridAnalyzer.scala:111)
+        at org.apache.spark.sql.catalyst.analysis.resolver.HybridAnalyzer.apply(HybridAnalyzer.scala:71)
+        at org.apache.spark.sql.catalyst.analysis.Analyzer.$anonfun$executeAndCheck$1(Analyzer.scala:280)
+        at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper$.markInAnalyzer(AnalysisHelper.scala:423)
+        at org.apache.spark.sql.catalyst.analysis.Analyzer.executeAndCheck(Analyzer.scala:280)
+        at org.apache.spark.sql.execution.QueryExecution.$anonfun$lazyAnalyzed$2(QueryExecution.scala:110)
+        at org.apache.spark.sql.catalyst.QueryPlanningTracker.measurePhase(QueryPlanningTracker.scala:148)
+        at org.apache.spark.sql.execution.QueryExecution.$anonfun$executePhase$2(QueryExecution.scala:278)
+        at org.apache.spark.sql.execution.QueryExecution$.withInternalError(QueryExecution.scala:654)
+        at org.apache.spark.sql.execution.QueryExecution.$anonfun$executePhase$1(QueryExecution.scala:278)
+        at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:804)
+        at org.apache.spark.sql.execution.QueryExecution.executePhase(QueryExecution.scala:277)
+        at org.apache.spark.sql.execution.QueryExecution.$anonfun$lazyAnalyzed$1(QueryExecution.scala:110)
+        at scala.util.Try$.apply(Try.scala:217)
+        at org.apache.spark.util.Utils$.doTryWithCallerStacktrace(Utils.scala:1378)
+        at org.apache.spark.util.Utils$.getTryWithCallerStacktrace(Utils.scala:1439)
+        at org.apache.spark.util.LazyTry.get(LazyTry.scala:58)
+        at org.apache.spark.sql.execution.QueryExecution.analyzed(QueryExecution.scala:121)
+        at org.apache.spark.sql.execution.QueryExecution.assertAnalyzed(QueryExecution.scala:80)
+        at org.apache.spark.sql.classic.Dataset$.$anonfun$ofRows$1(Dataset.scala:115)
+        at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:804)
+        at org.apache.spark.sql.classic.Dataset$.ofRows(Dataset.scala:113)
+        at org.apache.spark.sql.classic.DataFrameReader.load(DataFrameReader.scala:109)
+        at org.apache.spark.sql.classic.DataFrameReader.load(DataFrameReader.scala:58)
+        at org.apache.spark.sql.DataFrameReader.csv(DataFrameReader.scala:392)
+        at org.apache.spark.sql.classic.DataFrameReader.csv(DataFrameReader.scala:259)
+        at org.apache.spark.sql.classic.DataFrameReader.csv(DataFrameReader.scala:58)
+        at org.apache.spark.sql.DataFrameReader.csv(DataFrameReader.scala:352)
+        at org.apache.spark.sql.classic.DataFrameReader.csv(DataFrameReader.scala:196)
+        at org.apache.spark.sql.classic.DataFrameReader.csv(DataFrameReader.scala:58)
+        at org.example.src.CsvStreamingService.startStreamingWithFile(CsvStreamingService.java:96)
+        at org.example.Main.main(Main.java:27)
+        at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:75)
+        at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:52)
+        at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+        at org.apache.spark.deploy.JavaMainApplication.start(SparkApplication.scala:52)
+        at org.apache.spark.deploy.SparkSubmit.org$apache$spark$deploy$SparkSubmit$$runMain(SparkSubmit.scala:1027)
+        at org.apache.spark.deploy.SparkSubmit.doRunMain$1(SparkSubmit.scala:204)
+        at org.apache.spark.deploy.SparkSubmit.submit(SparkSubmit.scala:227)
+        at org.apache.spark.deploy.SparkSubmit.doSubmit(SparkSubmit.scala:96)
+        at org.apache.spark.deploy.SparkSubmit$$anon$2.doSubmit(SparkSubmit.scala:1132)
+        at org.apache.spark.deploy.SparkSubmit$.main(SparkSubmit.scala:1141)
+        at org.apache.spark.deploy.SparkSubmit.main(SparkSubmit.scala)
+        Suppressed: org.apache.spark.util.Utils$OriginalTryStackTraceException: Full stacktrace of original doTryWithCallerStacktrace caller
+                at org.apache.spark.sql.errors.QueryCompilationErrors$.dataPathNotExistError(QueryCompilationErrors.scala:1670)
+                at org.apache.spark.sql.execution.datasources.DataSource$.$anonfun$checkAndGlobPathIfNecessary$4(DataSource.scala:810)
+                at org.apache.spark.sql.execution.datasources.DataSource$.$anonfun$checkAndGlobPathIfNecessary$4$adapted(DataSource.scala:807)
+                at ... run in separate thread using org.apache.spark.util.ThreadUtils ... ()
+                at org.apache.spark.sql.execution.datasources.DataSource$.checkAndGlobPathIfNecessary(DataSource.scala:814)
+                at org.apache.spark.sql.execution.datasources.DataSource.checkAndGlobPathIfNecessary(DataSource.scala:575)
+                at org.apache.spark.sql.execution.datasources.DataSource.resolveRelation(DataSource.scala:419)
+                at org.apache.spark.sql.catalyst.analysis.ResolveDataSource.org$apache$spark$sql$catalyst$analysis$ResolveDataSource$$loadV1BatchSource(ResolveDataSource.scala:143)
+                at org.apache.spark.sql.catalyst.analysis.ResolveDataSource$$anonfun$apply$1.$anonfun$applyOrElse$2(ResolveDataSource.scala:61)
+                at scala.Option.getOrElse(Option.scala:201)
+                at org.apache.spark.sql.catalyst.analysis.ResolveDataSource$$anonfun$apply$1.applyOrElse(ResolveDataSource.scala:61)
+                at org.apache.spark.sql.catalyst.analysis.ResolveDataSource$$anonfun$apply$1.applyOrElse(ResolveDataSource.scala:45)
+                at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.$anonfun$resolveOperatorsUpWithPruning$3(AnalysisHelper.scala:139)
+                at org.apache.spark.sql.catalyst.trees.CurrentOrigin$.withOrigin(origin.scala:86)
+                at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.$anonfun$resolveOperatorsUpWithPruning$1(AnalysisHelper.scala:139)
+                at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper$.allowInvokingTransformsInAnalyzer(AnalysisHelper.scala:416)
+                at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.resolveOperatorsUpWithPruning(AnalysisHelper.scala:135)
+                at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.resolveOperatorsUpWithPruning$(AnalysisHelper.scala:131)
+                at org.apache.spark.sql.catalyst.plans.logical.LogicalPlan.resolveOperatorsUpWithPruning(LogicalPlan.scala:37)
+                at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.resolveOperatorsUp(AnalysisHelper.scala:112)
+                at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.resolveOperatorsUp$(AnalysisHelper.scala:111)
+                at org.apache.spark.sql.catalyst.plans.logical.LogicalPlan.resolveOperatorsUp(LogicalPlan.scala:37)
+                at org.apache.spark.sql.catalyst.analysis.ResolveDataSource.apply(ResolveDataSource.scala:45)
+                at org.apache.spark.sql.catalyst.analysis.ResolveDataSource.apply(ResolveDataSource.scala:43)
+                at org.apache.spark.sql.catalyst.rules.RuleExecutor.$anonfun$execute$2(RuleExecutor.scala:242)
+                at scala.collection.LinearSeqOps.foldLeft(LinearSeq.scala:183)
+                at scala.collection.LinearSeqOps.foldLeft$(LinearSeq.scala:179)
+                at scala.collection.immutable.List.foldLeft(List.scala:79)
+                at org.apache.spark.sql.catalyst.rules.RuleExecutor.$anonfun$execute$1(RuleExecutor.scala:239)
+                at org.apache.spark.sql.catalyst.rules.RuleExecutor.$anonfun$execute$1$adapted(RuleExecutor.scala:231)
+                at scala.collection.immutable.List.foreach(List.scala:334)
+                at org.apache.spark.sql.catalyst.rules.RuleExecutor.execute(RuleExecutor.scala:231)
+                at org.apache.spark.sql.catalyst.analysis.Analyzer.org$apache$spark$sql$catalyst$analysis$Analyzer$$executeSameContext(Analyzer.scala:290)
+                at org.apache.spark.sql.catalyst.analysis.Analyzer.$anonfun$execute$1(Analyzer.scala:286)
+                at org.apache.spark.sql.catalyst.analysis.AnalysisContext$.withNewAnalysisContext(Analyzer.scala:234)
+                at org.apache.spark.sql.catalyst.analysis.Analyzer.execute(Analyzer.scala:286)
+                at org.apache.spark.sql.catalyst.analysis.Analyzer.execute(Analyzer.scala:249)
+                at org.apache.spark.sql.catalyst.rules.RuleExecutor.$anonfun$executeAndTrack$1(RuleExecutor.scala:201)
+                at org.apache.spark.sql.catalyst.QueryPlanningTracker$.withTracker(QueryPlanningTracker.scala:89)
+                at org.apache.spark.sql.catalyst.rules.RuleExecutor.executeAndTrack(RuleExecutor.scala:201)
+                at org.apache.spark.sql.catalyst.analysis.resolver.HybridAnalyzer.resolveInFixedPoint(HybridAnalyzer.scala:190)
+                at org.apache.spark.sql.catalyst.analysis.resolver.HybridAnalyzer.$anonfun$apply$1(HybridAnalyzer.scala:76)
+                at org.apache.spark.sql.catalyst.analysis.resolver.HybridAnalyzer.withTrackedAnalyzerBridgeState(HybridAnalyzer.scala:111)
+                at org.apache.spark.sql.catalyst.analysis.resolver.HybridAnalyzer.apply(HybridAnalyzer.scala:71)
+                at org.apache.spark.sql.catalyst.analysis.Analyzer.$anonfun$executeAndCheck$1(Analyzer.scala:280)
+                at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper$.markInAnalyzer(AnalysisHelper.scala:423)
+                at org.apache.spark.sql.catalyst.analysis.Analyzer.executeAndCheck(Analyzer.scala:280)
+                at org.apache.spark.sql.execution.QueryExecution.$anonfun$lazyAnalyzed$2(QueryExecution.scala:110)
+                at org.apache.spark.sql.catalyst.QueryPlanningTracker.measurePhase(QueryPlanningTracker.scala:148)
+                at org.apache.spark.sql.execution.QueryExecution.$anonfun$executePhase$2(QueryExecution.scala:278)
+                at org.apache.spark.sql.execution.QueryExecution$.withInternalError(QueryExecution.scala:654)
+                at org.apache.spark.sql.execution.QueryExecution.$anonfun$executePhase$1(QueryExecution.scala:278)
+                at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:804)
+                at org.apache.spark.sql.execution.QueryExecution.executePhase(QueryExecution.scala:277)
+                at org.apache.spark.sql.execution.QueryExecution.$anonfun$lazyAnalyzed$1(QueryExecution.scala:110)
+                at scala.util.Try$.apply(Try.scala:217)
+                at org.apache.spark.util.Utils$.doTryWithCallerStacktrace(Utils.scala:1378)
+                at org.apache.spark.util.LazyTry.tryT$lzycompute(LazyTry.scala:46)
+                at org.apache.spark.util.LazyTry.tryT(LazyTry.scala:46)
+                ... 28 more
+
+now showing this error . after i add pvc 
+
+and i add this on deployment --
+
+          # Add volume mounts here
+          volumeMounts:
+            - name: spark-storage
+              mountPath: /opt/spark/data  # Or your desired mount path
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: IfNotPresent
+      # Add volumes section here
+      volumes:
+        - name: spark-storage
+          persistentVolumeClaim:
+            claimName: spark-pvc
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600
