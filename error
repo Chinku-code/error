@@ -2,7 +2,7 @@ Running with gitlab-runner 17.8.0 (e4f782b3)
   on DC-Gitlab-Runner rMTQxLq3, system ID: s_948d0ccb739a
 Resolving secrets
 Preparing the "docker" executor
-00:05
+00:06
 Using Docker executor with image registry.dev.sbiepay.sbi:8443/ubi9/gradle-8.9-jdk-21:v6 ...
 Using helper image:  registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest  (overridden, default would be  registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-v17.8.0 )
 Using locally found image version due to "if-not-present" pull policy
@@ -12,7 +12,7 @@ Using docker image sha256:c95744588b6d7e170a6866854932de40eaf1b5ed229ed818cba6a8
 Pulling docker image registry.dev.sbiepay.sbi:8443/ubi9/gradle-8.9-jdk-21:v6 ...
 Using docker image sha256:9d84e3c42636321c94fdf42b3e34fea559c16b0e06a07ffde266f6891bfd554e for registry.dev.sbiepay.sbi:8443/ubi9/gradle-8.9-jdk-21:v6 with digest registry.dev.sbiepay.sbi:8443/ubi9/gradle-8.9-jdk-21@sha256:499185f03d42398d7e5be48f5997beb0ed8f6f3282e0f7d82f0ffa6a494c2d87 ...
 Preparing environment
-00:03
+00:02
 Using helper image:  registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest  (overridden, default would be  registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-v17.8.0 )
 Using docker image sha256:c95744588b6d7e170a6866854932de40eaf1b5ed229ed818cba6a87a1f885773 for registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper:latest with digest registry.dev.sbiepay.sbi:8443/library/gitlab-runner-helper@sha256:ebbf1c21e4272ae1f8c18b034d390809c836c2fc68c0f0f6d3a5aff9760aabf5 ...
 Running on runner-rmtqxlq3-project-9-concurrent-0 via Gitlab-DC-Runr...
@@ -22,61 +22,35 @@ $ git config --global http.proxy $HTTP_PROXY; git config --global https.proxy $H
 Fetching changes with git depth set to 20...
 Initialized empty Git repository in /tmp/builds/epay/sdks/epay_transaction_sdk_android/.git/
 Created fresh repository.
-Checking out 1c2d0101 as detached HEAD (ref is develop)...
+Checking out d4e705a5 as detached HEAD (ref is develop)...
 Skipping Git submodules setup
 Executing "step_script" stage of the job script
-00:29
+00:02
 Using docker image sha256:9d84e3c42636321c94fdf42b3e34fea559c16b0e06a07ffde266f6891bfd554e for registry.dev.sbiepay.sbi:8443/ubi9/gradle-8.9-jdk-21:v6 with digest registry.dev.sbiepay.sbi:8443/ubi9/gradle-8.9-jdk-21@sha256:499185f03d42398d7e5be48f5997beb0ed8f6f3282e0f7d82f0ffa6a494c2d87 ...
+$ echo "Setting Workdir for $SERVICE"
+Setting Workdir for 
 $ pwd
 /tmp/builds/epay/sdks/epay_transaction_sdk_android
 $ ls -la
 total 48
-drwxrwxrwx. 5 1001 root 4096 Jan 23 09:12 .
-drwxrwxrwx. 4 1001 root   82 Jan 23 09:12 ..
-drwxrwxrwx. 6 1001 root  128 Jan 23 09:12 .git
--rw-rw-rw-. 1 1001 root  314 Jan 23 09:12 .gitignore
--rw-rw-rw-. 1 1001 root  119 Jan 23 09:12 .gitlab-ci.yml
--rw-rw-rw-. 1 1001 root 1218 Jan 23 09:12 Dockerfile
--rw-rw-rw-. 1 1001 root 6228 Jan 23 09:12 README.md
-drwxrwxrwx. 3 1001 root  111 Jan 23 09:12 android_epay
--rw-rw-rw-. 1 1001 root  386 Jan 23 09:12 build.gradle.kts
-drwxrwxrwx. 3 1001 root   47 Jan 23 09:12 gradle
--rw-rw-rw-. 1 1001 root 1492 Jan 23 09:12 gradle.properties
--rw-rw-rw-. 1 1001 root 5766 Jan 23 09:12 gradlew
--rw-rw-rw-. 1 1001 root 2674 Jan 23 09:12 gradlew.bat
--rw-rw-rw-. 1 1001 root  563 Jan 23 09:12 settings.gradle.kts
-$ if [ -n "$VERSION" ]; then # collapsed multi-line command
-version v-develop-20260123091233
-Welcome to Gradle 8.9!
-Here are the highlights of this release:
- - Enhanced Error and Warning Messages
- - IDE Integration Improvements
- - Daemon JVM Information
-For more details see https://docs.gradle.org/8.9/release-notes.html
-Starting a Gradle Daemon (subsequent builds will be faster)
-FAILURE: Build failed with an exception.
-* Where:
-Build file '/tmp/builds/epay/sdks/epay_transaction_sdk_android/build.gradle.kts' line: 2
-* What went wrong:
-Plugin [id: 'com.android.application', version: '8.4.2', apply: false] was not found in any of the following sources:
-- Gradle Core Plugins (plugin is not in 'org.gradle' namespace)
-- Included Builds (No included builds contain this plugin)
-- Plugin Repositories (could not resolve plugin artifact 'com.android.application:com.android.application.gradle.plugin:8.4.2')
-  Searched in the following repositories:
-    Google
-    MavenRepo
-    Gradle Central Plugin Repository
-* Try:
-> Run with --stacktrace option to get the stack trace.
-> Run with --info or --debug option to get more log output.
-> Run with --scan to get full insights.
-> Get more help at https://help.gradle.org.
-Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
-You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
-For more on this, please refer to https://docs.gradle.org/8.9/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
-BUILD FAILED in 25s
+drwxrwxrwx. 5 1001 root 4096 Jan 28 06:01 .
+drwxrwxrwx. 4 1001 root   82 Jan 28 06:01 ..
+drwxrwxrwx. 6 1001 root  128 Jan 28 06:01 .git
+-rw-rw-rw-. 1 1001 root  314 Jan 28 06:01 .gitignore
+-rw-rw-rw-. 1 1001 root 1529 Jan 28 06:01 .gitlab-ci.yml
+-rw-rw-rw-. 1 1001 root 1218 Jan 28 06:01 Dockerfile
+-rw-rw-rw-. 1 1001 root 6228 Jan 28 06:01 README.md
+drwxrwxrwx. 3 1001 root  111 Jan 28 06:01 android_epay
+-rw-rw-rw-. 1 1001 root  386 Jan 28 06:01 build.gradle.kts
+drwxrwxrwx. 3 1001 root   47 Jan 28 06:01 gradle
+-rw-rw-rw-. 1 1001 root 1492 Jan 28 06:01 gradle.properties
+-rw-rw-rw-. 1 1001 root 5766 Jan 28 06:01 gradlew
+-rw-rw-rw-. 1 1001 root 2674 Jan 28 06:01 gradlew.bat
+-rw-rw-rw-. 1 1001 root  563 Jan 28 06:01 settings.gradle.kts
+$ gradlew clean :android_epay:assembleRelease
+/usr/bin/bash: line 177: gradlew: command not found
 Cleaning up project directory and file based variables
-00:02
+00:03
 ERROR: Job failed: exit code 1
 
 build step :----------------------------
