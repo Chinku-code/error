@@ -1,15 +1,12 @@
-.build:
+build_sdk:
   stage: build
-  image:
-    name: registry.dev.sbiepay.sbi:8443/ubi9/gradle-8.9-jdk-21:v6
-    pull_policy: always
+  image: registry.dev.sbiepay.sbi:8443/ubi9/gradle-8.9-jdk-21:v6
   script:
     - pwd
     - ls -la
     - chmod +x gradlew
+    - ./gradlew --version
     - ./gradlew clean :android_epay:assembleRelease
   artifacts:
     paths:
       - android_epay/build/outputs/aar
-    when: on_success
-    expire_in: 1 week
